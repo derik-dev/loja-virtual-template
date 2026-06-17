@@ -5,8 +5,6 @@ import { Product } from '@/lib/types'
 import { formatCurrency, calculateDiscount } from '@/lib/utils'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlist } from '@/hooks/useWishlist'
-import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
 
 interface ProductCardProps {
   product: Product
@@ -23,24 +21,39 @@ export default function ProductCard({ product }: ProductCardProps) {
   const stars = Array.from({ length: 5 }, (_, i) => i + 1)
 
   return (
-    <div className="group relative flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-indigo-200 transition-all duration-300">
-      {/* Image */}
-      <Link href={`/produto/${product.slug}`} className="block overflow-hidden aspect-square relative">
+    <div className="group relative flex flex-col bg-white border border-zinc-100 rounded-2xl overflow-hidden transition-all duration-300 hover:border-zinc-900 hover:shadow-2xl hover:shadow-zinc-900/10 hover:-translate-y-0.5">
+
+      {/* ── IMAGE ─── */}
+      <Link
+        href={`/produto/${product.slug}`}
+        className="relative block overflow-hidden bg-stone-50"
+        style={{ aspectRatio: '1 / 1' }}
+      >
         <img
           src={product.images[0]}
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
+
         {/* Badges */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
-          {product.stock === 0 && <Badge variant="soldout">Esgotado</Badge>}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+          {product.stock === 0 && (
+            <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-bold bg-zinc-100 text-zinc-500">
+              Esgotado
+            </span>
+          )}
           {discount && discount > 0 && (
-            <Badge variant="sale">-{discount}%</Badge>
+            <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-bold bg-red-600 text-white">
+              -{discount}%
+            </span>
           )}
           {product.featured && !discount && product.stock > 0 && (
-            <Badge variant="new">Destaque</Badge>
+            <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-bold bg-zinc-900 text-white">
+              Destaque
+            </span>
           )}
         </div>
+
         {/* Wishlist */}
         <button
           onClick={(e) => {
@@ -48,7 +61,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             toggleWishlist(product.id)
           }}
           aria-label={wishlisted ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-          className="absolute top-2 right-2 p-2 rounded-full bg-white/80 backdrop-blur-sm text-slate-400 hover:text-red-500 hover:bg-white transition-all duration-200 opacity-0 group-hover:opacity-100"
+          className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md border border-zinc-100 text-zinc-400 hover:text-red-500 transition-all duration-200 opacity-0 group-hover:opacity-100"
         >
           <svg
             className="h-4 w-4"
@@ -64,32 +77,33 @@ export default function ProductCard({ product }: ProductCardProps) {
             />
           </svg>
         </button>
+
+        {/* Quick-view overlay on hover */}
+        <div className="absolute inset-0 bg-zinc-900/0 group-hover:bg-zinc-900/8 transition-colors duration-300" />
       </Link>
 
-      {/* Content */}
-      <div className="flex flex-col flex-1 p-3">
+      {/* ── CONTENT ─── */}
+      <div className="flex flex-col flex-1 p-4 gap-2">
         {/* Category */}
-        <span className="text-xs text-indigo-500 font-medium uppercase tracking-wide mb-1">
+        <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-400">
           {product.category}
         </span>
 
         {/* Name */}
         <Link href={`/produto/${product.slug}`}>
-          <h3 className="text-sm font-semibold text-slate-800 hover:text-indigo-600 transition-colors line-clamp-2 mb-2">
+          <h3 className="text-sm font-semibold text-zinc-800 leading-snug line-clamp-2 hover:text-zinc-600 transition-colors">
             {product.name}
           </h3>
         </Link>
 
         {/* Stars */}
-        <div className="flex items-center gap-1 mb-2">
+        <div className="flex items-center gap-1.5">
           <div className="flex">
             {stars.map((star) => (
               <svg
                 key={star}
                 className={`h-3 w-3 ${
-                  star <= Math.round(product.rating)
-                    ? 'text-amber-400'
-                    : 'text-slate-200'
+                  star <= Math.round(product.rating) ? 'text-amber-400' : 'text-zinc-200'
                 }`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
@@ -98,33 +112,31 @@ export default function ProductCard({ product }: ProductCardProps) {
               </svg>
             ))}
           </div>
-          <span className="text-xs text-slate-500">({product.reviewCount})</span>
+          <span className="text-xs text-zinc-400">({product.reviewCount})</span>
         </div>
 
         {/* Price */}
-        <div className="flex items-baseline gap-2 mb-3">
+        <div className="flex items-baseline gap-2 pt-0.5">
           <span
             className={`text-base font-bold ${
-              product.originalPrice ? 'text-red-600' : 'text-slate-900'
+              product.originalPrice ? 'text-red-600' : 'text-zinc-900'
             }`}
           >
             {formatCurrency(product.price)}
           </span>
           {product.originalPrice && (
-            <span className="text-xs text-slate-400 line-through">
+            <span className="text-xs text-zinc-400 line-through">
               {formatCurrency(product.originalPrice)}
             </span>
           )}
         </div>
 
-        {/* Add to cart */}
-        <div className="mt-auto">
-          <Button
+        {/* Add to cart — transforms on card hover */}
+        <div className="mt-auto pt-2">
+          <button
             onClick={() => addItem(product)}
             disabled={product.stock === 0}
-            fullWidth
-            size="sm"
-            variant="primary"
+            className="w-full flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-transparent py-2.5 text-sm font-semibold text-zinc-600 transition-all duration-300 group-hover:bg-zinc-900 group-hover:border-zinc-900 group-hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <svg
               className="h-4 w-4"
@@ -136,11 +148,11 @@ export default function ProductCard({ product }: ProductCardProps) {
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
+                d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
               />
             </svg>
-            {product.stock === 0 ? 'Esgotado' : 'Adicionar'}
-          </Button>
+            {product.stock === 0 ? 'Esgotado' : 'Adicionar ao Carrinho'}
+          </button>
         </div>
       </div>
     </div>

@@ -7,17 +7,17 @@ interface BadgeProps {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  default: 'bg-slate-100 text-slate-700',
-  sale: 'bg-red-100 text-red-700',
-  new: 'bg-green-100 text-green-700',
-  soldout: 'bg-slate-200 text-slate-400',
+  default: 'bg-zinc-100 text-zinc-600',
+  sale: 'bg-red-600 text-white',
+  new: 'bg-zinc-900 text-white',
+  soldout: 'bg-zinc-100 text-zinc-400',
 }
 
 export function Badge({ variant = 'default', children, className = '' }: BadgeProps) {
   return (
     <span
       className={[
-        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+        'inline-flex items-center rounded-md px-2 py-0.5 text-xs font-bold tracking-wide',
         variantClasses[variant],
         className,
       ]
