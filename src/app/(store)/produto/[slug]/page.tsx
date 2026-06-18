@@ -327,7 +327,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       {/* ── EDITORIAL SECTIONS ───────────────────────────────── */}
       <div className="border-t border-zinc-100">
         {/* Section 1: text left, image right */}
-        <div className="grid grid-cols-2 h-[380px]">
+        <div className="grid grid-cols-2 h-[580px]">
           <div className="flex items-center px-16 py-20">
             <div className="max-w-xs">
               <h2 className="text-lg font-black text-zinc-900 uppercase tracking-wide mb-5">STATEMENT PIECE</h2>
@@ -345,7 +345,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         </div>
 
         {/* Section 2: image left, text right */}
-        <div className="grid grid-cols-2 h-[380px] border-t border-zinc-100">
+        <div className="grid grid-cols-2 h-[580px] border-t border-zinc-100">
           <div className="overflow-hidden bg-zinc-50">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={product.images[product.images.length > 1 ? 1 : 0]} alt={product.name} className="w-full h-full object-cover" />
@@ -362,7 +362,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         </div>
 
         {/* Section 3: text left, image right */}
-        <div className="grid grid-cols-2 h-[380px] border-t border-zinc-100">
+        <div className="grid grid-cols-2 h-[580px] border-t border-zinc-100">
           <div className="flex items-center px-16 py-20">
             <div className="max-w-xs">
               <h2 className="text-lg font-black text-zinc-900 uppercase tracking-wide mb-5">FOREVER PIECE</h2>
