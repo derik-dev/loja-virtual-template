@@ -130,7 +130,7 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
   const lightText = !hasDropdown && !scrolled && overlay
 
   let headerBg: string
-  if (hasDropdown) {
+  if (searchOpen || hasDropdown) {
     headerBg = 'bg-white border-b border-zinc-200 shadow-sm'
   } else if (!scrolled && overlay) {
     headerBg = 'bg-transparent'
