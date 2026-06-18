@@ -329,7 +329,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         {/* Section 1: text left, image right */}
         <div className="py-16">
           <div className="flex items-center max-w-[1300px] mx-auto">
-            <div className="flex-1 flex items-center px-16">
+            <div className="flex-1 flex items-center px-10">
               <div className="max-w-md">
                 <h2 className="text-3xl font-black text-zinc-900 uppercase tracking-wide mb-7">STATEMENT PIECE</h2>
                 <p className="text-lg text-zinc-500 leading-relaxed">
@@ -353,7 +353,7 @@ export default function ProductPage({ params }: ProductPageProps) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={product.images[product.images.length > 1 ? 1 : 0]} alt={product.name} className="w-full h-full object-cover" />
             </div>
-            <div className="flex-1 flex items-center px-16">
+            <div className="flex-1 flex items-center px-10">
               <div className="max-w-md">
                 <h2 className="text-3xl font-black text-zinc-900 uppercase tracking-wide mb-7">TECNOLOGIA FUNCIONAL</h2>
                 <p className="text-lg text-zinc-500 leading-relaxed">
@@ -368,7 +368,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         {/* Section 3: text left, image right */}
         <div className="py-16 border-t border-zinc-100">
           <div className="flex items-center max-w-[1300px] mx-auto">
-            <div className="flex-1 flex items-center px-16">
+            <div className="flex-1 flex items-center px-10">
               <div className="max-w-md">
                 <h2 className="text-3xl font-black text-zinc-900 uppercase tracking-wide mb-7">FOREVER PIECE</h2>
                 <p className="text-lg text-zinc-500 leading-relaxed">
