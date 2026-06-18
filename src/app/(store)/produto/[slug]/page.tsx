@@ -338,7 +338,7 @@ export default function ProductPage({ params }: ProductPageProps) {
               </p>
             </div>
           </div>
-          <div className="flex-shrink-0 w-[500px] h-[500px] overflow-hidden mr-16">
+          <div className="flex-shrink-0 w-[620px] h-[620px] overflow-hidden mr-16">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
           </div>
@@ -346,7 +346,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
         {/* Section 2: image left, text right */}
         <div className="flex items-center py-16 border-t border-zinc-100">
-          <div className="flex-shrink-0 w-[500px] h-[500px] overflow-hidden ml-16">
+          <div className="flex-shrink-0 w-[620px] h-[620px] overflow-hidden ml-16">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={product.images[product.images.length > 1 ? 1 : 0]} alt={product.name} className="w-full h-full object-cover" />
           </div>
@@ -372,7 +372,7 @@ export default function ProductPage({ params }: ProductPageProps) {
               </p>
             </div>
           </div>
-          <div className="flex-shrink-0 w-[500px] h-[500px] overflow-hidden mr-16">
+          <div className="flex-shrink-0 w-[620px] h-[620px] overflow-hidden mr-16">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
           </div>
