@@ -116,7 +116,7 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
       <header
         className={[
           'w-full z-40 transition-all duration-300',
-          overlay ? 'fixed top-0 left-0 right-0' : sticky ? 'fixed top-0 left-0 right-0' : 'sticky top-0',
+          overlay ? 'fixed top-0 left-0 right-0' : sticky ? 'fixed top-0 left-0 right-0' : 'relative',
           headerBg,
         ].join(' ')}
         onMouseLeave={scheduleClose}
