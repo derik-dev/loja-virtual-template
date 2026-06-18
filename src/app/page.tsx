@@ -154,7 +154,7 @@ export default function HomePage() {
 
         {/* ── ESCOLHAS INTELIGENTES ────────────────────────── */}
         <section className="py-16 bg-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="w-full px-4 sm:px-8">
             <div className="text-center mb-10">
               <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 uppercase tracking-wide">Escolhas Inteligentes</h2>
               <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-400">Que te lembram quem é essencial</p>
@@ -162,14 +162,14 @@ export default function HomePage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {[
-                { label: 'Viagem', img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=500&fit=crop&q=80', href: '/produtos' },
-                { label: 'Pra Fugir do Frio', img: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=400&h=500&fit=crop&q=80', href: '/produtos?categoria=roupas' },
-                { label: 'Pra Curtir o Frio', img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400&h=500&fit=crop&q=80', href: '/produtos?categoria=roupas' },
-                { label: 'Kits', img: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400&h=500&fit=crop&q=80', href: '/produtos' },
-                { label: 'Compre e Ganhe', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=500&fit=crop&q=80', href: '/produtos?categoria=ofertas' },
+                { label: 'Viagem', img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&h=650&fit=crop&q=80', href: '/produtos' },
+                { label: 'Pra Fugir do Frio', img: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=500&h=650&fit=crop&q=80', href: '/produtos?categoria=roupas' },
+                { label: 'Pra Curtir o Frio', img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=500&h=650&fit=crop&q=80', href: '/produtos?categoria=roupas' },
+                { label: 'Kits', img: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=500&h=650&fit=crop&q=80', href: '/produtos' },
+                { label: 'Compre e Ganhe', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=650&fit=crop&q=80', href: '/produtos?categoria=ofertas' },
               ].map((item) => (
                 <Link key={item.label} href={item.href} className="group">
-                  <div className="overflow-hidden bg-zinc-100" style={{ aspectRatio: '4/5' }}>
+                  <div className="overflow-hidden bg-zinc-100" style={{ aspectRatio: '3/4' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={item.img}
