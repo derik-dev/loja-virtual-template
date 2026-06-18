@@ -13,7 +13,7 @@ interface Slide {
 
 const slides: Slide[] = [
   {
-    image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=1920&h=900&fit=crop&q=85',
+    image: '/section-3-winter-01.png',
     title: 'NOVIDADES DE INVERNO',
     subtitle: 'mais camadas. mais conforto.',
     products: [
