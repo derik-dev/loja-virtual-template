@@ -1,0 +1,463 @@
+'use client'
+
+import { useState, useRef } from 'react'
+import { supabase } from '@/lib/supabase'
+
+interface ProductColor {
+  name: string
+  hex: string
+}
+
+interface Product {
+  id: string
+  name: string
+  slug: string
+  price: number
+  original_price: number | null
+  images: string[]
+  category: string
+  stock: number
+  rating: number
+  review_count: number
+  description: string
+  tags: string[]
+  featured: boolean
+  colors: ProductColor[]
+  sizes: string[]
+  features: string[]
+}
+
+interface Props {
+  product?: Product
+  onSaved: () => void
+  onCancel: () => void
+}
+
+const PRODUCT_TYPES = [
+  {
+    value: 'roupas',
+    label: 'Roupa',
+    icon: '👕',
+    defaultSizes: 'P, M, G, GG, XGG',
+    hasSizes: true,
+  },
+  {
+    value: 'calcados',
+    label: 'Tênis / Calçado',
+    icon: '👟',
+    defaultSizes: '34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44',
+    hasSizes: true,
+  },
+  {
+    value: 'eletronicos',
+    label: 'Eletrônico',
+    icon: '📱',
+    defaultSizes: '',
+    hasSizes: false,
+  },
+  {
+    value: 'acessorios',
+    label: 'Acessório',
+    icon: '👜',
+    defaultSizes: '',
+    hasSizes: false,
+  },
+]
+
+function slugify(str: string) {
+  return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
+}
+
+const DEFAULT_COLORS: ProductColor[] = [
+  { name: 'PRETO', hex: '#111111' },
+  { name: 'CINZA', hex: '#9ca3af' },
+  { name: 'BRANCO', hex: '#f8f8f8' },
+]
+
+export default function ProductForm({ product, onSaved, onCancel }: Props) {
+  const isEdit = !!product
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  const [form, setForm] = useState({
+    name: product?.name ?? '',
+    slug: product?.slug ?? '',
+    description: product?.description ?? '',
+    price: product?.price?.toString() ?? '',
+    original_price: product?.original_price?.toString() ?? '',
+    category: product?.category ?? 'roupas',
+    stock: product?.stock?.toString() ?? '0',
+    rating: product?.rating?.toString() ?? '5.0',
+    review_count: product?.review_count?.toString() ?? '0',
+    featured: product?.featured ?? false,
+    tags: product?.tags?.join(', ') ?? '',
+    sizes: product?.sizes?.join(', ') ?? 'P, M, G, GG, XGG',
+    features: product?.features?.join('\n') ?? '',
+  })
+
+  const [images, setImages] = useState<string[]>(product?.images ?? [])
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleImageUpload(files: FileList | null) {
+    if (!files || files.length === 0) return
+    setUploading(true)
+    setUploadError('')
+
+    for (const file of Array.from(files)) {
+      // Mostra preview local imediatamente
+      const localUrl = URL.createObjectURL(file)
+      setImages((prev) => [...prev, localUrl])
+
+      const ext = file.name.split('.').pop()
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const { error } = await supabase.storage.from('product-images').upload(path, file)
+
+      if (error) {
+        // Remove o preview local se o upload falhou
+        setImages((prev) => prev.filter((u) => u !== localUrl))
+        setUploadError(`Erro no upload: ${error.message}`)
+      } else {
+        const { data } = supabase.storage.from('product-images').getPublicUrl(path)
+        // Substitui o URL local pelo URL final do Supabase
+        setImages((prev) => prev.map((u) => u === localUrl ? data.publicUrl : u))
+      }
+    }
+
+    setUploading(false)
+  }
+
+  function removeImage(i: number) {
+    setImages((prev) => prev.filter((_, idx) => idx !== i))
+  }
+
+  const [colors, setColors] = useState<ProductColor[]>(
+    product?.colors?.length ? product.colors : DEFAULT_COLORS
+  )
+  const [newColorName, setNewColorName] = useState('')
+  const [newColorHex, setNewColorHex] = useState('#000000')
+
+  function addColor() {
+    const name = newColorName.trim().toUpperCase()
+    if (!name) return
+    setColors((prev) => [...prev, { name, hex: newColorHex }])
+    setNewColorName('')
+    setNewColorHex('#000000')
+  }
+
+  function removeColor(i: number) {
+    setColors((prev) => prev.filter((_, idx) => idx !== i))
+  }
+
+  function set(field: string, value: string | boolean) {
+    setForm((f) => {
+      const updated = { ...f, [field]: value }
+      if (field === 'name' && !isEdit) updated.slug = slugify(value as string)
+      if (field === 'category') {
+        const type = PRODUCT_TYPES.find((t) => t.value === value)
+        if (type) updated.sizes = type.defaultSizes
+      }
+      return updated
+    })
+  }
+
+  const currentType = PRODUCT_TYPES.find((t) => t.value === form.category) ?? PRODUCT_TYPES[0]
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setSaving(true)
+    setError('')
+
+    const tags = form.tags.split(',').map((s) => s.trim()).filter(Boolean)
+    const sizes = form.sizes.split(',').map((s) => s.trim()).filter(Boolean)
+    const features = form.features.split('\n').map((s) => s.trim()).filter(Boolean)
+
+    const payload = {
+      id: product?.id ?? generateId(),
+      name: form.name,
+      slug: form.slug,
+      description: form.description,
+      price: parseFloat(form.price),
+      original_price: form.original_price ? parseFloat(form.original_price) : null,
+      category: form.category,
+      stock: parseInt(form.stock),
+      rating: parseFloat(form.rating),
+      review_count: parseInt(form.review_count),
+      featured: form.featured,
+      images,
+      tags,
+      colors,
+      sizes,
+      features,
+    }
+
+    const { error: err } = await supabase.from('products').upsert(payload)
+    setSaving(false)
+
+    if (err) {
+      setError(err.message)
+    } else {
+      onSaved()
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-zinc-50">
+      <header className="bg-white border-b border-zinc-200 px-8 py-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-sm font-black uppercase tracking-[0.2em] text-zinc-900">
+            {isEdit ? 'Editar produto' : 'Novo produto'}
+          </h1>
+          <p className="text-xs text-zinc-400">{isEdit ? product.name : 'Preencha os dados abaixo'}</p>
+        </div>
+        <button onClick={onCancel} className="text-xs text-zinc-500 hover:text-zinc-900 transition-colors">
+          ← Voltar
+        </button>
+      </header>
+
+      <form onSubmit={handleSubmit} className="px-8 py-8 max-w-2xl mx-auto">
+        <div className="bg-white border border-zinc-200 p-6 space-y-5">
+
+          {/* Nome + Slug */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Nome *</label>
+              <input required value={form.name} onChange={(e) => set('name', e.target.value)}
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Slug *</label>
+              <input required value={form.slug} onChange={(e) => set('slug', e.target.value)}
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+            </div>
+          </div>
+
+          {/* Descrição */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Descrição</label>
+            <textarea rows={3} value={form.description} onChange={(e) => set('description', e.target.value)}
+              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none" />
+          </div>
+
+          {/* Tipo de produto */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Tipo de produto *</label>
+            <div className="flex border border-zinc-300 divide-x divide-zinc-300 overflow-hidden">
+              {PRODUCT_TYPES.map((type) => (
+                <button
+                  key={type.value}
+                  type="button"
+                  onClick={() => set('category', type.value)}
+                  className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
+                    form.category === type.value
+                      ? 'bg-zinc-900 text-white'
+                      : 'bg-white text-zinc-600 hover:bg-zinc-50'
+                  }`}
+                >
+                  {type.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Preço + Preço original */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Preço (R$) *</label>
+              <input required type="number" step="0.01" value={form.price} onChange={(e) => set('price', e.target.value)}
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Preço original (R$) <span className="normal-case font-normal">— aparece riscado</span></label>
+              <input type="number" step="0.01" value={form.original_price} onChange={(e) => set('original_price', e.target.value)}
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+            </div>
+          </div>
+
+          {/* Estoque + Rating + Reviews */}
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Estoque</label>
+              <input type="number" value={form.stock} onChange={(e) => set('stock', e.target.value)}
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Rating (0-5)</label>
+              <input type="number" step="0.1" min="0" max="5" value={form.rating} onChange={(e) => set('rating', e.target.value)}
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Nº de reviews</label>
+              <input type="number" value={form.review_count} onChange={(e) => set('review_count', e.target.value)}
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+            </div>
+          </div>
+
+          {/* Imagens */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">
+              Imagens <span className="normal-case font-normal">({images.length} foto{images.length !== 1 ? 's' : ''})</span>
+            </label>
+
+            {/* Thumbnails */}
+            {images.length > 0 && (
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                {images.map((url, i) => (
+                  <div key={i} className="relative group aspect-square bg-zinc-100 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute top-1 right-1 h-5 w-5 bg-black/60 text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                    >
+                      ×
+                    </button>
+                    {i === 0 && (
+                      <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-zinc-900 text-white px-1.5 py-0.5 rounded">
+                        CAPA
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Drop zone */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => handleImageUpload(e.target.files)}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="w-full border-2 border-dashed border-zinc-300 py-6 flex flex-col items-center gap-2 text-zinc-400 hover:border-zinc-500 hover:text-zinc-600 transition-colors disabled:opacity-50"
+            >
+              {uploading ? (
+                <>
+                  <svg className="h-6 w-6 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                  </svg>
+                  <span className="text-xs font-semibold">Enviando...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                  </svg>
+                  <span className="text-xs font-semibold">Clique para enviar fotos</span>
+                  <span className="text-[10px]">JPG, PNG, WEBP · múltiplas permitidas</span>
+                </>
+              )}
+            </button>
+            {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+              Tags <span className="normal-case font-normal">(separadas por vírgula)</span>
+            </label>
+            <input value={form.tags} onChange={(e) => set('tags', e.target.value)}
+              placeholder="camiseta, algodao, casual"
+              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+          </div>
+
+          {/* Cores */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Cores</label>
+
+            {colors.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {colors.map((c, i) => (
+                  <div key={i} className="flex items-center gap-1.5 border border-zinc-200 rounded-full pl-1 pr-2 py-1 bg-white">
+                    <span className="h-5 w-5 rounded-full border border-zinc-200 flex-shrink-0" style={{ backgroundColor: c.hex }} />
+                    <span className="text-xs text-zinc-700 font-medium">{c.name}</span>
+                    <button type="button" onClick={() => removeColor(i)} className="ml-0.5 text-zinc-300 hover:text-red-400 transition-colors leading-none">×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={newColorHex}
+                onChange={(e) => setNewColorHex(e.target.value)}
+                className="h-9 w-10 border border-zinc-300 rounded cursor-pointer p-0.5"
+              />
+              <input
+                type="text"
+                placeholder="Nome da cor (ex: Preto)"
+                value={newColorName}
+                onChange={(e) => setNewColorName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
+                className="flex-1 border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900"
+              />
+              <button type="button" onClick={addColor} className="px-4 py-2 border border-zinc-300 text-xs font-semibold text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors">
+                + Adicionar
+              </button>
+            </div>
+          </div>
+
+          {/* Tamanhos — só para roupas e calçados */}
+          {currentType.hasSizes && (
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+                Tamanhos <span className="normal-case font-normal">(separados por vírgula)</span>
+              </label>
+              <input value={form.sizes} onChange={(e) => set('sizes', e.target.value)}
+                placeholder={currentType.defaultSizes}
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+              <p className="text-[10px] text-zinc-400 mt-1">
+                {form.category === 'calcados' ? 'Ex: 37, 38, 39, 40, 41, 42' : 'Ex: P, M, G, GG, XGG'}
+              </p>
+            </div>
+          )}
+
+          {/* Diferenciais */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+              Diferenciais <span className="normal-case font-normal">(um por linha)</span>
+            </label>
+            <textarea rows={4} value={form.features} onChange={(e) => set('features', e.target.value)}
+              placeholder={'Anti odor e anti suor\nNão amassa e não desbota\nSecagem rápida'}
+              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none" />
+          </div>
+
+          {/* Destaque */}
+          <div className="flex items-center gap-3">
+            <input type="checkbox" id="featured" checked={form.featured}
+              onChange={(e) => set('featured', e.target.checked)}
+              className="h-4 w-4 accent-zinc-900" />
+            <label htmlFor="featured" className="text-sm text-zinc-700">Produto em destaque (Best Seller)</label>
+          </div>
+
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
+          {/* Botões */}
+          <div className="flex items-center gap-3 pt-2">
+            <button type="submit" disabled={saving}
+              className="px-8 py-3 bg-zinc-900 text-white text-xs font-black uppercase tracking-[0.18em] hover:bg-zinc-700 transition-colors disabled:opacity-50">
+              {saving ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar produto'}
+            </button>
+            <button type="button" onClick={onCancel}
+              className="px-6 py-3 border border-zinc-300 text-xs font-bold uppercase tracking-[0.15em] text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  )
+}
