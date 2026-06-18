@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, use, useEffect, type ReactNode } from 'react'
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { supabase, mapProduct } from '@/lib/supabase'
 import { Product } from '@/lib/types'
@@ -90,6 +89,16 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [product, setProduct] = useState<Product | null>(null)
   const [related, setRelated] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [quantity, setQuantity] = useState(1)
+  const [added, setAdded] = useState(false)
+  const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  const [selectedColor, setSelectedColor] = useState(0)
+  const [cep, setCep] = useState('')
+  const [shippingResult, setShippingResult] = useState<{ label: string; price: string; days: string }[] | null>(null)
+  const [calculatingShipping, setCalculatingShipping] = useState(false)
+
+  const addItem = useCartStore((s) => s.addItem)
+  const { toggleWishlist, isWishlisted } = useWishlist()
 
   useEffect(() => {
     supabase.from('products').select('*').eq('slug', slug).single().then(({ data }) => {
@@ -107,18 +116,13 @@ export default function ProductPage({ params }: ProductPageProps) {
       Carregando...
     </div>
   )
-  if (!product) notFound()
+  if (!product) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-sm text-zinc-400">Produto não encontrado.</p>
+    </div>
+  )
 
-  const addItem = useCartStore((s) => s.addItem)
-  const { toggleWishlist, isWishlisted } = useWishlist()
   const wishlisted = isWishlisted(product.id)
-
-  const [quantity, setQuantity] = useState(1)
-  const [added, setAdded] = useState(false)
-  const [selectedSize, setSelectedSize] = useState<string | null>(null)
-  const [cep, setCep] = useState('')
-  const [shippingResult, setShippingResult] = useState<{ label: string; price: string; days: string }[] | null>(null)
-  const [calculatingShipping, setCalculatingShipping] = useState(false)
 
   const handleCalculateShipping = () => {
     if (cep.replace(/\D/g, '').length < 8) return
@@ -136,7 +140,6 @@ export default function ProductPage({ params }: ProductPageProps) {
   const colors = (product.colors && product.colors.length > 0) ? product.colors : DEFAULT_COLORS
   const productSizes = (product.sizes && product.sizes.length > 0) ? product.sizes : DEFAULT_SIZES
   const productFeatures = (product.features && product.features.length > 0) ? product.features : DEFAULT_FEATURES
-  const [selectedColor, setSelectedColor] = useState(0)
 
   const discount = product.originalPrice ? calculateDiscount(product.originalPrice, product.price) : null
 
