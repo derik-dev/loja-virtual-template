@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Header, Footer } from '@/components/layout'
-import { BannerSlider } from '@/components/ui'
+import { BannerSlider, PromoSlider } from '@/components/ui'
 import { ProductShowcase } from '@/components/product'
 import { CartDrawer } from '@/components/cart'
 import { ProductGrid } from '@/components/product'
@@ -186,48 +186,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── BANNER PROMOCIONAL ───────────────────────────── */}
-        <section className="py-6 px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="relative overflow-hidden rounded-3xl bg-zinc-900 px-10 py-14 sm:px-16 sm:py-16">
-              {/* Decorative thin circles */}
-              <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                <div className="absolute -right-16 -top-16 h-[360px] w-[360px] rounded-full border border-white/5" />
-                <div className="absolute right-24 top-1/2 -translate-y-1/2 h-[240px] w-[240px] rounded-full border border-white/5" />
-              </div>
-
-              {/* OFF circle */}
-              <div className="absolute right-10 top-1/2 -translate-y-1/2 hidden sm:flex h-28 w-28 lg:h-36 lg:w-36 flex-col items-center justify-center rounded-full border border-red-500/30 bg-red-600/10">
-                <p className="text-2xl lg:text-3xl font-black text-red-400 leading-none">50%</p>
-                <p className="text-[10px] font-bold text-red-400/70 mt-0.5 uppercase tracking-wider">Off</p>
-              </div>
-
-              <div className="relative max-w-md">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold text-zinc-400 mb-5">
-                  ⚡ Oferta Relâmpago — Termina em breve
-                </span>
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-[1.05]">
-                  Segunda Peça
-                  <br />
-                  <span className="text-zinc-500">com</span> 50% OFF
-                </h2>
-                <p className="mt-4 text-zinc-400 text-base leading-relaxed">
-                  Na compra de qualquer item, o segundo leva pela metade do preço.
-                  Hoje somente, enquanto durarem os estoques.
-                </p>
-                <Link
-                  href="/produtos?categoria=ofertas"
-                  className="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-zinc-900 hover:bg-zinc-100 transition-colors"
-                >
-                  Aproveitar Agora
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* ── PROMO SLIDER ─────────────────────────────────── */}
+        <PromoSlider />
 
         {/* ── DIFERENCIAIS ─────────────────────────────────── */}
         <section className="py-20 bg-white">
