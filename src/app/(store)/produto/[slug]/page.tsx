@@ -142,7 +142,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         </div>
 
         {/* Sticky info panel */}
-        <div className="w-[360px] xl:w-[400px] flex-shrink-0 border-l border-zinc-100">
+        <div className="w-[480px] xl:w-[540px] flex-shrink-0 border-l border-zinc-100">
           <div className="px-8 py-8">
 
             {/* Name */}
