@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { products } from '@/lib/data/products'
@@ -74,7 +74,7 @@ function Stars({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' | '
   )
 }
 
-function AccordionItem({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+function AccordionItem({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
   const [open, setOpen] = useState(title === 'Descrição')
   return (
     <div className="border-b border-zinc-100">
