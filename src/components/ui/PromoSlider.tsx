@@ -13,14 +13,14 @@ interface PromoSlide {
 
 const slides: PromoSlide[] = [
   {
-    bg: 'linear-gradient(135deg, #050e1a 0%, #0a2a3a 40%, #0d3d4f 70%, #050e1a 100%)',
+    bg: "linear-gradient(90deg, rgba(2, 8, 18, 0.42), rgba(4, 28, 42, 0.18), rgba(2, 8, 18, 0.38)), url('/section-5-clearance-01.png')",
     leftTop: 'PEÇAS QUE',
     leftBottom: 'NÃO VOLTAM MAIS',
     right: 'COM ATÉ 40% OFF',
     href: '/produtos?categoria=ofertas',
   },
   {
-    bg: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 40%, #16213e 70%, #0f3460 100%)',
+    bg: "linear-gradient(90deg, rgba(13, 16, 21, 0.45), rgba(20, 24, 29, 0.08), rgba(13, 16, 21, 0.5)), url('/section-5-essentials-02.png')",
     leftTop: 'ÚLTIMAS',
     leftBottom: 'UNIDADES',
     right: 'FRETE GRÁTIS ACIMA DE R$299',
@@ -42,8 +42,16 @@ export default function PromoSlider() {
 
   return (
     <section
+      id="promocoes"
       className="relative overflow-hidden w-full flex items-center"
-      style={{ height: '95vh', background: slide.bg, transition: 'background 0.8s ease' }}
+      style={{
+        height: '95vh',
+        backgroundImage: slide.bg,
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+        transition: 'background-image 0.8s ease',
+      }}
     >
       {/* Noise texture overlay */}
       <div className="absolute inset-0 opacity-[0.03]" style={{
