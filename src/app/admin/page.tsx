@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import AdminLogin from './components/AdminLogin'
-import AdminDashboard from './components/AdminDashboard'
+import AdminShell from './components/AdminShell'
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
@@ -13,19 +13,7 @@ export default function AdminPage() {
     setChecking(false)
   }, [])
 
-  function handleLogin() {
-    sessionStorage.setItem('admin_authed', '1')
-    setAuthed(true)
-  }
-
-  function handleLogout() {
-    sessionStorage.removeItem('admin_authed')
-    setAuthed(false)
-  }
-
   if (checking) return null
-
-  if (!authed) return <AdminLogin onLogin={handleLogin} />
-
-  return <AdminDashboard onLogout={handleLogout} />
+  if (!authed) return <AdminLogin onLogin={() => { sessionStorage.setItem('admin_authed', '1'); setAuthed(true) }} />
+  return <AdminShell onLogout={() => { sessionStorage.removeItem('admin_authed'); setAuthed(false) }} />
 }
