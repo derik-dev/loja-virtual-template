@@ -101,22 +101,34 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
 
   const [images, setImages] = useState<string[]>(product?.images ?? [])
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function handleImageUpload(files: FileList | null) {
     if (!files || files.length === 0) return
     setUploading(true)
-    const uploaded: string[] = []
+    setUploadError('')
+
     for (const file of Array.from(files)) {
+      // Mostra preview local imediatamente
+      const localUrl = URL.createObjectURL(file)
+      setImages((prev) => [...prev, localUrl])
+
       const ext = file.name.split('.').pop()
       const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
       const { error } = await supabase.storage.from('product-images').upload(path, file)
-      if (!error) {
+
+      if (error) {
+        // Remove o preview local se o upload falhou
+        setImages((prev) => prev.filter((u) => u !== localUrl))
+        setUploadError(`Erro no upload: ${error.message}`)
+      } else {
         const { data } = supabase.storage.from('product-images').getPublicUrl(path)
-        uploaded.push(data.publicUrl)
+        // Substitui o URL local pelo URL final do Supabase
+        setImages((prev) => prev.map((u) => u === localUrl ? data.publicUrl : u))
       }
     }
-    setImages((prev) => [...prev, ...uploaded])
+
     setUploading(false)
   }
 
@@ -348,6 +360,7 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
                 </>
               )}
             </button>
+            {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
           </div>
 
           {/* Tags */}
