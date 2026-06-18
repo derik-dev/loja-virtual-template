@@ -8,9 +8,9 @@ interface ProductGridProps {
 export default function ProductGrid({ products }: ProductGridProps) {
   if (products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="flex flex-col items-center justify-center py-24 text-center">
         <svg
-          className="h-16 w-16 text-slate-300 mb-4"
+          className="h-12 w-12 text-zinc-200 mb-5"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -22,14 +22,16 @@ export default function ProductGrid({ products }: ProductGridProps) {
             d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z"
           />
         </svg>
-        <p className="text-slate-500 text-lg font-medium">Nenhum produto encontrado</p>
-        <p className="text-slate-400 text-sm mt-1">Tente ajustar os filtros</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-400">
+          Nenhum produto encontrado
+        </p>
+        <p className="text-xs text-zinc-300 mt-1">Tente ajustar os filtros</p>
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
