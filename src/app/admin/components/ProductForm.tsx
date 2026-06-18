@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 
 interface ProductColor {
@@ -94,11 +94,35 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
     rating: product?.rating?.toString() ?? '5.0',
     review_count: product?.review_count?.toString() ?? '0',
     featured: product?.featured ?? false,
-    images: product?.images?.join('\n') ?? '',
     tags: product?.tags?.join(', ') ?? '',
     sizes: product?.sizes?.join(', ') ?? 'P, M, G, GG, XGG',
     features: product?.features?.join('\n') ?? '',
   })
+
+  const [images, setImages] = useState<string[]>(product?.images ?? [])
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleImageUpload(files: FileList | null) {
+    if (!files || files.length === 0) return
+    setUploading(true)
+    const uploaded: string[] = []
+    for (const file of Array.from(files)) {
+      const ext = file.name.split('.').pop()
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const { error } = await supabase.storage.from('product-images').upload(path, file)
+      if (!error) {
+        const { data } = supabase.storage.from('product-images').getPublicUrl(path)
+        uploaded.push(data.publicUrl)
+      }
+    }
+    setImages((prev) => [...prev, ...uploaded])
+    setUploading(false)
+  }
+
+  function removeImage(i: number) {
+    setImages((prev) => prev.filter((_, idx) => idx !== i))
+  }
 
   const [colors, setColors] = useState<ProductColor[]>(
     product?.colors?.length ? product.colors : DEFAULT_COLORS
@@ -137,7 +161,6 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
     setSaving(true)
     setError('')
 
-    const images = form.images.split('\n').map((s) => s.trim()).filter(Boolean)
     const tags = form.tags.split(',').map((s) => s.trim()).filter(Boolean)
     const sizes = form.sizes.split(',').map((s) => s.trim()).filter(Boolean)
     const features = form.features.split('\n').map((s) => s.trim()).filter(Boolean)
@@ -265,12 +288,66 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
 
           {/* Imagens */}
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
-              URLs das imagens <span className="normal-case font-normal">(uma por linha)</span>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">
+              Imagens <span className="normal-case font-normal">({images.length} foto{images.length !== 1 ? 's' : ''})</span>
             </label>
-            <textarea rows={4} value={form.images} onChange={(e) => set('images', e.target.value)}
-              placeholder="https://exemplo.com/foto1.jpg&#10;https://exemplo.com/foto2.jpg"
-              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none font-mono" />
+
+            {/* Thumbnails */}
+            {images.length > 0 && (
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                {images.map((url, i) => (
+                  <div key={i} className="relative group aspect-square bg-zinc-100 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute top-1 right-1 h-5 w-5 bg-black/60 text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                    >
+                      ×
+                    </button>
+                    {i === 0 && (
+                      <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-zinc-900 text-white px-1.5 py-0.5 rounded">
+                        CAPA
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Drop zone */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => handleImageUpload(e.target.files)}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="w-full border-2 border-dashed border-zinc-300 py-6 flex flex-col items-center gap-2 text-zinc-400 hover:border-zinc-500 hover:text-zinc-600 transition-colors disabled:opacity-50"
+            >
+              {uploading ? (
+                <>
+                  <svg className="h-6 w-6 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                  </svg>
+                  <span className="text-xs font-semibold">Enviando...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                  </svg>
+                  <span className="text-xs font-semibold">Clique para enviar fotos</span>
+                  <span className="text-[10px]">JPG, PNG, WEBP · múltiplas permitidas</span>
+                </>
+              )}
+            </button>
           </div>
 
           {/* Tags */}
