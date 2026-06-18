@@ -72,10 +72,27 @@ function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
 }
 
-const DEFAULT_COLORS: ProductColor[] = [
-  { name: 'PRETO', hex: '#111111' },
-  { name: 'CINZA', hex: '#9ca3af' },
-  { name: 'BRANCO', hex: '#f8f8f8' },
+const COLOR_PALETTE: ProductColor[] = [
+  { name: 'PRETO',        hex: '#111111' },
+  { name: 'BRANCO',       hex: '#f5f5f5' },
+  { name: 'CINZA',        hex: '#9ca3af' },
+  { name: 'GRAFITE',      hex: '#4b5563' },
+  { name: 'BEGE',         hex: '#d4b896' },
+  { name: 'CARAMELO',     hex: '#c07d42' },
+  { name: 'MARROM',       hex: '#7c4a2d' },
+  { name: 'VERMELHO',     hex: '#dc2626' },
+  { name: 'ROSA',         hex: '#f472b6' },
+  { name: 'BORDÔ',        hex: '#881337' },
+  { name: 'LARANJA',      hex: '#f97316' },
+  { name: 'AMARELO',      hex: '#fbbf24' },
+  { name: 'VERDE',        hex: '#16a34a' },
+  { name: 'VERDE MILITAR',hex: '#4a5c3f' },
+  { name: 'AZUL',         hex: '#2563eb' },
+  { name: 'NAVY',         hex: '#1e3a5f' },
+  { name: 'AZUL CLARO',   hex: '#7dd3fc' },
+  { name: 'LILÁS',        hex: '#c084fc' },
+  { name: 'ROXO',         hex: '#7c3aed' },
+  { name: 'DOURADO',      hex: '#ca8a04' },
 ]
 
 export default function ProductForm({ product, onSaved, onCancel }: Props) {
@@ -101,21 +118,14 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
   })
 
   const [colors, setColors] = useState<ProductColor[]>(
-    product?.colors?.length ? product.colors : DEFAULT_COLORS
+    product?.colors?.length ? product.colors : []
   )
-  const [newColorName, setNewColorName] = useState('')
-  const [newColorHex, setNewColorHex] = useState('#000000')
 
-  function addColor() {
-    const name = newColorName.trim().toUpperCase()
-    if (!name) return
-    setColors((prev) => [...prev, { name, hex: newColorHex }])
-    setNewColorName('')
-    setNewColorHex('#000000')
-  }
-
-  function removeColor(i: number) {
-    setColors((prev) => prev.filter((_, idx) => idx !== i))
+  function toggleColor(color: ProductColor) {
+    setColors((prev) => {
+      const exists = prev.some((c) => c.hex === color.hex)
+      return exists ? prev.filter((c) => c.hex !== color.hex) : [...prev, color]
+    })
   }
 
   function set(field: string, value: string | boolean) {
@@ -285,53 +295,39 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
 
           {/* Cores */}
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Cores</label>
-
-            {/* Cores adicionadas */}
-            {colors.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {colors.map((c, i) => (
-                  <div key={i} className="flex items-center gap-1.5 border border-zinc-200 rounded-full pl-1 pr-2 py-1 bg-white">
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">
+              Cores{colors.length > 0 && <span className="normal-case font-normal ml-1">— {colors.length} selecionada{colors.length > 1 ? 's' : ''}</span>}
+            </label>
+            <div className="flex flex-wrap gap-2 p-3 border border-zinc-200 rounded bg-zinc-50">
+              {COLOR_PALETTE.map((color) => {
+                const selected = colors.some((c) => c.hex === color.hex)
+                return (
+                  <button
+                    key={color.hex}
+                    type="button"
+                    title={color.name}
+                    onClick={() => toggleColor(color)}
+                    className="relative group"
+                  >
                     <span
-                      className="h-5 w-5 rounded-full border border-zinc-200 flex-shrink-0"
-                      style={{ backgroundColor: c.hex }}
+                      className={`block h-7 w-7 rounded-full border-2 transition-all ${
+                        selected ? 'border-zinc-900 scale-110' : 'border-transparent hover:border-zinc-400'
+                      }`}
+                      style={{ backgroundColor: color.hex, outline: selected ? '2px solid #e5e7eb' : 'none', outlineOffset: '1px' }}
                     />
-                    <span className="text-xs text-zinc-700 font-medium">{c.name}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeColor(i)}
-                      className="ml-0.5 text-zinc-300 hover:text-red-400 transition-colors leading-none"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Adicionar cor */}
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={newColorHex}
-                onChange={(e) => setNewColorHex(e.target.value)}
-                className="h-9 w-10 border border-zinc-300 rounded cursor-pointer p-0.5"
-              />
-              <input
-                type="text"
-                placeholder="Nome da cor (ex: Preto)"
-                value={newColorName}
-                onChange={(e) => setNewColorName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
-                className="flex-1 border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900"
-              />
-              <button
-                type="button"
-                onClick={addColor}
-                className="px-4 py-2 border border-zinc-300 text-xs font-semibold text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors"
-              >
-                + Adicionar
-              </button>
+                    {selected && (
+                      <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <svg className={`h-3 w-3 ${color.hex === '#f5f5f5' || color.hex === '#fbbf24' || color.hex === '#7dd3fc' ? 'text-zinc-600' : 'text-white'}`} fill="currentColor" viewBox="0 0 12 12">
+                          <path d="M10.28 1.28L3.989 7.575 1.695 5.28A1 1 0 00.28 6.695l3 3a1 1 0 001.414 0l7-7A1 1 0 0010.28 1.28z" />
+                        </svg>
+                      </span>
+                    )}
+                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-1.5 py-0.5 bg-zinc-900 text-white text-[9px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      {color.name}
+                    </span>
+                  </button>
+                )
+              })}
             </div>
           </div>
 
