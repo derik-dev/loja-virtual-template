@@ -192,6 +192,45 @@ export default function HomePage() {
         {/* ── VERO IN REAL LIFE ────────────────────────────── */}
         <RealLifeGallery />
 
+        {/* ── LOJA FÍSICA ──────────────────────────────────── */}
+        <section className="py-20 bg-white">
+          <div className="mx-auto max-w-7xl px-8 sm:px-14 lg:px-20">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left */}
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black text-zinc-900 uppercase tracking-wide">
+                  Agora, também em loja física
+                </h2>
+                <p className="mt-3 text-sm text-zinc-500">
+                  Pra vestir e sentir o futuro na pele.
+                </p>
+                <a
+                  href="https://maps.google.com/?q=São+Paulo,SP"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-block bg-zinc-900 text-white text-sm font-medium px-7 py-3 hover:bg-zinc-700 transition-colors"
+                >
+                  Como chegar
+                </a>
+              </div>
+
+              {/* Right — Google Maps */}
+              <div className="w-full overflow-hidden" style={{ height: '360px' }}>
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3655.5!2d-46.6957!3d-23.6273!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sSanto+Amaro%2C+S%C3%A3o+Paulo%2C+SP!5e0!3m2!1spt-BR!2sbr!4v1"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Localização da loja"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ── NEWSLETTER ───────────────────────────────────── */}
         <section className="py-24 bg-zinc-900">
           <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
