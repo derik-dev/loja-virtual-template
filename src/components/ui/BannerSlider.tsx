@@ -23,7 +23,7 @@ const slides: Slide[] = [
     href: '/produtos?categoria=roupas',
   },
   {
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1920&h=900&fit=crop&q=85',
+    image: '/section-3-essentials-02.png',
     title: 'COLEÇÃO ESSENTIALS',
     subtitle: 'peças que nunca saem de moda.',
     products: [
@@ -64,8 +64,8 @@ export default function BannerSlider() {
         />
       ))}
 
-      {/* Subtle dark overlay for legibility */}
-      <div className="absolute inset-0 bg-black/20" />
+      {/* Editorial contrast for copy on the light campaign backgrounds */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/10 to-black/30" />
 
       {/* Left text */}
       <div className="absolute left-10 sm:left-14 lg:left-20 top-1/2 -translate-y-1/2">
@@ -78,7 +78,7 @@ export default function BannerSlider() {
       </div>
 
       {/* Right product names */}
-      <div className="absolute right-10 sm:right-14 lg:right-24 top-1/2 -translate-y-1/2 flex gap-10 sm:gap-16">
+      <div className="absolute right-10 sm:right-14 lg:right-24 top-1/2 -translate-y-1/2 hidden md:flex gap-10 sm:gap-16">
         {slide.products.map((p) => (
           <Link
             key={p.name}
