@@ -8,7 +8,7 @@ interface ProductGalleryProps {
 export default function ProductGallery({ images, alt }: ProductGalleryProps) {
   // Fill to exactly 4 images for the 2×2 mosaic
   const mosaic: string[] = []
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 6; i++) {
     mosaic.push(images[i % images.length])
   }
 
