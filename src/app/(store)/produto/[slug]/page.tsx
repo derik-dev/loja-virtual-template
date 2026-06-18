@@ -327,54 +327,60 @@ export default function ProductPage({ params }: ProductPageProps) {
       {/* ── EDITORIAL SECTIONS ───────────────────────────────── */}
       <div className="border-t border-zinc-100">
         {/* Section 1: text left, image right */}
-        <div className="flex items-center py-16">
-          <div className="flex-1 flex items-center px-24">
-            <div className="max-w-sm">
-              <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-wide mb-7">STATEMENT PIECE</h2>
-              <p className="text-sm text-zinc-500 leading-relaxed">
-                Uma peça com design minimalista que combina com tudo.{' '}
-                <strong className="text-zinc-800">Ideal para usar com alfaiataria social, jeans ou no look do dia a dia.</strong>{' '}
-                Transita entre o casual e o esportivo, perfeito para qualquer ambiente.
-              </p>
+        <div className="py-16">
+          <div className="flex items-center max-w-[1300px] mx-auto">
+            <div className="flex-1 flex items-center px-16">
+              <div className="max-w-sm">
+                <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-wide mb-7">STATEMENT PIECE</h2>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Uma peça com design minimalista que combina com tudo.{' '}
+                  <strong className="text-zinc-800">Ideal para usar com alfaiataria social, jeans ou no look do dia a dia.</strong>{' '}
+                  Transita entre o casual e o esportivo, perfeito para qualquer ambiente.
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex-shrink-0 w-[620px] h-[620px] overflow-hidden mr-16">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+            <div className="flex-shrink-0 w-[620px] h-[620px] overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+            </div>
           </div>
         </div>
 
         {/* Section 2: image left, text right */}
-        <div className="flex items-center py-16 border-t border-zinc-100">
-          <div className="flex-shrink-0 w-[620px] h-[620px] overflow-hidden ml-16">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={product.images[product.images.length > 1 ? 1 : 0]} alt={product.name} className="w-full h-full object-cover" />
-          </div>
-          <div className="flex-1 flex items-center px-24">
-            <div className="max-w-sm">
-              <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-wide mb-7">TECNOLOGIA FUNCIONAL</h2>
-              <p className="text-sm text-zinc-500 leading-relaxed">
-                Feito com blend de{' '}
-                <strong className="text-zinc-800">fibras ultra respiráveis e tecido de alta performance</strong>, ajuda a manter a temperatura ideal em diferentes climas e estações do ano. Garante isolamento e mobilidade em equilíbrio ideal.
-              </p>
+        <div className="py-16 border-t border-zinc-100">
+          <div className="flex items-center max-w-[1300px] mx-auto">
+            <div className="flex-shrink-0 w-[620px] h-[620px] overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={product.images[product.images.length > 1 ? 1 : 0]} alt={product.name} className="w-full h-full object-cover" />
+            </div>
+            <div className="flex-1 flex items-center px-16">
+              <div className="max-w-sm">
+                <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-wide mb-7">TECNOLOGIA FUNCIONAL</h2>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  Feito com blend de{' '}
+                  <strong className="text-zinc-800">fibras ultra respiráveis e tecido de alta performance</strong>, ajuda a manter a temperatura ideal em diferentes climas e estações do ano. Garante isolamento e mobilidade em equilíbrio ideal.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Section 3: text left, image right */}
-        <div className="flex items-center py-16 border-t border-zinc-100">
-          <div className="flex-1 flex items-center px-24">
-            <div className="max-w-sm">
-              <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-wide mb-7">FOREVER PIECE</h2>
-              <p className="text-sm text-zinc-500 leading-relaxed">
-                <strong className="text-zinc-800">Um item feito para durar muito.</strong>{' '}
-                A tecnologia Vero faz com que esta peça não desbote com o tempo e iniba a proliferação de bactérias causadoras do mau odor. Qualidade garantida lavagem após lavagem.
-              </p>
+        <div className="py-16 border-t border-zinc-100">
+          <div className="flex items-center max-w-[1300px] mx-auto">
+            <div className="flex-1 flex items-center px-16">
+              <div className="max-w-sm">
+                <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-wide mb-7">FOREVER PIECE</h2>
+                <p className="text-sm text-zinc-500 leading-relaxed">
+                  <strong className="text-zinc-800">Um item feito para durar muito.</strong>{' '}
+                  A tecnologia Vero faz com que esta peça não desbote com o tempo e iniba a proliferação de bactérias causadoras do mau odor. Qualidade garantida lavagem após lavagem.
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex-shrink-0 w-[620px] h-[620px] overflow-hidden mr-16">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+            <div className="flex-shrink-0 w-[620px] h-[620px] overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+            </div>
           </div>
         </div>
       </div>
