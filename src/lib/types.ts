@@ -1,3 +1,8 @@
+export interface ProductColor {
+  name: string
+  hex: string
+}
+
 export interface Product {
   id: string
   slug: string
@@ -12,6 +17,9 @@ export interface Product {
   reviewCount: number
   stock: number
   featured: boolean
+  colors?: ProductColor[]
+  sizes?: string[]
+  features?: string[]
 }
 
 export interface Category {

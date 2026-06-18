@@ -13,29 +13,21 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>
 }
 
-// ── Mock data ────────────────────────────────────────────────
-const COLOR_PALETTES: { name: string; hex: string }[][] = [
-  [
-    { name: 'OFF WHITE', hex: '#f5f0e8' }, { name: 'PRETO', hex: '#111111' },
-    { name: 'NAVY', hex: '#1e3a5f' }, { name: 'VERMELHO', hex: '#c0392b' },
-    { name: 'GRAFITE', hex: '#4a4a4a' }, { name: 'BEGE', hex: '#c9a96e' },
-    { name: 'AZUL', hex: '#2563eb' },
-  ],
-  [
-    { name: 'PRETO', hex: '#111111' }, { name: 'CINZA', hex: '#9ca3af' },
-    { name: 'BRANCO', hex: '#f8f8f8' },
-  ],
-  [
-    { name: 'PRETO', hex: '#111111' }, { name: 'BEGE', hex: '#c9a96e' },
-    { name: 'VERDE MILITAR', hex: '#4a5c3f' }, { name: 'BORDÔ', hex: '#7b1f3a' },
-  ],
-  [
-    { name: 'PRETO', hex: '#111111' }, { name: 'CINZA MESCLA', hex: '#7c8187' },
-    { name: 'CARAMELO', hex: '#c07d42' }, { name: 'NAVY', hex: '#1e3a5f' },
-  ],
+const DEFAULT_COLORS = [
+  { name: 'PRETO', hex: '#111111' },
+  { name: 'CINZA', hex: '#9ca3af' },
+  { name: 'BRANCO', hex: '#f8f8f8' },
 ]
 
-const SIZES = ['P', 'M', 'G', 'GG', 'XGG']
+const DEFAULT_SIZES = ['P', 'M', 'G', 'GG', 'XGG']
+
+const DEFAULT_FEATURES = [
+  'Anti odor e anti suor',
+  'Não amassa e não desbota',
+  'Secagem rápida',
+  'Leveza extrema',
+  'Durabilidade garantida',
+]
 
 const MOCK_REVIEWS = [
   { initials: 'MS', name: 'Maria S.', rating: 5, title: 'Muito satisfeita', comment: 'Como sempre foi ótima! Produto de excelente qualidade e entrega também é rápida.', date: '18/06/2026' },
@@ -55,10 +47,6 @@ const REAL_LIFE_PHOTOS = [
   'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=500&fit=crop&q=80',
 ]
 
-function getColors(id: string) {
-  const hash = id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
-  return COLOR_PALETTES[hash % COLOR_PALETTES.length]
-}
 
 // ── Sub-components ───────────────────────────────────────────
 function Stars({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'md' | 'lg' }) {
@@ -125,7 +113,9 @@ export default function ProductPage({ params }: ProductPageProps) {
     }, 800)
   }
 
-  const colors = getColors(product.id)
+  const colors = (product.colors && product.colors.length > 0) ? product.colors : DEFAULT_COLORS
+  const productSizes = (product.sizes && product.sizes.length > 0) ? product.sizes : DEFAULT_SIZES
+  const productFeatures = (product.features && product.features.length > 0) ? product.features : DEFAULT_FEATURES
   const [selectedColor, setSelectedColor] = useState(0)
 
   const discount = product.originalPrice ? calculateDiscount(product.originalPrice, product.price) : null
@@ -210,7 +200,7 @@ export default function ProductPage({ params }: ProductPageProps) {
             <div className="mb-6">
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2.5">TAMANHO</p>
               <div className="flex gap-2">
-                {SIZES.map((s) => (
+                {productSizes.map((s) => (
                   <button
                     key={s}
                     onClick={() => setSelectedSize(s === selectedSize ? null : s)}
@@ -336,7 +326,7 @@ export default function ProductPage({ params }: ProductPageProps) {
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
             } title="Diferenciais">
               <ul className="space-y-2">
-                {['Anti odor e anti suor', 'Não amassa e não desbota', 'Secagem rápida', 'Leveza extrema', 'Durabilidade garantida'].map((item) => (
+                {productFeatures.map((item) => (
                   <li key={item} className="flex items-center gap-2 text-sm text-zinc-500">
                     <svg className="h-3 w-3 text-zinc-400 flex-shrink-0" fill="currentColor" viewBox="0 0 12 12">
                       <path d="M10.28 1.28L3.989 7.575 1.695 5.28A1 1 0 00.28 6.695l3 3a1 1 0 001.414 0l7-7A1 1 0 0010.28 1.28z" />

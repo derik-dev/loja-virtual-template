@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import ProductForm from './ProductForm'
 
+interface ProductColor {
+  name: string
+  hex: string
+}
+
 interface Product {
   id: string
   name: string
@@ -18,6 +23,9 @@ interface Product {
   description: string
   tags: string[]
   featured: boolean
+  colors: ProductColor[]
+  sizes: string[]
+  features: string[]
   created_at: string
 }
 

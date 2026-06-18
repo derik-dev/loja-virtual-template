@@ -3,6 +3,11 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
+interface ProductColor {
+  name: string
+  hex: string
+}
+
 interface Product {
   id: string
   name: string
@@ -17,6 +22,9 @@ interface Product {
   description: string
   tags: string[]
   featured: boolean
+  colors: ProductColor[]
+  sizes: string[]
+  features: string[]
 }
 
 interface Props {
@@ -53,6 +61,10 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
     featured: product?.featured ?? false,
     images: product?.images?.join('\n') ?? '',
     tags: product?.tags?.join(', ') ?? '',
+    // Nome e hex separados por espaço, ex: "Preto #111111"
+    colors: product?.colors?.map((c) => `${c.name} ${c.hex}`).join('\n') ?? '',
+    sizes: product?.sizes?.join(', ') ?? 'P, M, G, GG, XGG',
+    features: product?.features?.join('\n') ?? '',
   })
 
   function set(field: string, value: string | boolean) {
@@ -70,6 +82,14 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
 
     const images = form.images.split('\n').map((s) => s.trim()).filter(Boolean)
     const tags = form.tags.split(',').map((s) => s.trim()).filter(Boolean)
+    const sizes = form.sizes.split(',').map((s) => s.trim()).filter(Boolean)
+    const features = form.features.split('\n').map((s) => s.trim()).filter(Boolean)
+    const colors = form.colors.split('\n').map((line) => {
+      const parts = line.trim().split(' ')
+      const hex = parts.pop() ?? '#000000'
+      const name = parts.join(' ')
+      return { name: name.toUpperCase(), hex }
+    }).filter((c) => c.name)
 
     const payload = {
       id: product?.id ?? generateId(),
@@ -85,6 +105,9 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
       featured: form.featured,
       images,
       tags,
+      colors,
+      sizes,
+      features,
     }
 
     const { error: err } = await supabase.from('products').upsert(payload)
@@ -193,6 +216,53 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
             <input value={form.tags} onChange={(e) => set('tags', e.target.value)}
               placeholder="camiseta, algodao, casual"
               className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+          </div>
+
+          {/* Cores */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+              Cores <span className="normal-case font-normal">(uma por linha · formato: Nome #hex)</span>
+            </label>
+            <textarea rows={4} value={form.colors} onChange={(e) => set('colors', e.target.value)}
+              placeholder={'Preto #111111\nCinza #9ca3af\nBranco #f8f8f8'}
+              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none font-mono" />
+            {/* Preview das cores */}
+            {form.colors && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {form.colors.split('\n').map((line, i) => {
+                  const parts = line.trim().split(' ')
+                  const hex = parts[parts.length - 1]
+                  const name = parts.slice(0, -1).join(' ')
+                  if (!name || !hex.startsWith('#')) return null
+                  return (
+                    <div key={i} className="flex items-center gap-1.5">
+                      <span className="h-5 w-5 rounded-full border border-zinc-300 inline-block" style={{ backgroundColor: hex }} />
+                      <span className="text-xs text-zinc-500">{name}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Tamanhos */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+              Tamanhos <span className="normal-case font-normal">(separados por vírgula)</span>
+            </label>
+            <input value={form.sizes} onChange={(e) => set('sizes', e.target.value)}
+              placeholder="P, M, G, GG, XGG"
+              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+          </div>
+
+          {/* Diferenciais */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+              Diferenciais <span className="normal-case font-normal">(um por linha)</span>
+            </label>
+            <textarea rows={4} value={form.features} onChange={(e) => set('features', e.target.value)}
+              placeholder={'Anti odor e anti suor\nNão amassa e não desbota\nSecagem rápida'}
+              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none" />
           </div>
 
           {/* Destaque */}
