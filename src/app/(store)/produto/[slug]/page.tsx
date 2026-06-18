@@ -345,7 +345,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         </div>
 
         {/* Section 2: image left, text right */}
-        <div className="grid grid-cols-2 min-h-[520px]">
+        <div className="grid grid-cols-2 min-h-[520px] border-t border-zinc-100">
           <div className="overflow-hidden bg-zinc-50">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={product.images[product.images.length > 1 ? 1 : 0]} alt={product.name} className="w-full h-full object-cover" />
@@ -362,7 +362,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         </div>
 
         {/* Section 3: text left, image right */}
-        <div className="grid grid-cols-2 min-h-[520px]">
+        <div className="grid grid-cols-2 min-h-[520px] border-t border-zinc-100">
           <div className="flex items-center px-16 py-20">
             <div className="max-w-xs">
               <h2 className="text-lg font-black text-zinc-900 uppercase tracking-wide mb-5">FOREVER PIECE</h2>
