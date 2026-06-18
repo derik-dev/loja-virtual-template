@@ -70,9 +70,10 @@ export default function Sidebar({ page, onNavigate, onLogout }: Props) {
   return (
     <aside className="w-56 flex-shrink-0 bg-zinc-900 flex flex-col min-h-screen">
       {/* Logo */}
-      <div className="px-6 py-6 border-b border-zinc-800">
-        <p className="text-white font-black text-lg uppercase tracking-[0.2em]">VERO</p>
-        <p className="text-zinc-500 text-[10px] uppercase tracking-[0.15em] mt-0.5">Admin</p>
+      <div className="px-6 py-5 border-b border-zinc-800">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-branca.png" alt="Vero" className="h-7 w-auto" />
+        <p className="text-zinc-500 text-[10px] uppercase tracking-[0.15em] mt-1.5">Admin</p>
       </div>
 
       {/* Nav */}
