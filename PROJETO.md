@@ -184,4 +184,210 @@ src/
 
 ---
 
-*Última atualização: Junho 2026*
+## Como o próximo Claude deve trabalhar
+
+> **Leia esta seção antes de qualquer coisa.**
+
+### Regras obrigatórias
+
+1. **Sempre responder em português.**
+2. **Commit + push após cada alteração de código.** Nunca acumule várias mudanças sem commitar.
+3. **Nunca commitar `.env.local`** — adicione sempre por nome específico, nunca `git add .` ou `git add -A`.
+4. **Nunca usar `git revert`.** Se algo precisa ser desfeito, edite o código diretamente. O usuário deixou claro: "ao inves de ir por git, so muda o codigo, mais seguro assim".
+5. **Atualizar este arquivo (`projeto.md`) junto com cada alteração relevante** e incluir no mesmo commit.
+
+### Fluxo de commit
+
+```
+1. Faz a alteração no código
+2. Atualiza projeto.md se necessário
+3. git add <arquivos específicos>
+4. git commit -m "tipo: descrição clara"
+5. git push
+```
+
+### Prefixos de commit
+
+- `feat:` nova funcionalidade
+- `fix:` correção de bug
+- `style:` mudança visual sem lógica
+- `refactor:` refatoração sem mudar comportamento
+- `chore:` arquivos de config, sql, etc.
+
+---
+
+## Integração com Supabase (adicionada em junho/2026)
+
+O projeto foi migrado de dados mockados para Supabase. As páginas da loja e o painel admin consomem dados reais.
+
+### Variáveis de ambiente (`.env.local`)
+
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+```
+
+### `src/lib/supabase.ts`
+
+Exporta:
+- `supabase` — client público (anon key)
+- `createAdminClient()` — client com service role key
+- `mapProduct(row)` — converte row do Supabase (snake_case) para o tipo `Product` (camelCase). **Sempre usar esta função ao buscar produtos.**
+
+### Tabela `products`
+
+Criada/recriada por `supabase-products-complete.sql`. Campos:
+
+| Campo | Tipo | Observação |
+|---|---|---|
+| `id` | text PK | |
+| `slug` | text unique | usado na URL `/produto/[slug]` |
+| `name` | text | |
+| `description` | text | |
+| `price` | numeric(10,2) | |
+| `original_price` | numeric(10,2) | opcional, exibe preço riscado |
+| `category` | text | |
+| `stock` | integer | |
+| `rating` | numeric(3,1) | |
+| `review_count` | integer | |
+| `featured` | boolean | exibe badge BEST SELLER |
+| `images` | text[] | URLs das fotos (Supabase Storage) |
+| `tags` | text[] | |
+| `colors` | jsonb | `[{"name":"PRETO","hex":"#111111"}]` |
+| `sizes` | text[] | ex: `["P","M","G","GG"]` |
+| `features` | text[] | diferenciais do produto |
+| `created_at` | timestamptz | |
+
+### Outras tabelas
+
+- **`orders`** — pedidos (id, customer_name, product_name, amount, status, created_at)
+- **`customers`** — clientes (id, name, email, orders_count, total_spent, created_at)
+- **`discounts`** — cupons (id, code, type, value, uses, max_uses, active, expires_at)
+
+Criadas por `supabase-admin-schema.sql`.
+
+### Storage
+
+- Bucket `product-images` (público), configurado no `supabase-products-complete.sql`
+- Upload feito pelo `ProductForm.tsx` via `supabase.storage.from('product-images').upload(...)`
+- Preview imediato com `URL.createObjectURL()` antes do upload completar
+
+### SQLs disponíveis
+
+| Arquivo | O que faz |
+|---|---|
+| `supabase-products-complete.sql` | Recria `products` do zero com todos os campos + bucket de imagens. **Rodar este quando tiver dúvida sobre o schema.** |
+| `supabase-admin-schema.sql` | Cria `orders`, `customers`, `discounts` + seed data |
+| `supabase-storage.sql` | Só o bucket + políticas (já incluído no complete) |
+| `supabase-alter-products.sql` | ALTER TABLE obsoleto — usar o complete |
+
+---
+
+## Painel Admin (adicionado em junho/2026)
+
+SPA dentro de `src/app/admin/`. Navegação por estado (`Page` type), não por rotas Next.js.
+
+### Arquivos
+
+| Componente | Arquivo |
+|---|---|
+| Shell / roteamento interno | `src/app/admin/components/AdminShell.tsx` |
+| Sidebar | `src/app/admin/components/Sidebar.tsx` |
+| Dashboard (KPIs + gráficos) | `src/app/admin/components/Dashboard.tsx` |
+| Pedidos | `src/app/admin/components/Pedidos.tsx` |
+| Lista de produtos | `src/app/admin/components/AdminDashboard.tsx` |
+| Formulário de produto | `src/app/admin/components/ProductForm.tsx` |
+| Clientes | `src/app/admin/components/Clientes.tsx` |
+| Descontos | `src/app/admin/components/Descontos.tsx` |
+| Configurações | `src/app/admin/components/Configuracoes.tsx` |
+
+### Sidebar
+
+- Logo: `public/logo-branca.png` (fundo escuro zinc-900)
+- Seções: Dashboard (sem label) · Gestão (Pedidos, Produtos, Clientes, Descontos)
+- Footer: Configurações · Ver loja · Sair
+
+### Formulário de produto (`ProductForm.tsx`)
+
+**Tipo de produto** — seletor segmentado:
+
+| Valor | Label | Tamanhos padrão |
+|---|---|---|
+| `roupas` | Roupa | P, M, G, GG, XGG |
+| `calcados` | Tênis/Calçado | 34, 35, 36...44 |
+| `eletronicos` | Eletrônico | sem tamanhos |
+| `acessorios` | Acessório | sem tamanhos |
+
+**Cores** — color picker nativo + campo de nome + pills. Salvo como jsonb `[{name, hex}]`.
+
+**Imagens** — upload para Supabase Storage com preview imediato via `URL.createObjectURL()`.
+
+---
+
+## Tipos TypeScript principais (`src/lib/types.ts`)
+
+```ts
+export interface ProductColor { name: string; hex: string }
+
+export interface Product {
+  id: string
+  slug: string
+  name: string
+  description: string
+  price: number
+  originalPrice?: number
+  images: string[]
+  category: string
+  tags: string[]
+  rating: number
+  reviewCount: number
+  stock: number
+  featured: boolean
+  colors?: ProductColor[]
+  sizes?: string[]
+  features?: string[]
+}
+```
+
+---
+
+## Bugs corrigidos (junho/2026)
+
+| Bug | Causa | Solução |
+|---|---|---|
+| Grid vazio após fetch | `useMemo([filters])` sem `products` nas deps | Adicionado `products` às dependências |
+| 404 ao clicar no produto | `notFound()` em client component + hooks depois de `return` | `notFound()` virou render condicional; todos os hooks movidos para o topo do componente |
+| Imagem não aparecia no upload | Sem preview antes do upload completar | `URL.createObjectURL()` para preview imediato |
+| "Bucket not found" no upload | Bucket não criado | Rodar `supabase-products-complete.sql` |
+| Erro de schema no insert | Colunas `colors`/`sizes`/`features` não existiam | Rodar `supabase-products-complete.sql` |
+
+---
+
+## Assets públicos (`/public`)
+
+| Arquivo | Uso |
+|---|---|
+| `logo-branca.png` | Header da loja (fundo escuro) e sidebar do admin |
+| `logo-preta.png` | Header da loja após scroll (fundo branco) |
+| `hero-fashion.png` | Banner da página de produtos |
+| `section-*.png` | Fotos das seções editoriais na home |
+
+---
+
+## O que ainda precisa ser feito (atualizado junho/2026)
+
+- [ ] Conectar home page ao Supabase para produtos em destaque (featured = true)
+- [ ] Redesign: carrinho, checkout, conta
+- [ ] Filtros avançados: tamanho, cor
+- [ ] Variantes (tamanho/cor) integradas ao carrinho
+- [ ] Responsividade mobile completa
+- [ ] Substituir fotos Unsplash por fotos reais da Vero
+- [ ] SEO: metadata dinâmica e sitemap
+- [ ] Enrijecer políticas de RLS antes de produção real
+- [ ] Integração com gateway de pagamento
+- [ ] Autenticação de usuário (área da conta)
+
+---
+
+*Última atualização: 18/06/2026*
