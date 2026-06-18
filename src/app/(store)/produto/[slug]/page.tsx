@@ -327,8 +327,8 @@ export default function ProductPage({ params }: ProductPageProps) {
       {/* ── EDITORIAL SECTIONS ───────────────────────────────── */}
       <div className="border-t border-zinc-100">
         {/* Section 1: text left, image right */}
-        <div className="grid grid-cols-[3fr_2fr] h-[520px]">
-          <div className="flex items-center px-20">
+        <div className="grid grid-cols-[55%_45%] h-[600px]">
+          <div className="flex items-center px-24">
             <div className="max-w-sm">
               <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-wide mb-7">STATEMENT PIECE</h2>
               <p className="text-sm text-zinc-500 leading-relaxed">
@@ -338,19 +338,19 @@ export default function ProductPage({ params }: ProductPageProps) {
               </p>
             </div>
           </div>
-          <div className="py-10 pr-16 overflow-hidden">
+          <div className="py-10 pr-20 overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
           </div>
         </div>
 
         {/* Section 2: image left, text right */}
-        <div className="grid grid-cols-[2fr_3fr] h-[520px] border-t border-zinc-100">
-          <div className="py-10 pl-16 overflow-hidden">
+        <div className="grid grid-cols-[45%_55%] h-[600px] border-t border-zinc-100">
+          <div className="py-10 pl-20 overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={product.images[product.images.length > 1 ? 1 : 0]} alt={product.name} className="w-full h-full object-cover" />
           </div>
-          <div className="flex items-center px-20">
+          <div className="flex items-center px-24">
             <div className="max-w-sm">
               <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-wide mb-7">TECNOLOGIA FUNCIONAL</h2>
               <p className="text-sm text-zinc-500 leading-relaxed">
@@ -362,8 +362,8 @@ export default function ProductPage({ params }: ProductPageProps) {
         </div>
 
         {/* Section 3: text left, image right */}
-        <div className="grid grid-cols-[3fr_2fr] h-[520px] border-t border-zinc-100">
-          <div className="flex items-center px-20">
+        <div className="grid grid-cols-[55%_45%] h-[600px] border-t border-zinc-100">
+          <div className="flex items-center px-24">
             <div className="max-w-sm">
               <h2 className="text-2xl font-black text-zinc-900 uppercase tracking-wide mb-7">FOREVER PIECE</h2>
               <p className="text-sm text-zinc-500 leading-relaxed">
@@ -372,7 +372,7 @@ export default function ProductPage({ params }: ProductPageProps) {
               </p>
             </div>
           </div>
-          <div className="py-10 pr-16 overflow-hidden">
+          <div className="py-10 pr-20 overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
           </div>
