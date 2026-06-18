@@ -327,33 +327,33 @@ export default function ProductPage({ params }: ProductPageProps) {
       {/* ── EDITORIAL SECTIONS ───────────────────────────────── */}
       <div className="border-t border-zinc-100">
         {/* Section 1: text left, image right */}
-        <div className="grid grid-cols-2 h-[580px]">
-          <div className="flex items-center px-16 py-20">
-            <div className="max-w-xs">
-              <h2 className="text-lg font-black text-zinc-900 uppercase tracking-wide mb-5">STATEMENT PIECE</h2>
-              <p className="text-sm text-zinc-500 leading-relaxed">
+        <div className="grid grid-cols-2 h-[500px]">
+          <div className="flex items-center px-20">
+            <div className="max-w-md">
+              <h2 className="text-3xl font-black text-zinc-900 uppercase tracking-wide mb-8">STATEMENT PIECE</h2>
+              <p className="text-base text-zinc-500 leading-relaxed">
                 Uma peça com design minimalista que combina com tudo.{' '}
                 <strong className="text-zinc-800">Ideal para usar com alfaiataria social, jeans ou no look do dia a dia.</strong>{' '}
                 Transita entre o casual e o esportivo, perfeito para qualquer ambiente.
               </p>
             </div>
           </div>
-          <div className="overflow-hidden bg-zinc-100" style={{ aspectRatio: 'auto' }}>
+          <div className="overflow-hidden bg-zinc-100">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
           </div>
         </div>
 
         {/* Section 2: image left, text right */}
-        <div className="grid grid-cols-2 h-[580px] border-t border-zinc-100">
+        <div className="grid grid-cols-2 h-[500px] border-t border-zinc-100">
           <div className="overflow-hidden bg-zinc-50">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={product.images[product.images.length > 1 ? 1 : 0]} alt={product.name} className="w-full h-full object-cover" />
           </div>
-          <div className="flex items-center px-16 py-20">
-            <div className="max-w-xs">
-              <h2 className="text-lg font-black text-zinc-900 uppercase tracking-wide mb-5">TECNOLOGIA FUNCIONAL</h2>
-              <p className="text-sm text-zinc-500 leading-relaxed">
+          <div className="flex items-center px-20">
+            <div className="max-w-md">
+              <h2 className="text-3xl font-black text-zinc-900 uppercase tracking-wide mb-8">TECNOLOGIA FUNCIONAL</h2>
+              <p className="text-base text-zinc-500 leading-relaxed">
                 Feito com blend de{' '}
                 <strong className="text-zinc-800">fibras ultra respiráveis e tecido de alta performance</strong>, ajuda a manter a temperatura ideal em diferentes climas e estações do ano. Garante isolamento e mobilidade em equilíbrio ideal.
               </p>
@@ -362,11 +362,11 @@ export default function ProductPage({ params }: ProductPageProps) {
         </div>
 
         {/* Section 3: text left, image right */}
-        <div className="grid grid-cols-2 h-[580px] border-t border-zinc-100">
-          <div className="flex items-center px-16 py-20">
-            <div className="max-w-xs">
-              <h2 className="text-lg font-black text-zinc-900 uppercase tracking-wide mb-5">FOREVER PIECE</h2>
-              <p className="text-sm text-zinc-500 leading-relaxed">
+        <div className="grid grid-cols-2 h-[500px] border-t border-zinc-100">
+          <div className="flex items-center px-20">
+            <div className="max-w-md">
+              <h2 className="text-3xl font-black text-zinc-900 uppercase tracking-wide mb-8">FOREVER PIECE</h2>
+              <p className="text-base text-zinc-500 leading-relaxed">
                 <strong className="text-zinc-800">Um item feito para durar muito.</strong>{' '}
                 A tecnologia Vero faz com que esta peça não desbote com o tempo e iniba a proliferação de bactérias causadoras do mau odor. Qualidade garantida lavagem após lavagem.
               </p>
@@ -374,7 +374,7 @@ export default function ProductPage({ params }: ProductPageProps) {
           </div>
           <div className="overflow-hidden bg-zinc-100">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" style={{ transform: 'scale(1.05)' }} />
+            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
           </div>
         </div>
       </div>
