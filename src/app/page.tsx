@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Header, Footer } from '@/components/layout'
-import { BannerSlider, PromoSlider, RealLifeGallery } from '@/components/ui'
+import { BannerSlider, PromoSlider, RealLifeGallery, FaqSection } from '@/components/ui'
 import { ProductShowcase } from '@/components/product'
 import { CartDrawer } from '@/components/cart'
 import { ProductGrid } from '@/components/product'
@@ -317,6 +317,9 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* ── FAQ ──────────────────────────────────────────── */}
+        <FaqSection />
 
       </main>
       <Footer />
