@@ -108,6 +108,22 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  const [cep, setCep] = useState('')
+  const [shippingResult, setShippingResult] = useState<{ label: string; price: string; days: string }[] | null>(null)
+  const [calculatingShipping, setCalculatingShipping] = useState(false)
+
+  const handleCalculateShipping = () => {
+    if (cep.replace(/\D/g, '').length < 8) return
+    setCalculatingShipping(true)
+    setTimeout(() => {
+      setShippingResult([
+        { label: 'PAC', price: 'R$ 18,90', days: '5-8 dias úteis' },
+        { label: 'SEDEX', price: 'R$ 34,50', days: '2-3 dias úteis' },
+        { label: 'SEDEX 10', price: 'R$ 52,00', days: '1 dia útil' },
+      ])
+      setCalculatingShipping(false)
+    }, 800)
+  }
 
   const colors = getColors(product.id)
   const [selectedColor, setSelectedColor] = useState(0)
@@ -246,6 +262,46 @@ export default function ProductPage({ params }: ProductPageProps) {
                 Peça em estoque com <strong className="text-zinc-900">envio imediato</strong>
               </div>
             )}
+
+            {/* Calcular frete */}
+            <div className="mb-5">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2.5">CALCULAR FRETE</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="00000-000"
+                  value={cep}
+                  maxLength={9}
+                  onChange={(e) => {
+                    const v = e.target.value.replace(/\D/g, '').slice(0, 8)
+                    setCep(v.length > 5 ? `${v.slice(0, 5)}-${v.slice(5)}` : v)
+                    setShippingResult(null)
+                  }}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCalculateShipping()}
+                  className="flex-1 border border-zinc-300 px-3 py-2 text-sm text-zinc-800 placeholder-zinc-400 focus:outline-none focus:border-zinc-900"
+                />
+                <button
+                  onClick={handleCalculateShipping}
+                  disabled={calculatingShipping}
+                  className="px-4 py-2 bg-zinc-900 text-white text-[11px] font-bold uppercase tracking-[0.14em] hover:bg-zinc-700 transition-colors disabled:opacity-50"
+                >
+                  {calculatingShipping ? '...' : 'OK'}
+                </button>
+              </div>
+              {shippingResult && (
+                <div className="mt-3 border border-zinc-100 divide-y divide-zinc-100">
+                  {shippingResult.map((opt) => (
+                    <div key={opt.label} className="flex items-center justify-between px-3 py-2.5">
+                      <div>
+                        <span className="text-xs font-bold text-zinc-800">{opt.label}</span>
+                        <span className="text-xs text-zinc-400 ml-2">{opt.days}</span>
+                      </div>
+                      <span className="text-xs font-bold text-zinc-900">{opt.price}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* WhatsApp */}
             <p className="text-center text-xs text-zinc-400 mb-6">
