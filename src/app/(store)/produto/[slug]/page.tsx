@@ -35,7 +35,7 @@ const COLOR_PALETTES: { name: string; hex: string }[][] = [
   ],
 ]
 
-const SIZES = ['P', 'M', 'G', 'GG']
+const SIZES = ['P', 'M', 'G', 'GG', 'XGG']
 
 const MOCK_REVIEWS = [
   { initials: 'MS', name: 'Maria S.', rating: 5, title: 'Muito satisfeita', comment: 'Como sempre foi ótima! Produto de excelente qualidade e entrega também é rápida.', date: '18/06/2026' },
@@ -134,15 +134,15 @@ export default function ProductPage({ params }: ProductPageProps) {
     <div className="bg-white">
 
       {/* ── MAIN: Gallery + Sticky info ─────────────────────── */}
-      <div className="flex">
+      <div className="flex max-w-[1440px] mx-auto">
 
-        {/* Gallery mosaic */}
-        <div className="flex-1 min-w-0">
+        {/* Gallery mosaic — with left margin */}
+        <div className="flex-1 min-w-0 pl-16 xl:pl-24">
           <ProductGallery images={product.images} alt={product.name} />
         </div>
 
         {/* Sticky info panel */}
-        <div className="w-[400px] xl:w-[440px] flex-shrink-0 border-l border-zinc-100">
+        <div className="w-[360px] xl:w-[400px] flex-shrink-0 border-l border-zinc-100">
           <div className="sticky top-0 h-screen overflow-y-auto px-8 py-8">
 
             {/* Name */}
@@ -209,20 +209,20 @@ export default function ProductPage({ params }: ProductPageProps) {
             {/* Quantity */}
             <div className="mb-5">
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2.5">QUANTIDADE</p>
-              <div className="flex items-center gap-0 border border-zinc-200 w-fit">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-10 h-10 flex items-center justify-center text-zinc-500 hover:bg-zinc-50 transition-colors"
+                  className="h-9 w-9 rounded-full border border-zinc-300 flex items-center justify-center text-zinc-600 hover:border-zinc-900 transition-colors"
                 >
                   <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4" />
                   </svg>
                 </button>
-                <span className="w-10 text-center text-sm font-bold text-zinc-900">{quantity}</span>
+                <span className="w-8 text-center text-sm font-bold text-zinc-900">{quantity}</span>
                 <button
                   onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
                   disabled={product.stock === 0}
-                  className="w-10 h-10 flex items-center justify-center text-zinc-500 hover:bg-zinc-50 transition-colors disabled:opacity-30"
+                  className="h-9 w-9 rounded-full border border-zinc-300 flex items-center justify-center text-zinc-600 hover:border-zinc-900 transition-colors disabled:opacity-30"
                 >
                   <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -239,6 +239,13 @@ export default function ProductPage({ params }: ProductPageProps) {
             >
               {added ? '✓ ADICIONADO AO CARRINHO' : product.stock === 0 ? 'ESGOTADO' : 'ADICIONAR AO CARRINHO'}
             </button>
+
+            {/* Envio imediato */}
+            {product.stock > 0 && (
+              <div className="w-full border border-zinc-200 py-3 px-4 text-center text-xs text-zinc-600 mb-4">
+                Peça em estoque com <strong className="text-zinc-900">envio imediato</strong>
+              </div>
+            )}
 
             {/* WhatsApp */}
             <p className="text-center text-xs text-zinc-400 mb-6">
