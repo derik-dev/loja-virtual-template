@@ -33,7 +33,36 @@ interface Props {
   onCancel: () => void
 }
 
-const CATEGORIES = ['roupas', 'eletronicos', 'acessorios', 'calcados', 'esporte']
+const PRODUCT_TYPES = [
+  {
+    value: 'roupas',
+    label: 'Roupa',
+    icon: '👕',
+    defaultSizes: 'P, M, G, GG, XGG',
+    hasSizes: true,
+  },
+  {
+    value: 'calcados',
+    label: 'Tênis / Calçado',
+    icon: '👟',
+    defaultSizes: '34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44',
+    hasSizes: true,
+  },
+  {
+    value: 'eletronicos',
+    label: 'Eletrônico',
+    icon: '📱',
+    defaultSizes: '',
+    hasSizes: false,
+  },
+  {
+    value: 'acessorios',
+    label: 'Acessório',
+    icon: '👜',
+    defaultSizes: '',
+    hasSizes: false,
+  },
+]
 
 function slugify(str: string) {
   return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -71,9 +100,15 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
     setForm((f) => {
       const updated = { ...f, [field]: value }
       if (field === 'name' && !isEdit) updated.slug = slugify(value as string)
+      if (field === 'category') {
+        const type = PRODUCT_TYPES.find((t) => t.value === value)
+        if (type) updated.sizes = type.defaultSizes
+      }
       return updated
     })
   }
+
+  const currentType = PRODUCT_TYPES.find((t) => t.value === form.category) ?? PRODUCT_TYPES[0]
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -158,24 +193,39 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
               className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none" />
           </div>
 
-          {/* Preço + Preço original + Categoria */}
-          <div className="grid grid-cols-3 gap-4">
+          {/* Tipo de produto */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Tipo de produto *</label>
+            <div className="grid grid-cols-4 gap-2">
+              {PRODUCT_TYPES.map((type) => (
+                <button
+                  key={type.value}
+                  type="button"
+                  onClick={() => set('category', type.value)}
+                  className={`flex flex-col items-center gap-1.5 py-3 px-2 border-2 rounded transition-colors text-center ${
+                    form.category === type.value
+                      ? 'border-zinc-900 bg-zinc-900 text-white'
+                      : 'border-zinc-200 text-zinc-600 hover:border-zinc-400'
+                  }`}
+                >
+                  <span className="text-xl">{type.icon}</span>
+                  <span className="text-[11px] font-bold leading-tight">{type.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Preço + Preço original */}
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Preço (R$) *</label>
               <input required type="number" step="0.01" value={form.price} onChange={(e) => set('price', e.target.value)}
                 className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
             </div>
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Preço original (R$)</label>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Preço original (R$) <span className="normal-case font-normal">— aparece riscado</span></label>
               <input type="number" step="0.01" value={form.original_price} onChange={(e) => set('original_price', e.target.value)}
                 className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Categoria *</label>
-              <select value={form.category} onChange={(e) => set('category', e.target.value)}
-                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 bg-white">
-                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
             </div>
           </div>
 
@@ -245,15 +295,20 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
             )}
           </div>
 
-          {/* Tamanhos */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
-              Tamanhos <span className="normal-case font-normal">(separados por vírgula)</span>
-            </label>
-            <input value={form.sizes} onChange={(e) => set('sizes', e.target.value)}
-              placeholder="P, M, G, GG, XGG"
-              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-          </div>
+          {/* Tamanhos — só para roupas e calçados */}
+          {currentType.hasSizes && (
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+                Tamanhos <span className="normal-case font-normal">(separados por vírgula)</span>
+              </label>
+              <input value={form.sizes} onChange={(e) => set('sizes', e.target.value)}
+                placeholder={currentType.defaultSizes}
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+              <p className="text-[10px] text-zinc-400 mt-1">
+                {form.category === 'calcados' ? 'Ex: 37, 38, 39, 40, 41, 42' : 'Ex: P, M, G, GG, XGG'}
+              </p>
+            </div>
+          )}
 
           {/* Diferenciais */}
           <div>
