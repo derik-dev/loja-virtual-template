@@ -167,6 +167,43 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
         <div className="w-full pl-8 pr-10 sm:pl-12 sm:pr-14 lg:pl-20 lg:pr-20">
           <div className="flex h-20 items-center justify-between">
 
+            {searchOpen ? (
+              /* ── SEARCH MODE ── */
+              <>
+                <div className="flex-1 flex items-center border border-zinc-300 bg-white mx-8">
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Pesquisar"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSearchSubmit()
+                      if (e.key === 'Escape') closeSearch()
+                    }}
+                    className="flex-1 px-4 py-3 text-sm text-zinc-800 placeholder-zinc-400 bg-transparent focus:outline-none"
+                  />
+                  {searchQuery && (
+                    <button onClick={() => setSearchQuery('')} className="p-2 text-zinc-400 hover:text-zinc-700">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                  <button onClick={handleSearchSubmit} className="p-3 text-zinc-500 hover:text-zinc-900">
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                  </button>
+                </div>
+                <button onClick={closeSearch} className="text-zinc-500 hover:text-zinc-900 transition-colors flex-shrink-0">
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </>
+            ) : (
+              <>
             {/* Logo */}
             <Link href="/" className="flex items-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -253,8 +290,50 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
               </button>
             </div>
 
+            </>
+            )} {/* end searchOpen ternary */}
+
           </div>
         </div>
+
+        {/* Search results dropdown */}
+        {searchOpen && searchResults.length > 0 && (
+          <div className="absolute left-0 right-0 bg-white border-t border-zinc-100 shadow-lg z-50">
+            <p className="px-8 pt-4 pb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">Produtos</p>
+            <ul>
+              {searchResults.map((p) => (
+                <li key={p.id}>
+                  <Link
+                    href={`/produto/${p.slug}`}
+                    onClick={closeSearch}
+                    className="flex items-center gap-4 px-8 py-3 hover:bg-zinc-50 transition-colors"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.images[0]} alt={p.name} className="w-12 h-12 object-cover flex-shrink-0 bg-zinc-100" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-zinc-800 truncate">{p.name}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {p.originalPrice && (
+                          <span className="text-xs text-zinc-400 line-through">{formatCurrency(p.originalPrice)}</span>
+                        )}
+                        <span className="text-xs font-semibold text-zinc-700">{formatCurrency(p.price)}</span>
+                      </div>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={handleSearchSubmit}
+              className="w-full flex items-center justify-between px-8 py-3 border-t border-zinc-100 text-sm text-zinc-600 hover:bg-zinc-50 transition-colors"
+            >
+              <span>Pesquisar &ldquo;{searchQuery}&rdquo;</span>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </button>
+          </div>
+        )}
 
         {/* Mega dropdown */}
         {activeMenu && (() => {
@@ -300,89 +379,6 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
         links={navLinks}
       />
 
-      {/* ── SEARCH OVERLAY ────────────────────────────────────── */}
-      {searchOpen && (
-        <div className="fixed inset-0 z-50 bg-white/95 backdrop-blur-sm">
-          {/* Backdrop click to close */}
-          <div className="absolute inset-0" onClick={closeSearch} />
-
-          <div className="relative z-10 flex flex-col items-center pt-24 px-6">
-            {/* Search bar */}
-            <div className="flex items-center gap-4 w-full max-w-2xl">
-              <div className="flex-1 flex items-center border border-zinc-300 bg-white">
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Pesquisar"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSearchSubmit()
-                    if (e.key === 'Escape') closeSearch()
-                  }}
-                  className="flex-1 px-4 py-3 text-sm text-zinc-800 placeholder-zinc-400 bg-transparent focus:outline-none"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery('')} className="p-2 text-zinc-400 hover:text-zinc-700">
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                )}
-                <button onClick={handleSearchSubmit} className="p-3 text-zinc-500 hover:text-zinc-900">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                  </svg>
-                </button>
-              </div>
-              <button onClick={closeSearch} className="text-zinc-500 hover:text-zinc-900 transition-colors">
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Results */}
-            {searchResults.length > 0 && (
-              <div className="w-full max-w-2xl bg-white border border-zinc-200 mt-1 shadow-lg">
-                <p className="px-4 pt-4 pb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">Produtos</p>
-                <ul>
-                  {searchResults.map((p) => (
-                    <li key={p.id}>
-                      <Link
-                        href={`/produto/${p.slug}`}
-                        onClick={closeSearch}
-                        className="flex items-center gap-4 px-4 py-3 hover:bg-zinc-50 transition-colors"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={p.images[0]} alt={p.name} className="w-12 h-12 object-cover flex-shrink-0 bg-zinc-100" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-zinc-800 truncate">{p.name}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            {p.originalPrice && (
-                              <span className="text-xs text-zinc-400 line-through">{formatCurrency(p.originalPrice)}</span>
-                            )}
-                            <span className="text-xs font-semibold text-zinc-700">{formatCurrency(p.price)}</span>
-                          </div>
-                        </div>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={handleSearchSubmit}
-                  className="w-full flex items-center justify-between px-4 py-3 border-t border-zinc-100 text-sm text-zinc-600 hover:bg-zinc-50 transition-colors"
-                >
-                  <span>Pesquisar &ldquo;{searchQuery}&rdquo;</span>
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </>
   )
 }
