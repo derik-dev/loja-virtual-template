@@ -384,9 +384,9 @@ export default function ProductPage({ params }: ProductPageProps) {
         <h2 className="text-center text-sm font-bold uppercase tracking-[0.28em] text-zinc-900 mb-8">
           VERO IN REAL LIFE
         </h2>
-        <div className="flex justify-center overflow-x-hidden gap-1 px-8 sm:px-14 lg:px-20">
+        <div className="flex justify-center overflow-x-auto gap-4 px-8 sm:px-14 lg:px-20">
           {REAL_LIFE_PHOTOS.map((src, i) => (
-            <div key={i} className="flex-shrink-0 overflow-hidden bg-zinc-100" style={{ width: '180px', aspectRatio: '1/1' }}>
+            <div key={i} className="flex-shrink-0 w-[500px] h-[500px] overflow-hidden bg-zinc-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={src} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
             </div>
