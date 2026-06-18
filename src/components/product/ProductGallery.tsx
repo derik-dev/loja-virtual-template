@@ -13,11 +13,11 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-0.5">
+    <div className="grid grid-cols-2 gap-3">
       {mosaic.map((src, i) => (
         <div
           key={i}
-          className="relative overflow-hidden bg-zinc-100 aspect-[3/4]"
+          className="relative overflow-hidden bg-zinc-100 w-[500px] h-[500px]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
