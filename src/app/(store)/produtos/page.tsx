@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { products } from '@/lib/data/products'
-import { FilterState } from '@/lib/types'
+import { supabase, mapProduct } from '@/lib/supabase'
+import { Product, FilterState } from '@/lib/types'
 import { ProductGrid, ProductFilters } from '@/components/product'
 
 const defaultFilters: FilterState = {
@@ -20,10 +20,19 @@ const SORT_OPTIONS = [
 ] as const
 
 export default function ProdutosPage() {
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<FilterState>(defaultFilters)
   const [filtersVisible, setFiltersVisible] = useState(false)
   const [sortOpen, setSortOpen] = useState(false)
   const sortRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    supabase.from('products').select('*').then(({ data }) => {
+      setProducts((data ?? []).map(mapProduct))
+      setLoading(false)
+    })
+  }, [])
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -161,7 +170,10 @@ export default function ProdutosPage() {
 
           {/* Product grid */}
           <div className="flex-1 min-w-0">
-            <ProductGrid products={filtered} />
+            {loading
+              ? <p className="text-sm text-zinc-400 py-20 text-center">Carregando produtos...</p>
+              : <ProductGrid products={filtered} />
+            }
           </div>
         </div>
       </div>

@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, use, type ReactNode } from 'react'
+import { useState, use, useEffect, type ReactNode } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { products } from '@/lib/data/products'
+import { supabase, mapProduct } from '@/lib/supabase'
+import { Product } from '@/lib/types'
 import { formatCurrency, calculateDiscount } from '@/lib/utils'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlist } from '@/hooks/useWishlist'
@@ -86,7 +87,26 @@ function AccordionItem({ icon, title, children }: { icon: ReactNode; title: stri
 // ── Page ─────────────────────────────────────────────────────
 export default function ProductPage({ params }: ProductPageProps) {
   const { slug } = use(params)
-  const product = products.find((p) => p.slug === slug)
+  const [product, setProduct] = useState<Product | null>(null)
+  const [related, setRelated] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    supabase.from('products').select('*').eq('slug', slug).single().then(({ data }) => {
+      if (!data) { setLoading(false); return }
+      const p = mapProduct(data)
+      setProduct(p)
+      supabase.from('products').select('*').eq('category', p.category).neq('slug', slug).limit(3)
+        .then(({ data: rel }) => setRelated((rel ?? []).map(mapProduct)))
+      setLoading(false)
+    })
+  }, [slug])
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center text-sm text-zinc-400">
+      Carregando...
+    </div>
+  )
   if (!product) notFound()
 
   const addItem = useCartStore((s) => s.addItem)
@@ -119,7 +139,6 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [selectedColor, setSelectedColor] = useState(0)
 
   const discount = product.originalPrice ? calculateDiscount(product.originalPrice, product.price) : null
-  const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 3)
 
   const handleAddToCart = () => {
     addItem(product, quantity)
