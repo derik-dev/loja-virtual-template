@@ -231,6 +231,24 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* ── TEXTO INSTITUCIONAL ──────────────────────────── */}
+        <section className="py-20 bg-white">
+          <div className="mx-auto max-w-2xl px-6 text-center">
+            <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 uppercase leading-tight tracking-wide">
+              Roupas tecnológicas, funcionais e versáteis
+            </h2>
+            <p className="mt-8 text-sm text-zinc-500 leading-relaxed">
+              As <strong className="text-zinc-700 font-semibold">roupas tecnológicas</strong> da Vero unem funcionalidade, design e conforto. Elas são atemporais e transitam entre diversos ambientes, aumentando as possibilidades de combinações. Além disso, apresentam excelente durabilidade e não desbotam com o passar do tempo.
+            </p>
+            <p className="mt-5 text-sm text-zinc-500 leading-relaxed">
+              Desenvolvemos <strong className="text-zinc-700 font-semibold">roupas masculinas</strong> e femininas com tecnologia anti odor, anti suor e antimicrobiana. Com elas, você consegue cumprir todos os compromissos sem se preocupar com manchas de transpiração e odores desagradáveis.
+            </p>
+            <button className="mt-8 text-sm font-semibold text-zinc-900 underline underline-offset-4 hover:text-zinc-600 transition-colors">
+              Leia mais
+            </button>
+          </div>
+        </section>
+
         {/* ── NEWSLETTER ───────────────────────────────────── */}
         <section className="py-24 bg-zinc-900">
           <div className="mx-auto max-w-4xl px-4 sm:px-6 text-center">
