@@ -7,6 +7,7 @@ import MobileMenu from './MobileMenu'
 
 interface HeaderProps {
   overlay?: boolean
+  sticky?: boolean
 }
 
 const navLinks = [
@@ -73,7 +74,7 @@ const navLinks = [
   },
 ]
 
-export default function Header({ overlay = false }: HeaderProps) {
+export default function Header({ overlay = false, sticky = false }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
@@ -115,7 +116,7 @@ export default function Header({ overlay = false }: HeaderProps) {
       <header
         className={[
           'w-full z-40 transition-all duration-300',
-          overlay ? 'fixed top-0 left-0 right-0' : 'sticky top-0',
+          overlay ? 'fixed top-0 left-0 right-0' : sticky ? 'fixed top-0 left-0 right-0' : 'sticky top-0',
           headerBg,
         ].join(' ')}
         onMouseLeave={scheduleClose}
