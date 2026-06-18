@@ -55,7 +55,7 @@ export default function ProdutosPage() {
       case 'rating': list.sort((a, b) => b.rating - a.rating); break
     }
     return list
-  }, [filters])
+  }, [products, filters])
 
   const activeSortLabel = SORT_OPTIONS.find((o) => o.value === filters.sortBy)?.label ?? 'Mais recentes'
 
