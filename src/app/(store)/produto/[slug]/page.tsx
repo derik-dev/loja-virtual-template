@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useState, use, type ReactNode } from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { products } from '@/lib/data/products'
@@ -10,7 +10,7 @@ import { useWishlist } from '@/hooks/useWishlist'
 import { ProductGallery, ProductGrid } from '@/components/product'
 
 interface ProductPageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 // ── Mock data ────────────────────────────────────────────────
@@ -97,7 +97,8 @@ function AccordionItem({ icon, title, children }: { icon: ReactNode; title: stri
 
 // ── Page ─────────────────────────────────────────────────────
 export default function ProductPage({ params }: ProductPageProps) {
-  const product = products.find((p) => p.slug === params.slug)
+  const { slug } = use(params)
+  const product = products.find((p) => p.slug === slug)
   if (!product) notFound()
 
   const addItem = useCartStore((s) => s.addItem)
