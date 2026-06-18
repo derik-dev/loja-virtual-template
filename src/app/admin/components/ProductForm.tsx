@@ -72,6 +72,12 @@ function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
 }
 
+const DEFAULT_COLORS: ProductColor[] = [
+  { name: 'PRETO', hex: '#111111' },
+  { name: 'CINZA', hex: '#9ca3af' },
+  { name: 'BRANCO', hex: '#f8f8f8' },
+]
+
 export default function ProductForm({ product, onSaved, onCancel }: Props) {
   const isEdit = !!product
   const [saving, setSaving] = useState(false)
@@ -90,11 +96,27 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
     featured: product?.featured ?? false,
     images: product?.images?.join('\n') ?? '',
     tags: product?.tags?.join(', ') ?? '',
-    // Nome e hex separados por espaço, ex: "Preto #111111"
-    colors: product?.colors?.map((c) => `${c.name} ${c.hex}`).join('\n') ?? '',
     sizes: product?.sizes?.join(', ') ?? 'P, M, G, GG, XGG',
     features: product?.features?.join('\n') ?? '',
   })
+
+  const [colors, setColors] = useState<ProductColor[]>(
+    product?.colors?.length ? product.colors : DEFAULT_COLORS
+  )
+  const [newColorName, setNewColorName] = useState('')
+  const [newColorHex, setNewColorHex] = useState('#000000')
+
+  function addColor() {
+    const name = newColorName.trim().toUpperCase()
+    if (!name) return
+    setColors((prev) => [...prev, { name, hex: newColorHex }])
+    setNewColorName('')
+    setNewColorHex('#000000')
+  }
+
+  function removeColor(i: number) {
+    setColors((prev) => prev.filter((_, idx) => idx !== i))
+  }
 
   function set(field: string, value: string | boolean) {
     setForm((f) => {
@@ -119,12 +141,6 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
     const tags = form.tags.split(',').map((s) => s.trim()).filter(Boolean)
     const sizes = form.sizes.split(',').map((s) => s.trim()).filter(Boolean)
     const features = form.features.split('\n').map((s) => s.trim()).filter(Boolean)
-    const colors = form.colors.split('\n').map((line) => {
-      const parts = line.trim().split(' ')
-      const hex = parts.pop() ?? '#000000'
-      const name = parts.join(' ')
-      return { name: name.toUpperCase(), hex }
-    }).filter((c) => c.name)
 
     const payload = {
       id: product?.id ?? generateId(),
@@ -269,29 +285,54 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
 
           {/* Cores */}
           <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
-              Cores <span className="normal-case font-normal">(uma por linha · formato: Nome #hex)</span>
-            </label>
-            <textarea rows={4} value={form.colors} onChange={(e) => set('colors', e.target.value)}
-              placeholder={'Preto #111111\nCinza #9ca3af\nBranco #f8f8f8'}
-              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none font-mono" />
-            {/* Preview das cores */}
-            {form.colors && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {form.colors.split('\n').map((line, i) => {
-                  const parts = line.trim().split(' ')
-                  const hex = parts[parts.length - 1]
-                  const name = parts.slice(0, -1).join(' ')
-                  if (!name || !hex.startsWith('#')) return null
-                  return (
-                    <div key={i} className="flex items-center gap-1.5">
-                      <span className="h-5 w-5 rounded-full border border-zinc-300 inline-block" style={{ backgroundColor: hex }} />
-                      <span className="text-xs text-zinc-500">{name}</span>
-                    </div>
-                  )
-                })}
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Cores</label>
+
+            {/* Cores adicionadas */}
+            {colors.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {colors.map((c, i) => (
+                  <div key={i} className="flex items-center gap-1.5 border border-zinc-200 rounded-full pl-1 pr-2 py-1 bg-white">
+                    <span
+                      className="h-5 w-5 rounded-full border border-zinc-200 flex-shrink-0"
+                      style={{ backgroundColor: c.hex }}
+                    />
+                    <span className="text-xs text-zinc-700 font-medium">{c.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeColor(i)}
+                      className="ml-0.5 text-zinc-300 hover:text-red-400 transition-colors leading-none"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
+
+            {/* Adicionar cor */}
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={newColorHex}
+                onChange={(e) => setNewColorHex(e.target.value)}
+                className="h-9 w-10 border border-zinc-300 rounded cursor-pointer p-0.5"
+              />
+              <input
+                type="text"
+                placeholder="Nome da cor (ex: Preto)"
+                value={newColorName}
+                onChange={(e) => setNewColorName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
+                className="flex-1 border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900"
+              />
+              <button
+                type="button"
+                onClick={addColor}
+                className="px-4 py-2 border border-zinc-300 text-xs font-semibold text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors"
+              >
+                + Adicionar
+              </button>
+            </div>
           </div>
 
           {/* Tamanhos — só para roupas e calçados */}
