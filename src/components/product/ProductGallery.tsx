@@ -17,7 +17,7 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
       {mosaic.map((src, i) => (
         <div
           key={i}
-          className="relative overflow-hidden bg-zinc-100 w-[500px] h-[500px]"
+          className="relative overflow-hidden bg-zinc-100 aspect-square w-full"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
