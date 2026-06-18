@@ -196,20 +196,19 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
           {/* Tipo de produto */}
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Tipo de produto *</label>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="flex border border-zinc-300 divide-x divide-zinc-300 overflow-hidden">
               {PRODUCT_TYPES.map((type) => (
                 <button
                   key={type.value}
                   type="button"
                   onClick={() => set('category', type.value)}
-                  className={`flex flex-col items-center gap-1.5 py-3 px-2 border-2 rounded transition-colors text-center ${
+                  className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
                     form.category === type.value
-                      ? 'border-zinc-900 bg-zinc-900 text-white'
-                      : 'border-zinc-200 text-zinc-600 hover:border-zinc-400'
+                      ? 'bg-zinc-900 text-white'
+                      : 'bg-white text-zinc-600 hover:bg-zinc-50'
                   }`}
                 >
-                  <span className="text-xl">{type.icon}</span>
-                  <span className="text-[11px] font-bold leading-tight">{type.label}</span>
+                  {type.label}
                 </button>
               ))}
             </div>
