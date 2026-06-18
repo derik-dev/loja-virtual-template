@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Header, Footer } from '@/components/layout'
-import { BannerSlider, PromoSlider } from '@/components/ui'
+import { BannerSlider, PromoSlider, RealLifeGallery } from '@/components/ui'
 import { ProductShowcase } from '@/components/product'
 import { CartDrawer } from '@/components/cart'
 import { ProductGrid } from '@/components/product'
@@ -189,32 +189,8 @@ export default function HomePage() {
         {/* ── PROMO SLIDER ─────────────────────────────────── */}
         <PromoSlider />
 
-        {/* ── DIFERENCIAIS ─────────────────────────────────── */}
-        <section className="py-20 bg-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">Nossa promessa</span>
-              <h2 className="mt-2 text-3xl font-black text-zinc-900 tracking-tight">Por que nos escolher?</h2>
-              <p className="mt-3 text-zinc-500 text-sm max-w-md mx-auto">
-                Cada detalhe foi pensado para a melhor experiência de compra do início ao fim.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {BENEFITS.map((b) => (
-                <div
-                  key={b.title}
-                  className="group flex flex-col p-6 rounded-2xl border border-zinc-100 bg-white hover:border-zinc-900 hover:shadow-xl hover:shadow-zinc-900/8 transition-all duration-300 hover:-translate-y-0.5"
-                >
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${b.iconBg} ${b.iconColor} mb-5 transition-transform duration-300 group-hover:scale-110`}>
-                    {b.icon}
-                  </div>
-                  <h3 className="text-sm font-bold text-zinc-900 mb-1.5">{b.title}</h3>
-                  <p className="text-sm text-zinc-500 leading-relaxed">{b.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        {/* ── VERO IN REAL LIFE ────────────────────────────── */}
+        <RealLifeGallery />
 
         {/* ── NEWSLETTER ───────────────────────────────────── */}
         <section className="py-24 bg-zinc-900">
