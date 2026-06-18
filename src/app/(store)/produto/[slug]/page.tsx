@@ -143,7 +143,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
         {/* Sticky info panel */}
         <div className="w-[360px] xl:w-[400px] flex-shrink-0 border-l border-zinc-100">
-          <div className="sticky top-0 h-screen overflow-y-auto px-8 py-8">
+          <div className="px-8 py-8">
 
             {/* Name */}
             <h1 className="text-xl font-bold text-zinc-900 leading-snug mb-3">
