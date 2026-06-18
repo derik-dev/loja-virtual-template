@@ -134,7 +134,7 @@ export default function ProductPage({ params }: ProductPageProps) {
     <div className="bg-white">
 
       {/* ── MAIN: Gallery + Sticky info ─────────────────────── */}
-      <div className="flex max-w-[1440px] mx-auto">
+      <div className="flex max-w-[1440px] mx-auto mb-24">
 
         {/* Gallery mosaic — with left margin */}
         <div className="flex-1 min-w-0 pl-16 xl:pl-24">
