@@ -157,7 +157,7 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
         {overlay && (
           <div
             className={[
-              'bg-zinc-800 text-center overflow-hidden transition-all duration-300',
+              'hidden md:block bg-zinc-800 text-center overflow-hidden transition-all duration-300',
               scrolled ? 'max-h-0 py-0 opacity-0' : 'max-h-10 py-2.5 opacity-100',
             ].join(' ')}
           >
