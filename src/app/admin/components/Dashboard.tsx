@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer,
+  Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from 'recharts'
 import { supabase } from '@/lib/supabase'
 
@@ -183,14 +183,24 @@ export default function Dashboard() {
           <div className="bg-white border border-zinc-200 rounded p-5">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500 mb-4">Receita por categoria</p>
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={categoryData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 10, fill: '#a1a1aa' }} axisLine={false} tickLine={false}
-                  tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
-                <YAxis type="category" dataKey="categoria" tick={{ fontSize: 10, fill: '#a1a1aa' }} axisLine={false} tickLine={false} width={70} />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="receita" fill="#18181b" radius={[0, 3, 3, 0]} />
-              </BarChart>
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  dataKey="receita"
+                  nameKey="categoria"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  labelLine={false}
+                >
+                  {categoryData.map((_, i) => (
+                    <Cell key={i} fill={['#18181b', '#52525b', '#a1a1aa', '#d4d4d8', '#e4e4e7'][i % 5]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+              </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
