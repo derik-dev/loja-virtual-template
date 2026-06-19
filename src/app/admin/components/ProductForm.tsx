@@ -220,241 +220,235 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
         </button>
       </header>
 
-      <form onSubmit={handleSubmit} className="px-8 py-8 max-w-2xl mx-auto">
-        <div className="bg-white border border-zinc-200 p-6 space-y-5">
+      <form onSubmit={handleSubmit} className="px-8 py-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-5 gap-6 items-start">
 
-          {/* Nome + Slug */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Nome *</label>
-              <input required value={form.name} onChange={(e) => set('name', e.target.value)}
-                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Slug *</label>
-              <input required value={form.slug} onChange={(e) => set('slug', e.target.value)}
-                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-            </div>
-          </div>
+          {/* ── Coluna esquerda (conteúdo principal) ── */}
+          <div className="col-span-3 space-y-5">
 
-          {/* Descrição */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Descrição</label>
-            <textarea rows={3} value={form.description} onChange={(e) => set('description', e.target.value)}
-              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none" />
-          </div>
-
-          {/* Tipo de produto */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Tipo de produto *</label>
-            <div className="flex border border-zinc-300 divide-x divide-zinc-300 overflow-hidden">
-              {PRODUCT_TYPES.map((type) => (
-                <button
-                  key={type.value}
-                  type="button"
-                  onClick={() => set('category', type.value)}
-                  className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
-                    form.category === type.value
-                      ? 'bg-zinc-900 text-white'
-                      : 'bg-white text-zinc-600 hover:bg-zinc-50'
-                  }`}
-                >
-                  {type.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Preço + Preço original */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Preço (R$) *</label>
-              <input required type="number" step="0.01" value={form.price} onChange={(e) => set('price', e.target.value)}
-                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Preço original (R$) <span className="normal-case font-normal">— aparece riscado</span></label>
-              <input type="number" step="0.01" value={form.original_price} onChange={(e) => set('original_price', e.target.value)}
-                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-            </div>
-          </div>
-
-          {/* Estoque + Rating + Reviews */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Estoque</label>
-              <input type="number" value={form.stock} onChange={(e) => set('stock', e.target.value)}
-                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Rating (0-5)</label>
-              <input type="number" step="0.1" min="0" max="5" value={form.rating} onChange={(e) => set('rating', e.target.value)}
-                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Nº de reviews</label>
-              <input type="number" value={form.review_count} onChange={(e) => set('review_count', e.target.value)}
-                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-            </div>
-          </div>
-
-          {/* Imagens */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">
-              Imagens <span className="normal-case font-normal">({images.length} foto{images.length !== 1 ? 's' : ''})</span>
-            </label>
-
-            {/* Thumbnails */}
-            {images.length > 0 && (
-              <div className="grid grid-cols-4 gap-2 mb-3">
-                {images.map((url, i) => (
-                  <div key={i} className="relative group aspect-square bg-zinc-100 overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={url} alt="" className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(i)}
-                      className="absolute top-1 right-1 h-5 w-5 bg-black/60 text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                    >
-                      ×
-                    </button>
-                    {i === 0 && (
-                      <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-zinc-900 text-white px-1.5 py-0.5 rounded">
-                        CAPA
-                      </span>
-                    )}
-                  </div>
-                ))}
+            {/* Nome + Slug */}
+            <div className="bg-white border border-zinc-200 p-6 space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Nome *</label>
+                  <input required value={form.name} onChange={(e) => set('name', e.target.value)}
+                    className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Slug *</label>
+                  <input required value={form.slug} onChange={(e) => set('slug', e.target.value)}
+                    className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+                </div>
               </div>
-            )}
 
-            {/* Drop zone */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={(e) => handleImageUpload(e.target.files)}
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="w-full border-2 border-dashed border-zinc-300 py-6 flex flex-col items-center gap-2 text-zinc-400 hover:border-zinc-500 hover:text-zinc-600 transition-colors disabled:opacity-50"
-            >
-              {uploading ? (
-                <>
-                  <svg className="h-6 w-6 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                  </svg>
-                  <span className="text-xs font-semibold">Enviando...</span>
-                </>
-              ) : (
-                <>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                  </svg>
-                  <span className="text-xs font-semibold">Clique para enviar fotos</span>
-                  <span className="text-[10px]">JPG, PNG, WEBP · múltiplas permitidas</span>
-                </>
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Descrição</label>
+                <textarea rows={4} value={form.description} onChange={(e) => set('description', e.target.value)}
+                  className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none" />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+                  Diferenciais <span className="normal-case font-normal">(um por linha)</span>
+                </label>
+                <textarea rows={4} value={form.features} onChange={(e) => set('features', e.target.value)}
+                  placeholder={'Anti odor e anti suor\nNão amassa e não desbota\nSecagem rápida'}
+                  className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none" />
+              </div>
+            </div>
+
+            {/* Imagens */}
+            <div className="bg-white border border-zinc-200 p-6">
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-3">
+                Imagens <span className="normal-case font-normal">({images.length} foto{images.length !== 1 ? 's' : ''})</span>
+              </label>
+
+              {images.length > 0 && (
+                <div className="grid grid-cols-5 gap-2 mb-3">
+                  {images.map((url, i) => (
+                    <div key={i} className="relative group aspect-square bg-zinc-100 overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(i)}
+                        className="absolute top-1 right-1 h-5 w-5 bg-black/60 text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                      >
+                        ×
+                      </button>
+                      {i === 0 && (
+                        <span className="absolute bottom-1 left-1 text-[9px] font-bold bg-zinc-900 text-white px-1.5 py-0.5 rounded">
+                          CAPA
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
-            </button>
-            {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
+
+              <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
+                onChange={(e) => handleImageUpload(e.target.files)} />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full border-2 border-dashed border-zinc-300 py-8 flex flex-col items-center gap-2 text-zinc-400 hover:border-zinc-500 hover:text-zinc-600 transition-colors disabled:opacity-50"
+              >
+                {uploading ? (
+                  <>
+                    <svg className="h-6 w-6 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                    <span className="text-xs font-semibold">Enviando...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                    <span className="text-xs font-semibold">Clique para enviar fotos</span>
+                    <span className="text-[10px]">JPG, PNG, WEBP · múltiplas permitidas</span>
+                  </>
+                )}
+              </button>
+              {uploadError && <p className="text-xs text-red-500 mt-1">{uploadError}</p>}
+            </div>
           </div>
 
-          {/* Tags */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
-              Tags <span className="normal-case font-normal">(separadas por vírgula)</span>
-            </label>
-            <input value={form.tags} onChange={(e) => set('tags', e.target.value)}
-              placeholder="camiseta, algodao, casual"
-              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-          </div>
+          {/* ── Coluna direita (metadados) ── */}
+          <div className="col-span-2 space-y-5">
 
-          {/* Cores */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Cores</label>
-
-            {colors.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3">
-                {colors.map((c, i) => (
-                  <div key={i} className="flex items-center gap-1.5 border border-zinc-200 rounded-full pl-1 pr-2 py-1 bg-white">
-                    <span className="h-5 w-5 rounded-full border border-zinc-200 flex-shrink-0" style={{ backgroundColor: c.hex }} />
-                    <span className="text-xs text-zinc-700 font-medium">{c.name}</span>
-                    <button type="button" onClick={() => removeColor(i)} className="ml-0.5 text-zinc-300 hover:text-red-400 transition-colors leading-none">×</button>
-                  </div>
+            {/* Tipo de produto */}
+            <div className="bg-white border border-zinc-200 p-6">
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Tipo de produto *</label>
+              <div className="flex flex-col border border-zinc-300 divide-y divide-zinc-300 overflow-hidden">
+                {PRODUCT_TYPES.map((type) => (
+                  <button
+                    key={type.value}
+                    type="button"
+                    onClick={() => set('category', type.value)}
+                    className={`w-full py-2.5 text-xs font-semibold transition-colors ${
+                      form.category === type.value
+                        ? 'bg-zinc-900 text-white'
+                        : 'bg-white text-zinc-600 hover:bg-zinc-50'
+                    }`}
+                  >
+                    {type.label}
+                  </button>
                 ))}
               </div>
-            )}
+            </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={newColorHex}
-                onChange={(e) => setNewColorHex(e.target.value)}
-                className="h-9 w-10 border border-zinc-300 rounded cursor-pointer p-0.5"
-              />
-              <input
-                type="text"
-                placeholder="Nome da cor (ex: Preto)"
-                value={newColorName}
-                onChange={(e) => setNewColorName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
-                className="flex-1 border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900"
-              />
-              <button type="button" onClick={addColor} className="px-4 py-2 border border-zinc-300 text-xs font-semibold text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors">
-                + Adicionar
+            {/* Preços */}
+            <div className="bg-white border border-zinc-200 p-6 space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Preço (R$) *</label>
+                <input required type="number" step="0.01" value={form.price} onChange={(e) => set('price', e.target.value)}
+                  className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+                  Preço original (R$) <span className="normal-case font-normal">— riscado</span>
+                </label>
+                <input type="number" step="0.01" value={form.original_price} onChange={(e) => set('original_price', e.target.value)}
+                  className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+              </div>
+            </div>
+
+            {/* Estoque + Rating + Reviews */}
+            <div className="bg-white border border-zinc-200 p-6 space-y-4">
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Estoque</label>
+                  <input type="number" value={form.stock} onChange={(e) => set('stock', e.target.value)}
+                    className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Rating</label>
+                  <input type="number" step="0.1" min="0" max="5" value={form.rating} onChange={(e) => set('rating', e.target.value)}
+                    className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Reviews</label>
+                  <input type="number" value={form.review_count} onChange={(e) => set('review_count', e.target.value)}
+                    className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-1">
+                <input type="checkbox" id="featured" checked={form.featured}
+                  onChange={(e) => set('featured', e.target.checked)}
+                  className="h-4 w-4 accent-zinc-900" />
+                <label htmlFor="featured" className="text-sm text-zinc-700">Produto em destaque (Best Seller)</label>
+              </div>
+            </div>
+
+            {/* Tags + Tamanhos + Cores */}
+            <div className="bg-white border border-zinc-200 p-6 space-y-5">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+                  Tags <span className="normal-case font-normal">(separadas por vírgula)</span>
+                </label>
+                <input value={form.tags} onChange={(e) => set('tags', e.target.value)}
+                  placeholder="camiseta, algodao, casual"
+                  className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+              </div>
+
+              {currentType.hasSizes && (
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+                    Tamanhos <span className="normal-case font-normal">(separados por vírgula)</span>
+                  </label>
+                  <input value={form.sizes} onChange={(e) => set('sizes', e.target.value)}
+                    placeholder={currentType.defaultSizes}
+                    className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+                  <p className="text-[10px] text-zinc-400 mt-1">
+                    {form.category === 'calcados' ? 'Ex: 37, 38, 39, 40, 41, 42' : 'Ex: P, M, G, GG, XGG'}
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Cores</label>
+                {colors.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {colors.map((c, i) => (
+                      <div key={i} className="flex items-center gap-1.5 border border-zinc-200 rounded-full pl-1 pr-2 py-1 bg-white">
+                        <span className="h-5 w-5 rounded-full border border-zinc-200 flex-shrink-0" style={{ backgroundColor: c.hex }} />
+                        <span className="text-xs text-zinc-700 font-medium">{c.name}</span>
+                        <button type="button" onClick={() => removeColor(i)} className="ml-0.5 text-zinc-300 hover:text-red-400 transition-colors leading-none">×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <input type="color" value={newColorHex} onChange={(e) => setNewColorHex(e.target.value)}
+                    className="h-9 w-10 border border-zinc-300 rounded cursor-pointer p-0.5" />
+                  <input type="text" placeholder="Nome da cor (ex: Preto)" value={newColorName}
+                    onChange={(e) => setNewColorName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
+                    className="flex-1 border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+                  <button type="button" onClick={addColor}
+                    className="px-3 py-2 border border-zinc-300 text-xs font-semibold text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors whitespace-nowrap">
+                    + Adicionar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {error && <p className="text-sm text-red-500">{error}</p>}
+
+            {/* Botões */}
+            <div className="flex flex-col gap-2">
+              <button type="submit" disabled={saving}
+                className="w-full py-3 bg-zinc-900 text-white text-xs font-black uppercase tracking-[0.18em] hover:bg-zinc-700 transition-colors disabled:opacity-50">
+                {saving ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar produto'}
+              </button>
+              <button type="button" onClick={onCancel}
+                className="w-full py-3 border border-zinc-300 text-xs font-bold uppercase tracking-[0.15em] text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors">
+                Cancelar
               </button>
             </div>
-          </div>
-
-          {/* Tamanhos — só para roupas e calçados */}
-          {currentType.hasSizes && (
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
-                Tamanhos <span className="normal-case font-normal">(separados por vírgula)</span>
-              </label>
-              <input value={form.sizes} onChange={(e) => set('sizes', e.target.value)}
-                placeholder={currentType.defaultSizes}
-                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-              <p className="text-[10px] text-zinc-400 mt-1">
-                {form.category === 'calcados' ? 'Ex: 37, 38, 39, 40, 41, 42' : 'Ex: P, M, G, GG, XGG'}
-              </p>
-            </div>
-          )}
-
-          {/* Diferenciais */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
-              Diferenciais <span className="normal-case font-normal">(um por linha)</span>
-            </label>
-            <textarea rows={4} value={form.features} onChange={(e) => set('features', e.target.value)}
-              placeholder={'Anti odor e anti suor\nNão amassa e não desbota\nSecagem rápida'}
-              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none" />
-          </div>
-
-          {/* Destaque */}
-          <div className="flex items-center gap-3">
-            <input type="checkbox" id="featured" checked={form.featured}
-              onChange={(e) => set('featured', e.target.checked)}
-              className="h-4 w-4 accent-zinc-900" />
-            <label htmlFor="featured" className="text-sm text-zinc-700">Produto em destaque (Best Seller)</label>
-          </div>
-
-          {error && <p className="text-sm text-red-500">{error}</p>}
-
-          {/* Botões */}
-          <div className="flex items-center gap-3 pt-2">
-            <button type="submit" disabled={saving}
-              className="px-8 py-3 bg-zinc-900 text-white text-xs font-black uppercase tracking-[0.18em] hover:bg-zinc-700 transition-colors disabled:opacity-50">
-              {saving ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar produto'}
-            </button>
-            <button type="button" onClick={onCancel}
-              className="px-6 py-3 border border-zinc-300 text-xs font-bold uppercase tracking-[0.15em] text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors">
-              Cancelar
-            </button>
           </div>
         </div>
       </form>
