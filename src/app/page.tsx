@@ -94,9 +94,6 @@ export default function HomePage() {
             className="absolute inset-0 h-full w-full object-cover object-center hidden sm:block"
           />
 
-          {/* Gradiente lateral e de base */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/15 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent sm:from-black/45" />
 
           {/* Texto editorial */}
           <div className="absolute left-6 sm:left-14 lg:left-20 top-[55%] sm:top-[50%] -translate-y-1/2">
