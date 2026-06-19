@@ -1,16 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Header, Footer } from '@/components/layout'
 import { BannerSlider, PromoSlider, RealLifeGallery, FaqSection } from '@/components/ui'
 import { ProductShowcase } from '@/components/product'
 import { CartDrawer } from '@/components/cart'
-import { ProductGrid } from '@/components/product'
-import { products } from '@/lib/data/products'
-import { categories } from '@/lib/data/categories'
-
-const featured = products.filter((p) => p.featured)
+import { supabase, mapProduct } from '@/lib/supabase'
+import type { Product } from '@/lib/types'
 
 const BENEFITS = [
   {
@@ -62,6 +59,13 @@ const BENEFITS = [
 export default function HomePage() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    supabase.from('products').select('*').then(({ data }) => {
+      if (data) setProducts(data.map(mapProduct))
+    })
+  }, [])
 
   function handleSubscribe(e: React.FormEvent) {
     e.preventDefault()
@@ -147,7 +151,7 @@ export default function HomePage() {
         </section>
 
         {/* ── PRODUTO SHOWCASE ─────────────────────────────── */}
-        <ProductShowcase />
+        <ProductShowcase products={products} />
 
         {/* ── BANNER SLIDER ────────────────────────────────── */}
         <BannerSlider />
@@ -161,24 +165,18 @@ export default function HomePage() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-              {[
-                { label: 'Viagem', img: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&h=650&fit=crop&q=80', href: '/produtos' },
-                { label: 'Pra Fugir do Frio', img: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=500&h=650&fit=crop&q=80', href: '/produtos?categoria=roupas' },
-                { label: 'Pra Curtir o Frio', img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=500&h=650&fit=crop&q=80', href: '/produtos?categoria=roupas' },
-                { label: 'Kits', img: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=500&h=650&fit=crop&q=80', href: '/produtos' },
-                { label: 'Compre e Ganhe', img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=650&fit=crop&q=80', href: '/produtos?categoria=ofertas' },
-              ].map((item) => (
-                <Link key={item.label} href={item.href} className="group">
+              {products.slice(0, 5).map((p) => (
+                <Link key={p.id} href={`/produto/${p.slug}`} className="group">
                   <div className="overflow-hidden bg-zinc-100" style={{ aspectRatio: '3/4' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={item.img}
-                      alt={item.label}
+                      src={p.images[0] ?? ''}
+                      alt={p.name}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
                   <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-700 group-hover:text-zinc-900 transition-colors">
-                    {item.label}
+                    {p.name}
                   </p>
                 </Link>
               ))}

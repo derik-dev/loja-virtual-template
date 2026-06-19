@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
+import type { Product } from '@/lib/types'
 
 interface ShowcaseProduct {
   id: string
@@ -17,188 +18,24 @@ interface ShowcaseProduct {
   slug: string
 }
 
-const masculinoProducts: ShowcaseProduct[] = [
-  {
-    id: 'm1',
-    name: 'Blusa Gola Alta Manga Longa',
-    price: 199,
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&h=800&fit=crop&q=80',
-    badge: 'LANÇAMENTO',
-    colors: ['#111', '#4a3728', '#1a2a4a'],
-    slug: 'blusa-gola-alta',
-  },
-  {
-    id: 'm2',
-    name: 'Jaqueta Ripstop Masculino',
-    price: 599,
-    image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=800&fit=crop&q=80',
-    badge: 'LANÇAMENTO',
-    colors: ['#1a2a4a', '#4a4a4a'],
-    slug: 'jaqueta-ripstop',
-  },
-  {
-    id: 'm3',
-    name: 'Suéter Future Knit',
-    price: 999,
-    image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=800&fit=crop&q=80',
-    badge: 'LANÇAMENTO',
-    colors: ['#111', '#c9b99a', '#c8b400'],
-    slug: 'sueter-future-knit',
-  },
-  {
-    id: 'm4',
-    name: 'Camiseta Essential Masculino',
-    price: 132,
-    originalPrice: 169,
-    image: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&h=800&fit=crop&q=80',
-    badge: 'BEST SELLER',
-    badgeExtra: '22% OFF',
-    colors: ['#111', '#6b3a2a', '#3d2b1f', '#1a2a4a', '#8b0000', '#1a3a5c', '#f5f5f5', '#8b7355', '#2d4a2d'],
-    rating: 4.8,
-    reviewCount: 25598,
-    slug: 'camiseta-essential',
-  },
-  {
-    id: 'm5',
-    name: 'Calça Jogger Masculino',
-    price: 349,
-    image: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600&h=800&fit=crop&q=80',
-    colors: ['#111', '#1a2a4a', '#4a4a4a'],
-    slug: 'calca-jogger',
-  },
-  {
-    id: 'm6',
-    name: 'Moletom Oversized Masculino',
-    price: 459,
-    image: 'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&h=800&fit=crop&q=80',
-    badge: 'LANÇAMENTO',
-    colors: ['#c9b99a', '#111', '#4a4a4a'],
-    slug: 'moletom-oversized',
-  },
-  {
-    id: 'm7',
-    name: 'Camisa Linho Premium',
-    price: 289,
-    originalPrice: 359,
-    image: 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=600&h=800&fit=crop&q=80',
-    badgeExtra: '20% OFF',
-    colors: ['#f5f5f5', '#c9b99a', '#1a2a4a'],
-    rating: 4.6,
-    reviewCount: 3241,
-    slug: 'camisa-linho',
-  },
-  {
-    id: 'm8',
-    name: 'Shorts Masculino Treino',
-    price: 179,
-    image: 'https://images.unsplash.com/photo-1565084888279-aca607bb1f6a?w=600&h=800&fit=crop&q=80',
-    colors: ['#111', '#1a2a4a', '#2d4a2d', '#8b0000'],
-    slug: 'shorts-treino',
-  },
-  {
-    id: 'm9',
-    name: 'Polo Tech Masculino',
-    price: 249,
-    image: 'https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=600&h=800&fit=crop&q=80',
-    badge: 'BEST SELLER',
-    colors: ['#f5f5f5', '#111', '#1a2a4a', '#2d4a2d'],
-    rating: 4.9,
-    reviewCount: 11203,
-    slug: 'polo-tech',
-  },
-]
-
-const femininoProducts: ShowcaseProduct[] = [
-  {
-    id: 'f1',
-    name: 'Vestido Midi Feminino',
-    price: 499,
-    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&h=800&fit=crop&q=80',
-    badge: 'LANÇAMENTO',
-    colors: ['#2d5a3d', '#111', '#c9b99a'],
-    slug: 'vestido-midi',
-  },
-  {
-    id: 'f2',
-    name: 'Blusa Cropped Feminino',
-    price: 199,
-    image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=600&h=800&fit=crop&q=80',
-    badge: 'LANÇAMENTO',
-    colors: ['#f5f5f5', '#111', '#c9b99a'],
-    slug: 'blusa-cropped',
-  },
-  {
-    id: 'f3',
-    name: 'Calça Wide Leg Feminino',
-    price: 379,
-    image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&h=800&fit=crop&q=80',
-    badge: 'LANÇAMENTO',
-    colors: ['#111', '#c9b99a', '#f5f5f5'],
-    slug: 'calca-wide-leg',
-  },
-  {
-    id: 'f4',
-    name: 'Jaqueta Oversized Feminino',
-    price: 289,
-    originalPrice: 369,
-    image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=800&fit=crop&q=80',
-    badge: 'BEST SELLER',
-    badgeExtra: '22% OFF',
-    colors: ['#4a4a4a', '#1a2a4a', '#f5f5f5'],
-    rating: 4.7,
-    reviewCount: 8420,
-    slug: 'jaqueta-oversized',
-  },
-  {
-    id: 'f5',
-    name: 'Top Essential Feminino',
-    price: 149,
-    image: 'https://images.unsplash.com/photo-1583744946564-b52ac1c389c8?w=600&h=800&fit=crop&q=80',
-    colors: ['#f5f5f5', '#111', '#8b0000', '#1a2a4a'],
-    slug: 'top-essential',
-  },
-  {
-    id: 'f6',
-    name: 'Saia Midi Plissada',
-    price: 329,
-    image: 'https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=600&h=800&fit=crop&q=80',
-    badge: 'LANÇAMENTO',
-    colors: ['#c9b99a', '#2d5a3d', '#111'],
-    slug: 'saia-midi',
-  },
-  {
-    id: 'f7',
-    name: 'Moletom Feminino Cropped',
-    price: 389,
-    originalPrice: 459,
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&h=800&fit=crop&q=80',
-    badgeExtra: '15% OFF',
-    colors: ['#c9b99a', '#f5f5f5', '#111', '#8b0000'],
-    rating: 4.5,
-    reviewCount: 5610,
-    slug: 'moletom-cropped',
-  },
-  {
-    id: 'f8',
-    name: 'Vestido Longo Feminino',
-    price: 599,
-    image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600&h=800&fit=crop&q=80',
-    badge: 'LANÇAMENTO',
-    colors: ['#2d5a3d', '#111', '#8b0000'],
-    slug: 'vestido-longo',
-  },
-  {
-    id: 'f9',
-    name: 'Conjunto Feminino Jogger',
-    price: 519,
-    image: 'https://images.unsplash.com/photo-1554412933-514a83d2f3c8?w=600&h=800&fit=crop&q=80',
-    badge: 'BEST SELLER',
-    colors: ['#111', '#c9b99a', '#f5f5f5'],
-    rating: 4.8,
-    reviewCount: 9874,
-    slug: 'conjunto-jogger',
-  },
-]
+function toShowcase(p: Product): ShowcaseProduct {
+  const discount = p.originalPrice
+    ? Math.round((1 - p.price / p.originalPrice) * 100)
+    : null
+  return {
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    originalPrice: p.originalPrice,
+    image: p.images[0] ?? '',
+    badge: p.featured ? 'BEST SELLER' : undefined,
+    badgeExtra: discount ? `${discount}% OFF` : undefined,
+    colors: (p.colors ?? []).map((c) => c.hex),
+    rating: p.rating || undefined,
+    reviewCount: p.reviewCount || undefined,
+    slug: p.slug,
+  }
+}
 
 function ProductCard({ product }: { product: ShowcaseProduct }) {
   const discount = product.originalPrice
@@ -263,13 +100,17 @@ function ProductCard({ product }: { product: ShowcaseProduct }) {
   )
 }
 
-export default function ProductShowcase() {
+interface Props {
+  products: Product[]
+}
+
+export default function ProductShowcase({ products: rawProducts }: Props) {
   const [activeTab, setActiveTab] = useState<'masculino' | 'feminino'>('masculino')
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const products = activeTab === 'masculino' ? masculinoProducts : femininoProducts
+  const products = rawProducts.map(toShowcase)
 
   function updateArrows() {
     const el = scrollRef.current
