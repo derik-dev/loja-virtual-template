@@ -93,11 +93,11 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent sm:from-black/45" />
 
           {/* Texto editorial */}
-          <div className="absolute left-6 sm:left-14 lg:left-20 top-[50%] -translate-y-1/2">
-            <p className="text-2xl sm:text-5xl lg:text-6xl font-light text-white uppercase tracking-tight leading-none">
+          <div className="absolute left-6 sm:left-14 lg:left-20 top-[55%] sm:top-[50%] -translate-y-1/2">
+            <p className="text-lg sm:text-5xl lg:text-6xl font-light text-white uppercase tracking-tight leading-none">
               Mala Inteligente.
             </p>
-            <p className="mt-1.5 sm:mt-2 text-2xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-none">
+            <p className="mt-1.5 sm:mt-2 text-[1.75rem] sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-tight">
               Menos Peças. Mais Memórias.
             </p>
 
