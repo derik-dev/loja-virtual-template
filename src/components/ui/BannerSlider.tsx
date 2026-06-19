@@ -67,8 +67,8 @@ export default function BannerSlider() {
       {/* Editorial contrast for copy on the light campaign backgrounds */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/10 to-black/30" />
 
-      {/* Left text */}
-      <div className="absolute left-10 sm:left-14 lg:left-20 top-1/2 -translate-y-1/2">
+      {/* Text */}
+      <div className="absolute left-0 right-0 sm:left-14 sm:right-auto lg:left-20 top-1/2 -translate-y-1/2 px-6 sm:px-0 text-center sm:text-left">
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white uppercase leading-tight tracking-tight">
           {slide.title}
         </h2>
