@@ -80,7 +80,8 @@ export default function HomePage() {
   }, [products])
 
   useEffect(() => {
-    supabase.from('products').select('*').then(({ data }) => {
+    supabase.from('products').select('*').then(({ data, error }) => {
+      if (error) console.error('[Supabase] home:', error)
       if (data) setProducts(data.map(mapProduct))
     })
   }, [])

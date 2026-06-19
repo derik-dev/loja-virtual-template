@@ -28,7 +28,8 @@ export default function ProdutosPage() {
   const sortRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    supabase.from('products').select('*').then(({ data }) => {
+    supabase.from('products').select('*').then(({ data, error }) => {
+      if (error) console.error('[Supabase] produtos:', error)
       setProducts((data ?? []).map(mapProduct))
       setLoading(false)
     })
