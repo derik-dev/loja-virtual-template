@@ -85,7 +85,7 @@ export default function HomePage() {
           <img
             src="/hero-fashion.png"
             alt="Nova coleção"
-            className="absolute inset-0 h-full w-full object-cover object-left sm:object-center"
+            className="absolute inset-0 h-full w-full object-cover object-right sm:object-center"
           />
 
           {/* Gradiente lateral e de base */}
