@@ -1,12 +1,31 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
 import { formatCurrency } from '@/lib/utils'
-import { Input } from '@/components/ui/Input'
-import { Button } from '@/components/ui/Button'
 
 type PaymentMethod = 'cartao' | 'pix' | 'boleto'
+
+function Field({
+  label,
+  colSpan2,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & { label: string; colSpan2?: boolean }) {
+  const id = label.toLowerCase().replace(/\s+/g, '-')
+  return (
+    <div className={colSpan2 ? 'sm:col-span-2' : ''}>
+      <label htmlFor={id} className="block text-[10px] font-bold tracking-[0.12em] uppercase text-zinc-500 mb-1.5">
+        {label}
+      </label>
+      <input
+        id={id}
+        className="w-full border border-zinc-300 px-3 py-3 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-zinc-900 transition-colors bg-white"
+        {...props}
+      />
+    </div>
+  )
+}
 
 export default function CheckoutPage() {
   const items = useCartStore((s) => s.items)
@@ -17,7 +36,7 @@ export default function CheckoutPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const shipping = total >= 199 ? 0 : 19.9
+  const shipping = total >= 399 ? 0 : 19.9
   const finalTotal = total + shipping
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,76 +50,94 @@ export default function CheckoutPage() {
 
   if (submitted) {
     return (
-      <div className="mx-auto max-w-md px-4 py-24 text-center">
-        <div className="flex justify-center mb-6">
-          <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center">
-            <svg className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
+      <div className="mx-auto max-w-md px-4 py-32 text-center">
+        <div className="w-16 h-16 border border-zinc-900 flex items-center justify-center mx-auto mb-8">
+          <svg className="h-8 w-8 text-zinc-900" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Pedido Confirmado!</h1>
-        <p className="text-slate-500 mb-2">
-          Seu pedido foi recebido com sucesso.
-        </p>
-        <p className="text-slate-500 mb-8 text-sm">
+        <h1 className="text-xl font-bold uppercase tracking-[0.15em] text-zinc-900 mb-4">Pedido Confirmado</h1>
+        <p className="text-sm text-zinc-500 mb-2">Seu pedido foi recebido com sucesso.</p>
+        <p className="text-xs text-zinc-400 mb-10">
           Você receberá um e-mail com os detalhes e o código de rastreio em breve.
         </p>
-        <Button variant="primary" size="lg" onClick={() => window.location.href = '/'}>
+        <Link
+          href="/"
+          className="inline-block bg-zinc-900 text-white text-xs font-bold tracking-[0.15em] uppercase px-10 py-4 hover:bg-zinc-700 transition-colors"
+        >
           Voltar para a Loja
-        </Button>
+        </Link>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold text-slate-900 mb-8">Finalizar Compra</h1>
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+      <h1 className="text-xs font-bold tracking-[0.2em] uppercase text-zinc-900 mb-10">
+        Finalizar Compra
+      </h1>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left: Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Informações Pessoais */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6">
-              <h2 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                <span className="flex items-center justify-center h-6 w-6 rounded-full bg-indigo-600 text-white text-xs font-bold">1</span>
-                Informações Pessoais
-              </h2>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Input label="Nome completo" placeholder="João Silva" required />
-                <Input label="E-mail" type="email" placeholder="joao@email.com" required />
-                <Input label="CPF" placeholder="000.000.000-00" required />
-                <Input label="Telefone" placeholder="(11) 99999-9999" required />
-              </div>
-            </div>
+        <div className="grid lg:grid-cols-3 gap-10">
 
-            {/* Endereço */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6">
-              <h2 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                <span className="flex items-center justify-center h-6 w-6 rounded-full bg-indigo-600 text-white text-xs font-bold">2</span>
-                Endereço de Entrega
-              </h2>
+          {/* ── ESQUERDA: formulário ── */}
+          <div className="lg:col-span-2 space-y-8">
+
+            {/* 1. Informações Pessoais */}
+            <section>
+              <div className="flex items-center gap-3 mb-6">
+                <span className="flex items-center justify-center h-6 w-6 border border-zinc-900 text-[10px] font-bold text-zinc-900">
+                  1
+                </span>
+                <h2 className="text-xs font-bold tracking-[0.15em] uppercase text-zinc-900">
+                  Informações Pessoais
+                </h2>
+              </div>
               <div className="grid sm:grid-cols-2 gap-4">
-                <Input label="CEP" placeholder="00000-000" required className="sm:col-span-1" />
+                <Field label="Nome completo" placeholder="João Silva" required />
+                <Field label="E-mail" type="email" placeholder="joao@email.com" required />
+                <Field label="CPF" placeholder="000.000.000-00" required />
+                <Field label="Telefone" placeholder="(11) 99999-9999" required />
+              </div>
+            </section>
+
+            <div className="border-t border-zinc-100" />
+
+            {/* 2. Endereço */}
+            <section>
+              <div className="flex items-center gap-3 mb-6">
+                <span className="flex items-center justify-center h-6 w-6 border border-zinc-900 text-[10px] font-bold text-zinc-900">
+                  2
+                </span>
+                <h2 className="text-xs font-bold tracking-[0.15em] uppercase text-zinc-900">
+                  Endereço de Entrega
+                </h2>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Field label="CEP" placeholder="00000-000" required />
                 <div className="hidden sm:block" />
-                <Input label="Endereço" placeholder="Rua, Avenida..." required className="sm:col-span-2" />
-                <Input label="Número" placeholder="123" required />
-                <Input label="Complemento" placeholder="Apto, Bloco..." />
-                <Input label="Bairro" placeholder="Centro" required />
-                <Input label="Cidade" placeholder="São Paulo" required />
-                <Input label="Estado" placeholder="SP" required />
+                <Field label="Endereço" placeholder="Rua, Avenida..." required colSpan2 />
+                <Field label="Número" placeholder="123" required />
+                <Field label="Complemento" placeholder="Apto, Bloco..." />
+                <Field label="Bairro" placeholder="Centro" required />
+                <Field label="Cidade" placeholder="São Paulo" required />
+                <Field label="Estado" placeholder="SP" required />
               </div>
-            </div>
+            </section>
 
-            {/* Pagamento */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6">
-              <h2 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                <span className="flex items-center justify-center h-6 w-6 rounded-full bg-indigo-600 text-white text-xs font-bold">3</span>
-                Forma de Pagamento
-              </h2>
+            <div className="border-t border-zinc-100" />
 
-              {/* Payment method radio */}
+            {/* 3. Pagamento */}
+            <section>
+              <div className="flex items-center gap-3 mb-6">
+                <span className="flex items-center justify-center h-6 w-6 border border-zinc-900 text-[10px] font-bold text-zinc-900">
+                  3
+                </span>
+                <h2 className="text-xs font-bold tracking-[0.15em] uppercase text-zinc-900">
+                  Forma de Pagamento
+                </h2>
+              </div>
+
               <div className="grid grid-cols-3 gap-3 mb-6">
                 {([
                   { value: 'cartao', label: 'Cartão de Crédito' },
@@ -110,10 +147,10 @@ export default function CheckoutPage() {
                   <label
                     key={opt.value}
                     className={[
-                      'flex flex-col items-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all',
+                      'flex items-center justify-center py-3.5 border cursor-pointer transition-all text-[11px] font-bold tracking-[0.1em] uppercase',
                       payment === opt.value
-                        ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                        : 'border-slate-200 hover:border-slate-300',
+                        ? 'border-zinc-900 bg-zinc-900 text-white'
+                        : 'border-zinc-300 text-zinc-600 hover:border-zinc-500',
                     ].join(' ')}
                   >
                     <input
@@ -124,21 +161,22 @@ export default function CheckoutPage() {
                       onChange={() => setPayment(opt.value)}
                       className="sr-only"
                     />
-                    <span className="text-xs font-medium text-center leading-snug">{opt.label}</span>
+                    {opt.label}
                   </label>
                 ))}
               </div>
 
-              {/* Card fields */}
               {payment === 'cartao' && (
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <Input label="Número do Cartão" placeholder="0000 0000 0000 0000" required className="sm:col-span-2" />
-                  <Input label="Nome no Cartão" placeholder="JOÃO SILVA" required className="sm:col-span-2" />
-                  <Input label="Validade" placeholder="MM/AA" required />
-                  <Input label="CVV" placeholder="123" required />
+                  <Field label="Número do Cartão" placeholder="0000 0000 0000 0000" required colSpan2 />
+                  <Field label="Nome no Cartão" placeholder="JOÃO SILVA" required colSpan2 />
+                  <Field label="Validade" placeholder="MM/AA" required />
+                  <Field label="CVV" placeholder="123" required />
                   <div className="sm:col-span-2">
-                    <label className="text-sm font-medium text-slate-700">Parcelas</label>
-                    <select className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <label className="block text-[10px] font-bold tracking-[0.12em] uppercase text-zinc-500 mb-1.5">
+                      Parcelas
+                    </label>
+                    <select className="w-full border border-zinc-300 px-3 py-3 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900 transition-colors bg-white">
                       <option>1x de {formatCurrency(finalTotal)} sem juros</option>
                       <option>2x de {formatCurrency(finalTotal / 2)} sem juros</option>
                       <option>3x de {formatCurrency(finalTotal / 3)} sem juros</option>
@@ -150,81 +188,86 @@ export default function CheckoutPage() {
               )}
 
               {payment === 'pix' && (
-                <div className="text-center py-6 bg-slate-50 rounded-xl">
-                  <div className="h-32 w-32 mx-auto bg-white border-4 border-slate-200 rounded-xl flex items-center justify-center mb-3">
-                    <span className="text-xs text-slate-400">QR Code PIX</span>
+                <div className="border border-zinc-200 p-8 text-center">
+                  <div className="h-28 w-28 mx-auto border border-zinc-200 flex items-center justify-center mb-4">
+                    <span className="text-[10px] text-zinc-400 uppercase tracking-wider">QR Code PIX</span>
                   </div>
-                  <p className="text-sm text-slate-600">O QR Code será gerado após confirmar o pedido.</p>
-                  <p className="text-xs text-green-600 font-medium mt-1">5% de desconto no PIX</p>
+                  <p className="text-xs text-zinc-500">O QR Code será gerado após confirmar o pedido.</p>
+                  <p className="text-xs font-bold text-zinc-900 mt-1 uppercase tracking-wider">5% de desconto no PIX</p>
                 </div>
               )}
 
               {payment === 'boleto' && (
-                <div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-600">
+                <div className="border border-zinc-200 p-6 text-sm text-zinc-500 space-y-1">
                   <p>O boleto será gerado após a confirmação e enviado para seu e-mail.</p>
-                  <p className="text-xs text-slate-500 mt-2">Prazo de pagamento: 3 dias úteis. Após o vencimento, o pedido é cancelado automaticamente.</p>
+                  <p className="text-xs text-zinc-400">Prazo de pagamento: 3 dias úteis. Após o vencimento, o pedido é cancelado automaticamente.</p>
                 </div>
               )}
-            </div>
+            </section>
           </div>
 
-          {/* Right: Summary */}
+          {/* ── DIREITA: resumo ── */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 sticky top-24">
-              <h2 className="font-semibold text-slate-900 mb-4">Resumo</h2>
+            <div className="border border-zinc-200 p-6 sticky top-24">
+              <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-900 mb-5">
+                Resumo
+              </h2>
 
-              {/* Items list */}
-              <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
+              <div className="space-y-4 mb-5 max-h-56 overflow-y-auto">
                 {items.map((item) => (
-                  <div key={item.product.id} className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100">
-                      <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
+                  <div key={item.product.id} className="flex items-start gap-3">
+                    <div className="h-14 w-11 flex-shrink-0 bg-zinc-100 overflow-hidden">
+                      <img
+                        src={item.product.images[0]}
+                        alt={item.product.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-slate-800 line-clamp-1">{item.product.name}</p>
-                      <p className="text-xs text-slate-500">Qtd: {item.quantity}</p>
+                      <p className="text-xs font-medium text-zinc-900 line-clamp-2 uppercase tracking-wide leading-snug">
+                        {item.product.name}
+                      </p>
+                      <p className="text-[10px] text-zinc-400 mt-0.5">Qtd: {item.quantity}</p>
                     </div>
-                    <p className="text-xs font-semibold text-slate-900 flex-shrink-0">
+                    <p className="text-xs font-bold text-zinc-900 flex-shrink-0">
                       {formatCurrency(item.product.price * item.quantity)}
                     </p>
                   </div>
                 ))}
               </div>
 
-              <div className="border-t border-slate-100 pt-4 space-y-2 text-sm">
-                <div className="flex justify-between text-slate-600">
+              <div className="border-t border-zinc-100 pt-4 space-y-2.5 text-xs">
+                <div className="flex justify-between text-zinc-500">
                   <span>Subtotal</span>
                   <span>{formatCurrency(total)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-600">Frete</span>
-                  <span className={shipping === 0 ? 'text-green-600 font-medium' : 'text-slate-900'}>
+                  <span className="text-zinc-500">Frete</span>
+                  <span className={shipping === 0 ? 'text-green-700 font-medium' : 'text-zinc-900'}>
                     {shipping === 0 ? 'Grátis' : formatCurrency(shipping)}
                   </span>
                 </div>
-                <div className="pt-2 border-t border-slate-100 flex justify-between font-bold text-base text-slate-900">
+                <div className="pt-3 border-t border-zinc-100 flex justify-between font-bold text-sm text-zinc-900">
                   <span>Total</span>
                   <span>{formatCurrency(finalTotal)}</span>
                 </div>
               </div>
 
-              <Button
+              <button
                 type="submit"
-                variant="primary"
-                fullWidth
-                size="lg"
-                loading={loading}
-                className="mt-5"
+                disabled={loading || items.length === 0}
+                className="mt-6 w-full bg-zinc-900 text-white text-xs font-bold tracking-[0.15em] uppercase py-4 hover:bg-zinc-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Confirmar Pedido
-              </Button>
+                {loading ? 'Processando...' : 'Confirmar Pedido'}
+              </button>
 
-              <p className="text-xs text-slate-400 text-center mt-3">
+              <p className="text-[10px] text-zinc-400 text-center mt-3">
                 Ao confirmar, você aceita nossos{' '}
-                <a href="/termos" className="text-indigo-600 hover:underline">termos de uso</a>.
+                <a href="/termos" className="underline hover:text-zinc-700">termos de uso</a>.
               </p>
             </div>
           </div>
+
         </div>
       </form>
     </div>
