@@ -80,12 +80,18 @@ export default function HomePage() {
 
         {/* ── HERO ─────────────────────────────────────────── */}
         <section className="relative overflow-hidden h-[85vh] sm:h-[96vh]">
-          {/* Imagem de fundo */}
+          {/* Imagem de fundo — mobile usa hero-fashion-cel, desktop usa hero-fashion */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/hero-fashion-cel.png"
+            alt="Nova coleção"
+            className="absolute inset-0 h-full w-full object-cover object-center sm:hidden"
+          />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/hero-fashion.png"
             alt="Nova coleção"
-            className="absolute inset-0 h-full w-full object-cover object-[65%] sm:object-center"
+            className="absolute inset-0 h-full w-full object-cover object-center hidden sm:block"
           />
 
           {/* Gradiente lateral e de base */}
