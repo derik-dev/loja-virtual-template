@@ -226,7 +226,7 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
         </div>
       </header>
 
-      <form id="product-form" onSubmit={handleSubmit} className="px-10 py-8">
+      <form id="product-form" onSubmit={handleSubmit} className="px-10 py-8 max-w-screen-2xl mx-auto">
         <div className="grid grid-cols-12 gap-8 items-start">
 
           {/* ── Coluna esquerda (conteúdo principal) ── */}
