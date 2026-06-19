@@ -167,7 +167,59 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
           </div>
         )}
 
-        <div className="w-full pl-8 pr-10 sm:pl-12 sm:pr-14 lg:pl-20 lg:pr-20">
+        {/* ── MOBILE HEADER ─────────────────────────────────── */}
+        <div className="md:hidden px-4">
+          <div className="flex h-14 items-center justify-between relative">
+
+            {/* Hamburger — esquerda */}
+            <button
+              onClick={() => setMobileOpen(true)}
+              aria-label="Menu"
+              className={`p-2 hover:opacity-70 transition-opacity ${lightText ? 'text-white' : 'text-zinc-800'}`}
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+
+            {/* Logo — centro absoluto */}
+            <Link href="/" className="absolute left-1/2 -translate-x-1/2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={lightText ? '/logo-branca.png' : '/logo-preta.png'}
+                alt="VERO"
+                className="h-7 w-auto object-contain"
+              />
+            </Link>
+
+            {/* Busca + Carrinho — direita */}
+            <div className={`flex items-center ${lightText ? 'text-white' : 'text-zinc-800'}`}>
+              <button onClick={openSearch} aria-label="Buscar" className="p-2 hover:opacity-70 transition-opacity">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+              </button>
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('toggle-cart'))}
+                aria-label="Carrinho de compras"
+                className="relative p-2 hover:opacity-70 transition-opacity"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                </svg>
+                {mounted && itemCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-bold text-white">
+                    {itemCount > 99 ? '99+' : itemCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        {/* ── DESKTOP HEADER ────────────────────────────────── */}
+        <div className="hidden md:block w-full pl-12 pr-14 lg:pl-20 lg:pr-20">
           <div className="flex h-20 items-center justify-between">
 
             {searchOpen ? (
@@ -218,7 +270,7 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
             </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center">
+            <nav className="flex items-center">
               {navLinks.map((link) => {
                 const isActive = activeMenu === link.label
                 const textColor = lightText
@@ -278,17 +330,6 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
               <button aria-label="Minha conta" className="p-2 hover:opacity-70 transition-opacity">
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                </svg>
-              </button>
-
-              {/* Hamburger mobile */}
-              <button
-                onClick={() => setMobileOpen(true)}
-                aria-label="Menu"
-                className="md:hidden p-2 hover:opacity-70 transition-opacity"
-              >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
               </button>
             </div>
