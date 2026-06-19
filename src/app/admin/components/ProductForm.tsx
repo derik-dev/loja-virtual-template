@@ -422,6 +422,17 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
           </div>
 
           {error && <p className="text-sm text-red-500">{error}</p>}
+
+          <div className="flex items-center gap-3 pb-4">
+            <button type="submit" disabled={saving}
+              className="px-8 py-3 bg-zinc-900 text-white text-xs font-black uppercase tracking-[0.18em] hover:bg-zinc-700 transition-colors disabled:opacity-50">
+              {saving ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar produto'}
+            </button>
+            <button type="button" onClick={onCancel}
+              className="px-6 py-3 border border-zinc-300 text-xs font-bold uppercase tracking-[0.15em] text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors">
+              Cancelar
+            </button>
+          </div>
         </div>
       </form>
     </div>
