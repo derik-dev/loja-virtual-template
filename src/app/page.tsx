@@ -79,7 +79,7 @@ export default function HomePage() {
       <main className="min-h-screen bg-white">
 
         {/* ── HERO ─────────────────────────────────────────── */}
-        <section className="relative overflow-hidden h-[72vh] sm:h-[96vh]">
+        <section className="relative overflow-hidden h-[80vh] sm:h-[96vh]">
           {/* Imagem de fundo */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
