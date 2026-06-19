@@ -169,7 +169,7 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
 
         {/* ── MOBILE HEADER ─────────────────────────────────── */}
         <div className="md:hidden px-4">
-          <div className="flex h-14 items-center justify-between relative">
+          <div className="flex h-12 items-center justify-between relative">
 
             {/* Hamburger — esquerda */}
             <button
