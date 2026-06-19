@@ -327,6 +327,36 @@ export default function ProductPage({ params }: ProductPageProps) {
 
         </div>
 
+        {/* Seções editoriais mobile */}
+        <div className="mt-6 space-y-0 border-t border-zinc-100">
+          {[
+            {
+              title: 'CAMISETA TECNOLÓGICA FEITA PARA O FUTURO',
+              text: `A Tech T-shirt tem 77% menos emissão de gases de efeito estufa durante a sua fabricação em comparação com camisetas de algodão. Ela é carbono negativa: isto é, compensamos em dobro todas as emissões geradas em sua produção, retirando do meio ambiente mais CO2 do que emitimos.`,
+              img: product.images[0],
+            },
+            {
+              title: 'TECNOLOGIA FUNCIONAL',
+              text: `Feito com blend de fibras ultra respiráveis e tecido de alta performance, ajuda a manter a temperatura ideal em diferentes climas e estações do ano.`,
+              img: product.images[product.images.length > 1 ? 1 : 0],
+            },
+            {
+              title: 'FOREVER PIECE',
+              text: `Um item feito para durar muito. A tecnologia Vero faz com que esta peça não desbote com o tempo e iniba a proliferação de bactérias causadoras do mau odor.`,
+              img: product.images[0],
+            },
+          ].map((s) => (
+            <div key={s.title} className="border-b border-zinc-100">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={s.img} alt={s.title} className="w-full object-cover" style={{ aspectRatio: '4/3' }} />
+              <div className="px-4 py-5">
+                <h2 className="text-lg font-black text-zinc-900 uppercase leading-tight tracking-wide mb-3">{s.title}</h2>
+                <p className="text-sm text-zinc-500 leading-relaxed">{s.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* CTA sticky bottom */}
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-zinc-200 px-4 py-3 flex items-center gap-3">
           <div className="flex flex-col leading-tight">
