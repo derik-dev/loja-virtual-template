@@ -252,16 +252,16 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
           {/* Tipo de produto */}
           <div className="bg-white border border-zinc-200 p-8">
             <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Tipo de produto *</label>
-            <div className="flex border border-zinc-300 divide-x divide-zinc-300 overflow-hidden">
+            <select
+              value={form.category}
+              onChange={(e) => set('category', e.target.value)}
+              className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 bg-white"
+            >
+              {categories.length === 0 && <option value="">Carregando...</option>}
               {categories.map((type) => (
-                <button key={type.value} type="button" onClick={() => set('category', type.value)}
-                  className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
-                    form.category === type.value ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-600 hover:bg-zinc-50'
-                  }`}>
-                  {type.label}
-                </button>
+                <option key={type.value} value={type.value}>{type.label}</option>
               ))}
-            </div>
+            </select>
           </div>
 
           {/* Preços */}
