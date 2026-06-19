@@ -27,7 +27,7 @@ function Field({
 }: React.InputHTMLAttributes<HTMLInputElement> & {
   error?: string
   icon?: React.ReactNode
-  inputRef?: React.RefObject<HTMLInputElement>
+  inputRef?: React.RefObject<HTMLInputElement | null>
 }) {
   return (
     <div className={className}>
