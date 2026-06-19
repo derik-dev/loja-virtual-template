@@ -134,13 +134,13 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
 
   let headerBg: string
   if (searchOpen || hasDropdown) {
-    headerBg = 'bg-zinc-900 md:bg-white md:border-b md:border-zinc-200 md:shadow-sm'
+    headerBg = 'bg-black md:bg-white md:border-b md:border-zinc-200 md:shadow-sm'
   } else if (!scrolled && overlay) {
-    headerBg = 'bg-zinc-900 md:bg-transparent'
+    headerBg = 'bg-black md:bg-transparent'
   } else if (scrolled && overlay) {
-    headerBg = 'bg-zinc-900 md:bg-white/75 md:backdrop-blur-md'
+    headerBg = 'bg-black md:bg-white/75 md:backdrop-blur-md'
   } else {
-    headerBg = 'bg-zinc-900 md:bg-white md:border-b md:border-zinc-200 md:shadow-sm'
+    headerBg = 'bg-black md:bg-white md:border-b md:border-zinc-200 md:shadow-sm'
   }
 
   return (
