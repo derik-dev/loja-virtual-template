@@ -17,27 +17,28 @@ interface MobileMenuProps {
 
 export default function MobileMenu({ isOpen, onClose, links }: MobileMenuProps) {
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [isOpen])
-
-  useEffect(() => {
     if (isOpen) {
+      setMounted(true)
       requestAnimationFrame(() => setVisible(true))
+      document.body.style.overflow = 'hidden'
     } else {
       setVisible(false)
+      document.body.style.overflow = ''
+      const t = setTimeout(() => setMounted(false), 300)
+      return () => clearTimeout(t)
     }
   }, [isOpen])
 
-  if (!isOpen && !visible) return null
+  if (!mounted) return null
 
   return (
     <div
       className={[
-        'fixed inset-0 z-50 bg-black flex flex-col md:hidden transition-transform duration-300 ease-out',
+        'fixed inset-0 z-50 bg-black flex flex-col md:hidden transition-transform duration-300 ease-in-out',
         visible ? 'translate-x-0' : '-translate-x-full',
       ].join(' ')}
     >
