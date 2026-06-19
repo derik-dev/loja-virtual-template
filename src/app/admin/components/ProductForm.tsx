@@ -262,22 +262,15 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
 
           {/* Tipo de produto */}
           <div className="bg-white border border-zinc-200 p-8">
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-3">Tipo de produto *</label>
-            <div className="flex flex-col gap-2">
+            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Tipo de produto *</label>
+            <div className="flex border border-zinc-300 divide-x divide-zinc-300 overflow-hidden">
               {PRODUCT_TYPES.map((type) => (
-                <label key={type.value} className="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="radio"
-                    name="category"
-                    value={type.value}
-                    checked={form.category === type.value}
-                    onChange={() => set('category', type.value)}
-                    className="h-4 w-4 accent-zinc-900 cursor-pointer"
-                  />
-                  <span className={`text-sm transition-colors ${form.category === type.value ? 'text-zinc-900 font-semibold' : 'text-zinc-500 group-hover:text-zinc-700'}`}>
-                    {type.label}
-                  </span>
-                </label>
+                <button key={type.value} type="button" onClick={() => set('category', type.value)}
+                  className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
+                    form.category === type.value ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-600 hover:bg-zinc-50'
+                  }`}>
+                  {type.label}
+                </button>
               ))}
             </div>
           </div>
