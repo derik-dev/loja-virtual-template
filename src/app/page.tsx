@@ -90,20 +90,28 @@ export default function HomePage() {
 
           {/* Gradiente lateral e de base */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/15 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent sm:from-black/45" />
 
-          {/* Texto editorial — esquerda, meio vertical */}
-          <div className="absolute left-10 sm:left-14 lg:left-20 top-[50%] -translate-y-1/2">
+          {/* Texto + botão mobile: baixo da tela / desktop: meio vertical */}
+          <div className="absolute bottom-24 left-6 right-6 sm:bottom-auto sm:right-auto sm:left-14 lg:left-20 sm:top-[50%] sm:-translate-y-1/2">
             <p className="text-4xl sm:text-5xl lg:text-6xl font-light text-white uppercase tracking-tight leading-none">
               Mala Inteligente.
             </p>
             <p className="mt-2 text-4xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-none">
               Menos Peças. Mais Memórias.
             </p>
+
+            {/* Botão — junto ao texto no mobile, separado no desktop */}
+            <Link
+              href="/produtos"
+              className="mt-8 inline-block bg-white text-zinc-900 font-bold text-xs uppercase tracking-[0.22em] px-12 py-3.5 rounded-md hover:bg-zinc-100 transition-colors duration-200 whitespace-nowrap sm:hidden"
+            >
+              Comprar
+            </Link>
           </div>
 
-          {/* Botão COMPRAR — centralizado na base */}
-          <div className="absolute bottom-32 left-1/2 -translate-x-1/2">
+          {/* Botão COMPRAR — centralizado na base (só desktop) */}
+          <div className="absolute bottom-32 left-1/2 -translate-x-1/2 hidden sm:block">
             <Link
               href="/produtos"
               className="inline-block bg-white text-zinc-900 font-bold text-xs uppercase tracking-[0.22em] px-12 py-3.5 rounded-md hover:bg-zinc-100 transition-colors duration-200 whitespace-nowrap"
