@@ -104,10 +104,13 @@ export default function HomePage() {
               Menos Peças. Mais Memórias.
             </p>
 
-            {/* Botão — junto ao texto no mobile */}
+          </div>
+
+          {/* Botão COMPRAR — centralizado, mobile only */}
+          <div className="absolute bottom-16 left-0 right-0 flex justify-center sm:hidden">
             <Link
               href="/produtos"
-              className="mt-6 inline-block bg-white text-zinc-900 font-bold text-sm uppercase tracking-[0.18em] px-16 py-3.5 hover:bg-zinc-100 transition-colors duration-200 whitespace-nowrap sm:hidden"
+              className="bg-white text-zinc-900 font-bold text-sm uppercase tracking-[0.18em] px-10 py-3.5 hover:bg-zinc-100 transition-colors duration-200 whitespace-nowrap"
             >
               Comprar
             </Link>
