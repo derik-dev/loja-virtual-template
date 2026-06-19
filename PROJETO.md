@@ -380,7 +380,8 @@ export interface Product {
 
 - [ ] Conectar home page ao Supabase para produtos em destaque (featured = true)
 - [x] Redesign: CartDrawer e CartItem (junho/2026)
-- [ ] Redesign: página /carrinho, checkout, conta
+- [x] Redesign: Checkout /checkout (junho/2026)
+- [ ] Redesign: página /carrinho, conta
 - [ ] Filtros avançados: tamanho, cor
 - [ ] Variantes (tamanho/cor) integradas ao carrinho
 - [ ] Responsividade mobile completa
