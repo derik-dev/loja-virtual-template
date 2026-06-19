@@ -96,7 +96,7 @@ export default function HomePage() {
 
 
           {/* Texto editorial */}
-          <div className="absolute left-6 sm:left-14 lg:left-20 top-[52%] sm:top-[50%] -translate-y-1/2">
+          <div className="absolute left-6 sm:left-14 lg:left-20 top-[49%] sm:top-[50%] -translate-y-1/2">
             <p className="text-lg sm:text-5xl lg:text-6xl font-light text-white uppercase tracking-tight leading-none">
               Mala Inteligente.
             </p>
