@@ -320,13 +320,13 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
                 className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
             </div>
 
-            {currentType.hasSizes && (
+            {currentType?.hasSizes && (
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
                   Tamanhos <span className="normal-case font-normal">(separados por vírgula)</span>
                 </label>
                 <input value={form.sizes} onChange={(e) => set('sizes', e.target.value)}
-                  placeholder={currentType.defaultSizes}
+                  placeholder={currentType?.defaultSizes ?? ''}
                   className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
                 <p className="text-[10px] text-zinc-400 mt-1">
                   {form.category === 'calcados' ? 'Ex: 37, 38, 39, 40, 41, 42' : 'Ex: P, M, G, GG, XGG'}
