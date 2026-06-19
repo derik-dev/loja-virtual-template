@@ -125,7 +125,7 @@ export default function ProductShowcase({ products: rawProducts }: Props) {
     el.addEventListener('scroll', updateArrows)
     updateArrows()
     return () => el.removeEventListener('scroll', updateArrows)
-  }, [activeTab])
+  }, [activeTab, rawProducts])
 
   function scrollBy(dir: 'left' | 'right') {
     scrollRef.current?.scrollBy({ left: dir === 'right' ? 340 : -340, behavior: 'smooth' })
