@@ -97,7 +97,7 @@ export default function HomePage() {
             <p className="text-lg sm:text-5xl lg:text-6xl font-light text-white uppercase tracking-tight leading-none">
               Mala Inteligente.
             </p>
-            <p className="mt-1.5 sm:mt-2 text-[1.75rem] sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-tight">
+            <p className="mt-1.5 sm:mt-2 text-[1.35rem] sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-tight">
               Menos Peças. Mais Memórias.
             </p>
 
