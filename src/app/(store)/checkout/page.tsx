@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
 import { formatCurrency } from '@/lib/utils'
@@ -121,6 +121,9 @@ export default function CheckoutPage() {
   const items = useCartStore((s) => s.items)
   const total = useCartStore((s) => s.total())
   const clearCart = useCartStore((s) => s.clearCart)
+
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   const [step, setStep] = useState<Step>('informacoes')
   const [payment, setPayment] = useState<PaymentMethod>('cartao')
@@ -474,9 +477,9 @@ export default function CheckoutPage() {
         <div className="max-w-[400px] mx-auto px-6 py-10 lg:py-14 lg:sticky lg:top-0">
 
           {/* Itens */}
-          <div className="space-y-4 mb-6">
-            {items.length === 0 ? (
-              <p className="text-sm text-zinc-400">Nenhum item no carrinho.</p>
+          <div className="space-y-4 mb-6" suppressHydrationWarning>
+            {!mounted || items.length === 0 ? (
+              <p className="text-sm text-zinc-400">{mounted ? 'Nenhum item no carrinho.' : ''}</p>
             ) : items.map((item) => (
               <div key={item.product.id} className="flex items-start gap-3">
                 <div className="relative flex-shrink-0">
@@ -526,10 +529,10 @@ export default function CheckoutPage() {
           </div>
 
           {/* Totais */}
-          <div className="space-y-2.5 text-sm border-t border-zinc-100 pt-4">
+          <div className="space-y-2.5 text-sm border-t border-zinc-100 pt-4" suppressHydrationWarning>
             <div className="flex justify-between text-zinc-600">
               <span>Subtotal</span>
-              <span>{formatCurrency(total)}</span>
+              <span suppressHydrationWarning>{mounted ? formatCurrency(total) : '—'}</span>
             </div>
             <div className="flex justify-between text-zinc-600">
               <span className="flex items-center gap-1">
@@ -543,8 +546,8 @@ export default function CheckoutPage() {
               {step !== 'pagamento' ? (
                 <span className="text-zinc-400 text-xs">Calculado na próxima etapa</span>
               ) : (
-                <span className={shipping === 0 ? 'text-green-700 font-medium' : ''}>
-                  {shipping === 0 ? 'Grátis' : formatCurrency(shipping ?? 0)}
+                <span suppressHydrationWarning className={shipping === 0 ? 'text-green-700 font-medium' : ''}>
+                  {mounted ? (shipping === 0 ? 'Grátis' : formatCurrency(shipping ?? 0)) : '—'}
                 </span>
               )}
             </div>
@@ -552,7 +555,7 @@ export default function CheckoutPage() {
               <span>Total</span>
               <span className="flex items-baseline gap-2">
                 <span className="text-xs font-normal text-zinc-400">BRL</span>
-                {formatCurrency(finalTotal)}
+                <span suppressHydrationWarning>{mounted ? formatCurrency(finalTotal) : '—'}</span>
               </span>
             </div>
           </div>
