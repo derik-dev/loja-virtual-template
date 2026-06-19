@@ -215,12 +215,18 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
           </h1>
           <p className="text-xs text-zinc-400">{isEdit ? product.name : 'Preencha os dados abaixo'}</p>
         </div>
-        <button onClick={onCancel} className="text-xs text-zinc-500 hover:text-zinc-900 transition-colors">
-          ← Voltar
-        </button>
+        <div className="flex items-center gap-3">
+          <button type="button" onClick={onCancel} className="text-xs text-zinc-500 hover:text-zinc-900 transition-colors">
+            ← Voltar
+          </button>
+          <button type="submit" form="product-form" disabled={saving}
+            className="px-6 py-2 bg-zinc-900 text-white text-xs font-black uppercase tracking-[0.18em] hover:bg-zinc-700 transition-colors disabled:opacity-50">
+            {saving ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar produto'}
+          </button>
+        </div>
       </header>
 
-      <form onSubmit={handleSubmit} className="px-10 py-8">
+      <form id="product-form" onSubmit={handleSubmit} className="px-10 py-8">
         <div className="grid grid-cols-12 gap-8 items-start">
 
           {/* ── Coluna esquerda (conteúdo principal) ── */}
@@ -437,18 +443,6 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
             </div>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
-
-            {/* Botões */}
-            <div className="flex flex-col gap-2">
-              <button type="submit" disabled={saving}
-                className="w-full py-3 bg-zinc-900 text-white text-xs font-black uppercase tracking-[0.18em] hover:bg-zinc-700 transition-colors disabled:opacity-50">
-                {saving ? 'Salvando...' : isEdit ? 'Salvar alterações' : 'Criar produto'}
-              </button>
-              <button type="button" onClick={onCancel}
-                className="w-full py-3 border border-zinc-300 text-xs font-bold uppercase tracking-[0.15em] text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors">
-                Cancelar
-              </button>
-            </div>
           </div>
         </div>
       </form>
