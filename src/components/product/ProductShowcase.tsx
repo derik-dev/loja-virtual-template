@@ -43,7 +43,7 @@ function ProductCard({ product }: { product: ShowcaseProduct }) {
     : null
 
   return (
-    <Link href={`/produto/${product.slug}`} className="group flex-shrink-0 w-[280px] sm:w-[320px]">
+    <Link href={`/produto/${product.slug}`} className="group flex-shrink-0 w-[82vw] sm:w-[320px]">
       <div className="relative overflow-hidden bg-zinc-100" style={{ aspectRatio: '3/4' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
