@@ -58,7 +58,7 @@ export default function BannerSlider() {
           src={s.image}
           alt=""
           className={[
-            'absolute inset-0 w-full h-full object-cover object-left-top sm:object-center transition-opacity duration-700',
+            'absolute inset-0 w-full h-full object-cover object-right-top sm:object-center transition-opacity duration-700',
             i === active ? 'opacity-100' : 'opacity-0',
           ].join(' ')}
         />
