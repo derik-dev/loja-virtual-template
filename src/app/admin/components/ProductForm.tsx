@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
 interface ProductColor {
@@ -33,36 +33,12 @@ interface Props {
   onCancel: () => void
 }
 
-const PRODUCT_TYPES = [
-  {
-    value: 'roupas',
-    label: 'Roupa',
-    icon: '👕',
-    defaultSizes: 'P, M, G, GG, XGG',
-    hasSizes: true,
-  },
-  {
-    value: 'calcados',
-    label: 'Tênis / Calçado',
-    icon: '👟',
-    defaultSizes: '34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44',
-    hasSizes: true,
-  },
-  {
-    value: 'eletronicos',
-    label: 'Eletrônico',
-    icon: '📱',
-    defaultSizes: '',
-    hasSizes: false,
-  },
-  {
-    value: 'acessorios',
-    label: 'Acessório',
-    icon: '👜',
-    defaultSizes: '',
-    hasSizes: false,
-  },
-]
+interface CategoryType {
+  value: string
+  label: string
+  defaultSizes: string
+  hasSizes: boolean
+}
 
 function slugify(str: string) {
   return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -98,6 +74,19 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
     sizes: product?.sizes?.join(', ') ?? 'P, M, G, GG, XGG',
     features: product?.features?.join('\n') ?? '',
   })
+
+  const [categories, setCategories] = useState<CategoryType[]>([])
+
+  useEffect(() => {
+    supabase.from('categories').select('slug, name, has_sizes, default_sizes').eq('active', true).order('name').then(({ data }) => {
+      if (data) setCategories(data.map((c) => ({
+        value: c.slug,
+        label: c.name,
+        hasSizes: c.has_sizes,
+        defaultSizes: c.default_sizes,
+      })))
+    })
+  }, [])
 
   const [images, setImages] = useState<string[]>(product?.images ?? [])
   const [uploading, setUploading] = useState(false)
@@ -159,14 +148,14 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
       const updated = { ...f, [field]: value }
       if (field === 'name' && !isEdit) updated.slug = slugify(value as string)
       if (field === 'category') {
-        const type = PRODUCT_TYPES.find((t) => t.value === value)
+        const type = categories.find((t) => t.value === value)
         if (type) updated.sizes = type.defaultSizes
       }
       return updated
     })
   }
 
-  const currentType = PRODUCT_TYPES.find((t) => t.value === form.category) ?? PRODUCT_TYPES[0]
+  const currentType = categories.find((t) => t.value === form.category) ?? categories[0]
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -264,7 +253,7 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
           <div className="bg-white border border-zinc-200 p-8">
             <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Tipo de produto *</label>
             <div className="flex border border-zinc-300 divide-x divide-zinc-300 overflow-hidden">
-              {PRODUCT_TYPES.map((type) => (
+              {categories.map((type) => (
                 <button key={type.value} type="button" onClick={() => set('category', type.value)}
                   className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${
                     form.category === type.value ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-600 hover:bg-zinc-50'
