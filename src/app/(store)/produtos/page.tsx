@@ -111,7 +111,7 @@ export default function ProdutosPage() {
           <div className="relative" ref={sortRef}>
             <button
               onClick={() => setSortOpen((v) => !v)}
-              className="flex items-center gap-3 border border-zinc-300 px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-800 hover:border-zinc-900 transition-colors"
+              className="flex items-center gap-3 border border-zinc-300 px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-800 hover:border-zinc-900 transition-colors whitespace-nowrap"
             >
               ORDENAR POR
               <svg
