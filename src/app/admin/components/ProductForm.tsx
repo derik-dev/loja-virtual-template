@@ -220,14 +220,14 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
         </button>
       </header>
 
-      <form onSubmit={handleSubmit} className="px-8 py-8 max-w-6xl mx-auto">
-        <div className="grid grid-cols-5 gap-6 items-start">
+      <form onSubmit={handleSubmit} className="px-10 py-8">
+        <div className="grid grid-cols-12 gap-8 items-start">
 
           {/* ── Coluna esquerda (conteúdo principal) ── */}
-          <div className="col-span-3 space-y-5">
+          <div className="col-span-8 space-y-6">
 
             {/* Nome + Slug */}
-            <div className="bg-white border border-zinc-200 p-6 space-y-5">
+            <div className="bg-white border border-zinc-200 p-8 space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Nome *</label>
@@ -258,7 +258,7 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
             </div>
 
             {/* Imagens */}
-            <div className="bg-white border border-zinc-200 p-6">
+            <div className="bg-white border border-zinc-200 p-8">
               <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-3">
                 Imagens <span className="normal-case font-normal">({images.length} foto{images.length !== 1 ? 's' : ''})</span>
               </label>
@@ -316,10 +316,10 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
           </div>
 
           {/* ── Coluna direita (metadados) ── */}
-          <div className="col-span-2 space-y-5">
+          <div className="col-span-4 space-y-6">
 
             {/* Tipo de produto */}
-            <div className="bg-white border border-zinc-200 p-6">
+            <div className="bg-white border border-zinc-200 p-8">
               <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Tipo de produto *</label>
               <div className="flex flex-col border border-zinc-300 divide-y divide-zinc-300 overflow-hidden">
                 {PRODUCT_TYPES.map((type) => (
@@ -340,7 +340,7 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
             </div>
 
             {/* Preços */}
-            <div className="bg-white border border-zinc-200 p-6 space-y-4">
+            <div className="bg-white border border-zinc-200 p-8 space-y-5">
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Preço (R$) *</label>
                 <input required type="number" step="0.01" value={form.price} onChange={(e) => set('price', e.target.value)}
@@ -356,7 +356,7 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
             </div>
 
             {/* Estoque + Rating + Reviews */}
-            <div className="bg-white border border-zinc-200 p-6 space-y-4">
+            <div className="bg-white border border-zinc-200 p-8 space-y-5">
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Estoque</label>
@@ -384,7 +384,7 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
             </div>
 
             {/* Tags + Tamanhos + Cores */}
-            <div className="bg-white border border-zinc-200 p-6 space-y-5">
+            <div className="bg-white border border-zinc-200 p-8 space-y-6">
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
                   Tags <span className="normal-case font-normal">(separadas por vírgula)</span>
