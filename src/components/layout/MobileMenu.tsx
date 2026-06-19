@@ -23,7 +23,7 @@ export default function MobileMenu({ isOpen, onClose, links }: MobileMenuProps) 
   useEffect(() => {
     if (isOpen) {
       setMounted(true)
-      requestAnimationFrame(() => setVisible(true))
+      requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)))
       document.body.style.overflow = 'hidden'
     } else {
       setVisible(false)
