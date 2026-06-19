@@ -79,7 +79,7 @@ export default function HomePage() {
       <main className="min-h-screen bg-white">
 
         {/* ── HERO ─────────────────────────────────────────── */}
-        <section className="relative overflow-hidden" style={{ height: '96vh' }}>
+        <section className="relative overflow-hidden h-[72vh] sm:h-[96vh]">
           {/* Imagem de fundo */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -92,19 +92,19 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/15 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent sm:from-black/45" />
 
-          {/* Texto + botão mobile: baixo da tela / desktop: meio vertical */}
-          <div className="absolute bottom-24 left-6 right-6 sm:bottom-auto sm:right-auto sm:left-14 lg:left-20 sm:top-[50%] sm:-translate-y-1/2">
-            <p className="text-4xl sm:text-5xl lg:text-6xl font-light text-white uppercase tracking-tight leading-none">
+          {/* Texto editorial */}
+          <div className="absolute left-6 sm:left-14 lg:left-20 top-[50%] -translate-y-1/2">
+            <p className="text-2xl sm:text-5xl lg:text-6xl font-light text-white uppercase tracking-tight leading-none">
               Mala Inteligente.
             </p>
-            <p className="mt-2 text-4xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-none">
+            <p className="mt-1.5 sm:mt-2 text-2xl sm:text-5xl lg:text-6xl font-black text-white uppercase tracking-tight leading-none">
               Menos Peças. Mais Memórias.
             </p>
 
-            {/* Botão — junto ao texto no mobile, separado no desktop */}
+            {/* Botão — junto ao texto no mobile */}
             <Link
               href="/produtos"
-              className="mt-8 inline-block bg-white text-zinc-900 font-bold text-xs uppercase tracking-[0.22em] px-12 py-3.5 rounded-md hover:bg-zinc-100 transition-colors duration-200 whitespace-nowrap sm:hidden"
+              className="mt-6 inline-block bg-white text-zinc-900 font-bold text-sm uppercase tracking-[0.18em] px-16 py-3.5 hover:bg-zinc-100 transition-colors duration-200 whitespace-nowrap sm:hidden"
             >
               Comprar
             </Link>
