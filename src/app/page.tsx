@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Header, Footer } from '@/components/layout'
 import { BannerSlider, PromoSlider, RealLifeGallery, FaqSection } from '@/components/ui'
@@ -60,6 +60,24 @@ export default function HomePage() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
+  const escolhasRef = useRef<HTMLDivElement>(null)
+  const [escolhasLeft, setEscolhasLeft] = useState(false)
+  const [escolhasRight, setEscolhasRight] = useState(true)
+
+  function updateEscolhasArrows() {
+    const el = escolhasRef.current
+    if (!el) return
+    setEscolhasLeft(el.scrollLeft > 10)
+    setEscolhasRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 10)
+  }
+
+  useEffect(() => {
+    const el = escolhasRef.current
+    if (!el) return
+    el.addEventListener('scroll', updateEscolhasArrows)
+    updateEscolhasArrows()
+    return () => el.removeEventListener('scroll', updateEscolhasArrows)
+  }, [products])
 
   useEffect(() => {
     supabase.from('products').select('*').then(({ data }) => {
@@ -178,8 +196,20 @@ export default function HomePage() {
           </div>
 
           {/* Mobile: carrossel | Desktop: grid */}
+          <div className="relative sm:hidden">
+            {escolhasLeft && (
+              <button onClick={() => escolhasRef.current?.scrollBy({ left: -220, behavior: 'smooth' })} className="absolute left-3 top-1/3 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-zinc-200 shadow-md flex items-center justify-center hover:bg-zinc-50">
+                <svg className="h-4 w-4 text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+              </button>
+            )}
+            {escolhasRight && (
+              <button onClick={() => escolhasRef.current?.scrollBy({ left: 220, behavior: 'smooth' })} className="absolute right-3 top-1/3 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-zinc-200 shadow-md flex items-center justify-center hover:bg-zinc-50">
+                <svg className="h-4 w-4 text-zinc-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+              </button>
+            )}
           <div
-            className="flex gap-4 overflow-x-auto px-4 pb-2 sm:hidden"
+            ref={escolhasRef}
+            className="flex gap-4 overflow-x-auto px-4 pb-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {products.slice(0, 5).map((p) => {
@@ -209,6 +239,7 @@ export default function HomePage() {
                 </Link>
               )
             })}
+          </div>
           </div>
 
           {/* Desktop: grid */}
