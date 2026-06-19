@@ -189,7 +189,7 @@ export default function Dashboard() {
                   tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
                 <YAxis type="category" dataKey="categoria" tick={{ fontSize: 10, fill: '#a1a1aa' }} axisLine={false} tickLine={false} width={70} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="receita" fill="#18181b" radius={[0, 3, 3, 0]} />
+                <Bar dataKey="receita" fill="#6366f1" radius={[0, 3, 3, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
