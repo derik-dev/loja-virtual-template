@@ -161,7 +161,7 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
               scrolled ? 'max-h-0 py-0 opacity-0' : 'max-h-10 py-2.5 opacity-100',
             ].join(' ')}
           >
-            <p className="text-[11px] font-semibold tracking-[0.18em] text-white uppercase">
+            <p className="text-[8px] font-semibold tracking-[0.18em] text-white uppercase">
               Roupas tecnológicas: tecidos inteligentes e design funcional
             </p>
           </div>
