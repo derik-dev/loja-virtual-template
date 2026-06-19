@@ -278,16 +278,16 @@ export default function ProductPage({ params }: ProductPageProps) {
           {/* Características com ícones */}
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-3">Características do produto</p>
-            <div className="flex gap-6 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+            <div className="flex gap-5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
               {[
-                { icon: '🌬️', label: 'Anti Odor' },
-                { icon: '👕', label: 'Desamassa no Corpo' },
-                { icon: '🌡️', label: 'Regulação Térmica' },
-                { icon: '💧', label: 'Secagem Rápida' },
-                { icon: '✨', label: 'Não Desbota' },
+                { label: 'Anti Odor', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-6 w-6"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3c0 0-4 2-4 7s4 5 4 9m0-16c0 0 4 2 4 7s-4 5-4 9m-4-9h8" /></svg> },
+                { label: 'Desamassa no Corpo', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-6 w-6"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg> },
+                { label: 'Regulação Térmica', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-6 w-6"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" /></svg> },
+                { label: 'Secagem Rápida', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-6 w-6"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg> },
+                { label: 'Não Desbota', svg: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-6 w-6"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
               ].map((f) => (
-                <div key={f.label} className="flex-shrink-0 flex flex-col items-center gap-1.5 w-16">
-                  <div className="h-12 w-12 bg-zinc-100 flex items-center justify-center text-xl">{f.icon}</div>
+                <div key={f.label} className="flex-shrink-0 flex flex-col items-center gap-2 w-[60px]">
+                  <div className="h-12 w-12 bg-zinc-100 flex items-center justify-center text-zinc-700">{f.svg}</div>
                   <p className="text-[9px] font-semibold text-zinc-600 text-center leading-tight">{f.label}</p>
                 </div>
               ))}
