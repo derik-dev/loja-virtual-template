@@ -391,4 +391,85 @@ export interface Product {
 
 ---
 
+---
+
+## Responsividade Mobile (adicionada em junho/2026)
+
+Todo o trabalho de mobile foi feito com referência visual na **Insider Store Brasil** (insiderstore.com.br). Prints da Insider = referência de como deve ficar.
+
+### Header Mobile
+
+- Fundo `bg-black` fixo em todos os estados (normal, scroll, dropdown)
+- Layout: **hamburger (esquerda) | logo VERO branca (centro) | busca + carrinho (direita)**
+- Altura `h-12`
+- Logo sempre `logo-branca.png` independente do scroll
+- Announcement bar visível no mobile (texto `8px`)
+- Botão desktop "Ajuda" e "Conta" ocultos no mobile
+
+### Menu Mobile (`MobileMenu.tsx`)
+
+- Tela cheia com fundo `bg-black`
+- Animação slide-in da esquerda ao abrir, slide-out ao fechar (`300ms ease-in-out`)
+- Top bar com X (esquerda), logo (centro), busca + carrinho (direita)
+- Botões "Já Sou Cliente" e "Criar Conta" com borda branca
+- Links em uppercase com `+` para expandir submenus
+
+### Hero Mobile (`/`)
+
+- Imagem separada: `hero-fashion-cel.png` no mobile, `hero-fashion.png` no desktop
+- Altura `h-[85vh]` no mobile
+- Texto posicionado em `top-[50%]` — primeira linha `text-lg`, segunda `text-[1.25rem]`
+- Botão COMPRAR centralizado em `bottom-24`, com `rounded-md`
+- Sem gradientes sobre a imagem
+
+### ProductShowcase Mobile
+
+- Card com `w-[82vw]` — mostra quase um card inteiro + "orelha" do próximo
+- Setas reativadas após correção do `useEffect` (deps incluem `rawProducts`)
+
+### Escolhas Inteligentes Mobile
+
+- **Mobile**: carrossel horizontal com setas (igual ao ProductShowcase)
+- **Desktop**: grid 5 colunas (inalterado)
+- Cards com mesmo estilo do ProductShowcase (badge, cores, preço, rating)
+
+### BannerSlider Mobile
+
+- Texto centralizado no mobile (`text-center`), alinhado à esquerda no desktop
+- `object-[65%_top]` para mostrar a pessoa da imagem no mobile
+
+### Página de Produtos Mobile (`/produtos`)
+
+- Grid **2 colunas** (era 1 coluna no mobile)
+- Padding lateral reduzido: `px-4`
+- Barra de filtro: "Resultado (X)" à esquerda + **FILTRO** + **ORDENAR POR** à direita
+- `whitespace-nowrap` no botão "ORDENAR POR"
+- Badge de produto: parte de baixo da imagem no mobile (`bottom-3 left-3`)
+
+### Página de Produto Mobile (`/produto/[slug]`)
+
+Layout mobile completamente separado do desktop (`md:hidden`):
+
+1. **Rating + nome + badges** acima da imagem
+2. **Imagem full-width** com setas de navegação e dots
+3. **Preço** abaixo da imagem
+4. **Seletor de cor** com nome dinâmico
+5. **Seletor de tamanho** em flex-wrap
+6. **Quantidade em kits** (1 unid. / Kit 3 / Kit 5) com preço por unidade
+7. **Envio imediato** e botão **COMPRE PELO WHATSAPP**
+8. **Características com ícones SVG** em carrossel horizontal
+9. **Accordions**: Descrição, Diferenciais, Características, Composição
+10. **Seções editoriais** (imagem + título + texto) empilhadas
+11. **CTA sticky** no rodapé: preço + "SELECIONAR UMA OPÇÃO"
+
+Seção "Vero in Real Life" removida da página de produto.
+
+### Assets adicionados
+
+| Arquivo | Uso |
+|---|---|
+| `hero-fashion-cel.png` | Hero específico para mobile |
+
+---
+
 *Última atualização: 19/06/2026*
