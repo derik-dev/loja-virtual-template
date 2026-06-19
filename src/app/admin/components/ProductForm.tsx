@@ -45,47 +45,69 @@ function CategoryDropdown({ categories, value, onChange }: {
   value: string
   onChange: (v: string) => void
 }) {
+  const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const selected = categories.find((c) => c.value === value)
+
+  const filtered = query.trim()
+    ? categories.filter((c) => c.label.toLowerCase().includes(query.toLowerCase()))
+    : categories
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false)
+        setQuery('')
+      }
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  function handleSelect(cat: CategoryType) {
+    onChange(cat.value)
+    setQuery('')
+    setOpen(false)
+  }
+
   return (
     <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between border border-zinc-300 px-3 py-2 text-sm bg-white hover:border-zinc-400 focus:outline-none focus:border-zinc-900 transition-colors"
-      >
-        <span className={selected ? 'text-zinc-900' : 'text-zinc-400'}>
-          {categories.length === 0 ? 'Carregando...' : (selected?.label ?? 'Selecione uma categoria')}
-        </span>
-        <svg className={`h-4 w-4 text-zinc-400 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <div className="flex items-center border border-zinc-300 focus-within:border-zinc-900 transition-colors">
+        <input
+          ref={inputRef}
+          type="text"
+          value={open ? query : (selected?.label ?? '')}
+          placeholder={categories.length === 0 ? 'Carregando...' : 'Digite para buscar categoria...'}
+          onFocus={() => { setOpen(true); setQuery('') }}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
+          className="flex-1 px-3 py-2 text-sm bg-white focus:outline-none"
+        />
+        <svg className={`h-4 w-4 text-zinc-400 mr-3 flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
-      </button>
+      </div>
 
       {open && (
         <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-zinc-200 shadow-lg max-h-60 overflow-y-auto">
-          {categories.map((c) => (
-            <button
-              key={c.value}
-              type="button"
-              onClick={() => { onChange(c.value); setOpen(false) }}
-              className={`w-full text-left px-3 py-2 text-sm transition-colors ${
-                c.value === value ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:bg-zinc-50'
-              }`}
-            >
-              {c.label}
-            </button>
-          ))}
+          {filtered.length === 0 ? (
+            <p className="px-3 py-2 text-sm text-zinc-400">Nenhuma categoria encontrada.</p>
+          ) : (
+            filtered.map((c) => (
+              <button
+                key={c.value}
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => handleSelect(c)}
+                className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                  c.value === value ? 'bg-zinc-900 text-white' : 'text-zinc-700 hover:bg-zinc-50'
+                }`}
+              >
+                {c.label}
+              </button>
+            ))
+          )}
         </div>
       )}
     </div>
