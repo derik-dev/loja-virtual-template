@@ -379,7 +379,8 @@ export interface Product {
 ## O que ainda precisa ser feito (atualizado junho/2026)
 
 - [ ] Conectar home page ao Supabase para produtos em destaque (featured = true)
-- [ ] Redesign: carrinho, checkout, conta
+- [x] Redesign: CartDrawer e CartItem (junho/2026)
+- [ ] Redesign: página /carrinho, checkout, conta
 - [ ] Filtros avançados: tamanho, cor
 - [ ] Variantes (tamanho/cor) integradas ao carrinho
 - [ ] Responsividade mobile completa
@@ -471,5 +472,16 @@ Seção "Vero in Real Life" removida da página de produto.
 | `hero-fashion-cel.png` | Hero específico para mobile |
 
 ---
+
+### CartDrawer (redesenhado em junho/2026)
+
+Baseado na referência visual da Insider Store Brasil:
+
+- **Header**: ícone de sacola + "CARRINHO" uppercase + X para fechar
+- **Barra de progresso**: azul (`bg-blue-800`) com dot, threshold R$399 para frete grátis. Texto dinâmico: "Faltam R$X pra ganhar Frete Grátis" / "Você ganhou Frete Grátis! 🎉"
+- **Estado vazio**: texto + 3 botões com borda (MASCULINO / FEMININO / KITS) linkando para `/produtos?categoria=...`
+- **CartItem**: imagem retangular `w-20 h-24`, nome uppercase tracking-wide, controles de qty com borda quadrada, preço + botão Remover
+- **Footer**: subtotal + frete + total + botão preto uppercase "FINALIZAR COMPRA"
+- Visual: preto/branco/zinc, sem indigo
 
 *Última atualização: 19/06/2026*
