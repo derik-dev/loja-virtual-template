@@ -182,11 +182,11 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
               </svg>
             </button>
 
-            {/* Logo — centro absoluto */}
+            {/* Logo — centro absoluto, sempre branca no mobile */}
             <Link href="/" className="absolute left-1/2 -translate-x-1/2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={lightText ? '/logo-branca.png' : '/logo-preta.png'}
+                src="/logo-branca.png"
                 alt="VERO"
                 className="h-7 w-auto object-contain"
               />
