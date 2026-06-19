@@ -134,13 +134,13 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
 
   let headerBg: string
   if (searchOpen || hasDropdown) {
-    headerBg = 'bg-white border-b border-zinc-200 shadow-sm'
+    headerBg = 'bg-zinc-900 md:bg-white md:border-b md:border-zinc-200 md:shadow-sm'
   } else if (!scrolled && overlay) {
-    headerBg = 'bg-transparent'
+    headerBg = 'bg-zinc-900 md:bg-transparent'
   } else if (scrolled && overlay) {
-    headerBg = 'bg-white/75 backdrop-blur-md'
+    headerBg = 'bg-zinc-900 md:bg-white/75 md:backdrop-blur-md'
   } else {
-    headerBg = 'bg-white border-b border-zinc-200 shadow-sm'
+    headerBg = 'bg-zinc-900 md:bg-white md:border-b md:border-zinc-200 md:shadow-sm'
   }
 
   return (
@@ -175,7 +175,7 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
             <button
               onClick={() => setMobileOpen(true)}
               aria-label="Menu"
-              className={`p-2 hover:opacity-70 transition-opacity ${lightText ? 'text-white' : 'text-zinc-800'}`}
+              className="p-2 text-white hover:opacity-70 transition-opacity"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -193,7 +193,7 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
             </Link>
 
             {/* Busca + Carrinho — direita */}
-            <div className={`flex items-center ${lightText ? 'text-white' : 'text-zinc-800'}`}>
+            <div className="flex items-center text-white">
               <button onClick={openSearch} aria-label="Buscar" className="p-2 hover:opacity-70 transition-opacity">
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
