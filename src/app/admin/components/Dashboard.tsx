@@ -191,14 +191,14 @@ export default function Dashboard() {
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
-                  label={({ name, percent }: { name: string; percent?: number }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
+                  label={({ name, percent }: { name?: string; percent?: number }) => `${name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`}
                   labelLine={false}
                 >
                   {categoryData.map((_, i) => (
                     <Cell key={i} fill={['#18181b', '#52525b', '#a1a1aa', '#d4d4d8', '#e4e4e7'][i % 5]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
+                <Tooltip formatter={(v) => typeof v === 'number' ? `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : v} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
               </PieChart>
             </ResponsiveContainer>
