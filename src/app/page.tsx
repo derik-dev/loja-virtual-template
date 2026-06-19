@@ -178,22 +178,49 @@ export default function HomePage() {
               <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-zinc-400">Que te lembram quem é essencial</p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-              {products.slice(0, 5).map((p) => (
-                <Link key={p.id} href={`/produto/${p.slug}`} className="group">
-                  <div className="overflow-hidden bg-zinc-100" style={{ aspectRatio: '3/4' }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={p.images[0] ?? ''}
-                      alt={p.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-700 group-hover:text-zinc-900 transition-colors">
-                    {p.name}
-                  </p>
-                </Link>
-              ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              {products.slice(0, 5).map((p) => {
+                const discount = p.originalPrice ? Math.round((1 - p.price / p.originalPrice) * 100) : null
+                return (
+                  <Link key={p.id} href={`/produto/${p.slug}`} className="group">
+                    <div className="relative overflow-hidden bg-zinc-100" style={{ aspectRatio: '3/4' }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={p.images[0] ?? ''}
+                        alt={p.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      {(p.featured || discount) && (
+                        <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
+                          {p.featured && (
+                            <span className="bg-white border border-zinc-200 text-zinc-800 text-[10px] font-semibold tracking-[0.08em] px-2 py-0.5">BEST SELLER</span>
+                          )}
+                          {discount && (
+                            <span className="bg-white border border-zinc-200 text-zinc-800 text-[10px] font-semibold tracking-[0.08em] px-2 py-0.5">{discount}% OFF</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-3">
+                      {(p.colors ?? []).slice(0, 6).map((c, i) => (
+                        <span key={i} className="h-3.5 w-3.5 rounded-full border border-zinc-200 flex-shrink-0" style={{ backgroundColor: c.hex }} />
+                      ))}
+                    </div>
+                    <p className="mt-2 text-sm text-zinc-800 leading-snug">{p.name}</p>
+                    <div className="mt-1.5 flex items-baseline gap-2">
+                      {p.originalPrice && <span className="text-xs text-zinc-400 line-through">R${p.originalPrice}</span>}
+                      <span className="text-sm text-zinc-900">R${p.price}</span>
+                      {discount && <span className="text-xs text-zinc-400">com cupom</span>}
+                    </div>
+                    {p.rating && (
+                      <div className="mt-1 flex items-center gap-1">
+                        <span className="text-[11px] text-zinc-500">★ {p.rating}</span>
+                        <span className="text-[11px] text-zinc-400">({p.reviewCount?.toLocaleString('pt-BR')} reviews)</span>
+                      </div>
+                    )}
+                  </Link>
+                )
+              })}
             </div>
           </div>
         </section>
