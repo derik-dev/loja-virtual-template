@@ -4,8 +4,9 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
 import { useRouter } from 'next/navigation'
-import { products } from '@/lib/data/products'
+import { supabase, mapProduct } from '@/lib/supabase'
 import { formatCurrency } from '@/lib/utils'
+import type { Product } from '@/lib/types'
 import MobileMenu from './MobileMenu'
 
 interface HeaderProps {
@@ -83,17 +84,32 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Product[]>([])
   const [mounted, setMounted] = useState(false)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const itemCount = useCartStore((s) => s.itemCount())
 
   useEffect(() => { setMounted(true) }, [])
   const router = useRouter()
 
-  const searchResults = searchQuery.trim().length > 0
-    ? products.filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 8)
-    : []
+  useEffect(() => {
+    const q = searchQuery.trim()
+    if (!q) { setSearchResults([]); return }
+
+    if (debounceTimer.current) clearTimeout(debounceTimer.current)
+    debounceTimer.current = setTimeout(async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .ilike('name', `%${q}%`)
+        .limit(8)
+      if (!error && data) setSearchResults(data.map(mapProduct))
+    }, 250)
+
+    return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current) }
+  }, [searchQuery])
 
   function openSearch() {
     setSearchOpen(true)
