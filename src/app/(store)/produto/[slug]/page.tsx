@@ -662,23 +662,6 @@ export default function ProductPage({ params }: ProductPageProps) {
         </div>
       </div>
 
-      {/* ── VERO IN REAL LIFE ────────────────────────────────── */}
-      <section className="py-16 border-t border-zinc-100">
-        <h2 className="text-center text-sm font-bold uppercase tracking-[0.28em] text-zinc-900 mb-8">
-          VERO IN REAL LIFE
-        </h2>
-        <div className="flex justify-center overflow-x-auto gap-4 px-8 sm:px-14 lg:px-20">
-          {REAL_LIFE_PHOTOS.map((src, i) => (
-            <div key={i} className="flex-shrink-0 w-[500px] h-[500px] overflow-hidden bg-zinc-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-            </div>
-          ))}
-        </div>
-        <div className="text-center mt-5">
-          <button className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors underline underline-offset-4">Ver +</button>
-        </div>
-      </section>
 
       {/* ── RATING SUMMARY ───────────────────────────────────── */}
       <section className="py-16 border-t border-zinc-100">
