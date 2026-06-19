@@ -263,6 +263,59 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
               </div>
             </div>
 
+            {/* Tags + Tamanhos + Cores */}
+            <div className="bg-white border border-zinc-200 p-8 space-y-6">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+                  Tags <span className="normal-case font-normal">(separadas por vírgula)</span>
+                </label>
+                <input value={form.tags} onChange={(e) => set('tags', e.target.value)}
+                  placeholder="camiseta, algodao, casual"
+                  className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+              </div>
+
+              {currentType.hasSizes && (
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
+                    Tamanhos <span className="normal-case font-normal">(separados por vírgula)</span>
+                  </label>
+                  <input value={form.sizes} onChange={(e) => set('sizes', e.target.value)}
+                    placeholder={currentType.defaultSizes}
+                    className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+                  <p className="text-[10px] text-zinc-400 mt-1">
+                    {form.category === 'calcados' ? 'Ex: 37, 38, 39, 40, 41, 42' : 'Ex: P, M, G, GG, XGG'}
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Cores</label>
+                {colors.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {colors.map((c, i) => (
+                      <div key={i} className="flex items-center gap-1.5 border border-zinc-200 rounded-full pl-1 pr-2 py-1 bg-white">
+                        <span className="h-5 w-5 rounded-full border border-zinc-200 flex-shrink-0" style={{ backgroundColor: c.hex }} />
+                        <span className="text-xs text-zinc-700 font-medium">{c.name}</span>
+                        <button type="button" onClick={() => removeColor(i)} className="ml-0.5 text-zinc-300 hover:text-red-400 transition-colors leading-none">×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <input type="color" value={newColorHex} onChange={(e) => setNewColorHex(e.target.value)}
+                    className="h-9 w-10 border border-zinc-300 rounded cursor-pointer p-0.5" />
+                  <input type="text" placeholder="Nome da cor (ex: Preto)" value={newColorName}
+                    onChange={(e) => setNewColorName(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
+                    className="flex-1 border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
+                  <button type="button" onClick={addColor}
+                    className="px-3 py-2 border border-zinc-300 text-xs font-semibold text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors whitespace-nowrap">
+                    + Adicionar
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* Imagens */}
             <div className="bg-white border border-zinc-200 p-8">
               <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-3">
@@ -386,59 +439,6 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
                   onChange={(e) => set('featured', e.target.checked)}
                   className="h-4 w-4 accent-zinc-900" />
                 <label htmlFor="featured" className="text-sm text-zinc-700">Produto em destaque (Best Seller)</label>
-              </div>
-            </div>
-
-            {/* Tags + Tamanhos + Cores */}
-            <div className="bg-white border border-zinc-200 p-8 space-y-6">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
-                  Tags <span className="normal-case font-normal">(separadas por vírgula)</span>
-                </label>
-                <input value={form.tags} onChange={(e) => set('tags', e.target.value)}
-                  placeholder="camiseta, algodao, casual"
-                  className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-              </div>
-
-              {currentType.hasSizes && (
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">
-                    Tamanhos <span className="normal-case font-normal">(separados por vírgula)</span>
-                  </label>
-                  <input value={form.sizes} onChange={(e) => set('sizes', e.target.value)}
-                    placeholder={currentType.defaultSizes}
-                    className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-                  <p className="text-[10px] text-zinc-400 mt-1">
-                    {form.category === 'calcados' ? 'Ex: 37, 38, 39, 40, 41, 42' : 'Ex: P, M, G, GG, XGG'}
-                  </p>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Cores</label>
-                {colors.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {colors.map((c, i) => (
-                      <div key={i} className="flex items-center gap-1.5 border border-zinc-200 rounded-full pl-1 pr-2 py-1 bg-white">
-                        <span className="h-5 w-5 rounded-full border border-zinc-200 flex-shrink-0" style={{ backgroundColor: c.hex }} />
-                        <span className="text-xs text-zinc-700 font-medium">{c.name}</span>
-                        <button type="button" onClick={() => removeColor(i)} className="ml-0.5 text-zinc-300 hover:text-red-400 transition-colors leading-none">×</button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="flex items-center gap-2">
-                  <input type="color" value={newColorHex} onChange={(e) => setNewColorHex(e.target.value)}
-                    className="h-9 w-10 border border-zinc-300 rounded cursor-pointer p-0.5" />
-                  <input type="text" placeholder="Nome da cor (ex: Preto)" value={newColorName}
-                    onChange={(e) => setNewColorName(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addColor())}
-                    className="flex-1 border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900" />
-                  <button type="button" onClick={addColor}
-                    className="px-3 py-2 border border-zinc-300 text-xs font-semibold text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition-colors whitespace-nowrap">
-                    + Adicionar
-                  </button>
-                </div>
               </div>
             </div>
 
