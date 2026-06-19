@@ -110,7 +110,7 @@ export default function HomePage() {
           <div className="absolute bottom-24 left-0 right-0 flex justify-center sm:hidden">
             <Link
               href="/produtos"
-              className="bg-white text-zinc-900 font-bold text-sm uppercase tracking-[0.18em] px-10 py-3.5 hover:bg-zinc-100 transition-colors duration-200 whitespace-nowrap"
+              className="bg-white text-zinc-900 font-bold text-sm uppercase tracking-[0.18em] px-10 py-3.5 rounded-full hover:bg-zinc-100 transition-colors duration-200 whitespace-nowrap"
             >
               Comprar
             </Link>
