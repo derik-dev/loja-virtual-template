@@ -80,35 +80,35 @@ export default function ProdutosPage() {
       </section>
 
       {/* ── SUBTITLE ───────────────────────────────────────── */}
-      <div className="px-8 sm:px-14 lg:px-20 pt-5 pb-1">
+      <div className="px-4 sm:px-14 lg:px-20 pt-5 pb-1">
         <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-zinc-800">
           VERO | COLEÇÃO 2026
         </p>
       </div>
 
       {/* ── MAIN CONTENT ───────────────────────────────────── */}
-      <div className="px-8 sm:px-14 lg:px-20 py-6">
+      <div className="px-4 sm:px-14 lg:px-20 py-4 sm:py-6">
 
-        {/* Sort bar + mobile filter toggle */}
-        <div className="flex items-center justify-between mb-6">
-          {/* Mobile filter toggle */}
-          <button
-            onClick={() => setFiltersVisible((v) => !v)}
-            className="lg:hidden flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-zinc-600 hover:text-zinc-900 transition-colors"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-            </svg>
-            Filtros
-          </button>
+        {/* Sort bar */}
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          {/* Resultado + botão FILTRO (mobile) / apenas count (desktop) */}
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-zinc-500 uppercase tracking-[0.14em]">
+              Resultado ({filtered.length})
+            </p>
+          </div>
 
-          {/* Product count */}
-          <p className="hidden lg:block text-xs text-zinc-400 uppercase tracking-[0.14em]">
-            {filtered.length} produtos
-          </p>
+          <div className="flex items-center gap-2">
+            {/* FILTRO button — mobile */}
+            <button
+              onClick={() => setFiltersVisible((v) => !v)}
+              className="lg:hidden border border-zinc-900 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-900 hover:bg-zinc-900 hover:text-white transition-colors"
+            >
+              Filtro
+            </button>
 
           {/* ORDENAR POR dropdown */}
-          <div className="relative ml-auto" ref={sortRef}>
+          <div className="relative" ref={sortRef}>
             <button
               onClick={() => setSortOpen((v) => !v)}
               className="flex items-center gap-3 border border-zinc-300 px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-800 hover:border-zinc-900 transition-colors"
@@ -139,6 +139,7 @@ export default function ProdutosPage() {
                 ))}
               </div>
             )}
+          </div>
           </div>
         </div>
 

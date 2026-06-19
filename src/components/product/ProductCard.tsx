@@ -55,9 +55,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
 
-        {/* Badges — top right stacked */}
+        {/* Badges — bottom left no mobile, top right no desktop */}
         {badges.length > 0 && (
-          <div className="absolute top-3 right-3 flex flex-col items-end gap-1">
+          <div className="absolute bottom-3 left-3 sm:bottom-auto sm:top-3 sm:left-auto sm:right-3 flex flex-col items-start sm:items-end gap-1">
             {badges.map((badge) => (
               <span
                 key={badge}
