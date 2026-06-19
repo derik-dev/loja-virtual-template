@@ -17,16 +17,30 @@ interface MobileMenuProps {
 
 export default function MobileMenu({ isOpen, onClose, links }: MobileMenuProps) {
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  if (!isOpen) return null
+  useEffect(() => {
+    if (isOpen) {
+      requestAnimationFrame(() => setVisible(true))
+    } else {
+      setVisible(false)
+    }
+  }, [isOpen])
+
+  if (!isOpen && !visible) return null
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col md:hidden">
+    <div
+      className={[
+        'fixed inset-0 z-50 bg-black flex flex-col md:hidden transition-transform duration-300 ease-out',
+        visible ? 'translate-x-0' : '-translate-x-full',
+      ].join(' ')}
+    >
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 h-12 flex-shrink-0">
         <button onClick={onClose} aria-label="Fechar menu" className="text-white p-2">
