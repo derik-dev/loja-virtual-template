@@ -370,7 +370,8 @@ export interface Product {
 |---|---|
 | `logo-branca.png` | Header da loja (fundo escuro) e sidebar do admin |
 | `logo-preta.png` | Header da loja após scroll (fundo branco) |
-| `hero-fashion.png` | Banner da página de produtos |
+| `hero-fashion.png` | Banner hero desktop |
+| `hero-fashion-cel.png` | Banner hero mobile |
 | `section-*.png` | Fotos das seções editoriais na home |
 
 ---
@@ -390,4 +391,4 @@ export interface Product {
 
 ---
 
-*Última atualização: 18/06/2026*
+*Última atualização: 19/06/2026*
