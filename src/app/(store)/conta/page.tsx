@@ -36,15 +36,22 @@ export default function ContaPage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Sub-nav da conta */}
+      {/* Header da conta */}
       <div className="border-b border-zinc-200">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+          {/* Logo → home */}
+          <Link href="/">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-preta.png" alt="VERO" className="h-7 w-auto object-contain" />
+          </Link>
+
+          {/* Nav tabs */}
           <nav className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
             {NAV_TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`text-sm whitespace-nowrap py-3 border-b-2 transition-colors ${
+                className={`text-sm whitespace-nowrap py-4 border-b-2 transition-colors ${
                   activeTab === tab.key
                     ? 'border-zinc-900 text-zinc-900 font-semibold'
                     : 'border-transparent text-zinc-500 hover:text-zinc-800'
@@ -56,7 +63,7 @@ export default function ContaPage() {
           </nav>
 
           {/* Avatar */}
-          <div className="flex-shrink-0 ml-4 h-8 w-8 rounded-full border border-zinc-300 flex items-center justify-center text-xs font-bold text-zinc-700">
+          <div className="flex-shrink-0 h-8 w-8 rounded-full border border-zinc-300 flex items-center justify-center text-xs font-bold text-zinc-700">
             {initial}
           </div>
         </div>

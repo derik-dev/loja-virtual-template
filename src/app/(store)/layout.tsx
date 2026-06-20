@@ -1,13 +1,19 @@
+'use client'
+
+import { usePathname } from 'next/navigation'
 import { Header, Footer } from '@/components/layout'
 import { CartDrawer } from '@/components/cart'
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const isAccountPage = pathname === '/conta'
+
   return (
     <>
-      <Header />
+      {!isAccountPage && <Header />}
       <main className="min-h-screen">{children}</main>
-      <Footer />
-      <CartDrawer />
+      {!isAccountPage && <Footer />}
+      {!isAccountPage && <CartDrawer />}
     </>
   )
 }
