@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabaseAdmin as supabase } from '@/lib/supabase'
 
 type Order = {
   id: string
@@ -42,7 +41,11 @@ export default function Pedidos() {
 
   async function handleStatusChange(id: string, newStatus: string) {
     setUpdatingId(id)
-    await supabase.from('orders').update({ status: newStatus }).eq('id', id)
+    await fetch('/api/admin/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status: newStatus }),
+    })
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o))
     setUpdatingId(null)
   }
@@ -51,19 +54,21 @@ export default function Pedidos() {
     const code = trackingEdit[id]?.trim()
     if (code === undefined) return
     setUpdatingId(id)
-    await supabase.from('orders').update({ tracking_code: code }).eq('id', id)
+    await fetch('/api/admin/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, tracking_code: code }),
+    })
     setOrders(prev => prev.map(o => o.id === id ? { ...o, tracking_code: code } : o))
     setTrackingEdit(prev => { const n = { ...prev }; delete n[id]; return n })
     setUpdatingId(null)
   }
 
   useEffect(() => {
-    supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        setOrders(data ?? [])
+    fetch('/api/admin/orders')
+      .then(r => r.json())
+      .then(data => {
+        setOrders(Array.isArray(data) ? data : [])
         setLoading(false)
       })
   }, [])
