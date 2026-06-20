@@ -8,6 +8,7 @@ import { supabase, mapProduct } from '@/lib/supabase'
 import { formatCurrency } from '@/lib/utils'
 import type { Product } from '@/lib/types'
 import MobileMenu from './MobileMenu'
+import { useAuth } from '@/context/AuthContext'
 
 interface HeaderProps {
   overlay?: boolean
@@ -86,10 +87,12 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<Product[]>([])
   const [mounted, setMounted] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const itemCount = useCartStore((s) => s.itemCount())
+  const { user, signOut, openAuthModal } = useAuth()
 
   useEffect(() => { setMounted(true) }, [])
   const router = useRouter()
@@ -343,11 +346,46 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
               </button>
 
               {/* Conta */}
-              <button aria-label="Minha conta" className="p-2 hover:opacity-70 transition-opacity">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                </svg>
-              </button>
+              {user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setUserMenuOpen(v => !v)}
+                    aria-label="Minha conta"
+                    className="flex items-center gap-1.5 p-2 hover:opacity-70 transition-opacity"
+                  >
+                    <span className={`flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-black uppercase ${lightText ? 'bg-white text-zinc-900' : 'bg-zinc-900 text-white'}`}>
+                      {(user.user_metadata?.name ?? user.email ?? '?')[0].toUpperCase()}
+                    </span>
+                  </button>
+                  {userMenuOpen && (
+                    <div className="absolute right-0 top-full mt-1 w-44 bg-white border border-zinc-100 shadow-lg z-50 py-1">
+                      <Link
+                        href="/conta"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="block px-4 py-2.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 uppercase tracking-[0.12em]"
+                      >
+                        Minha Conta
+                      </Link>
+                      <button
+                        onClick={() => { signOut(); setUserMenuOpen(false) }}
+                        className="block w-full text-left px-4 py-2.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 uppercase tracking-[0.12em]"
+                      >
+                        Sair
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={openAuthModal}
+                  aria-label="Minha conta"
+                  className="p-2 hover:opacity-70 transition-opacity"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                  </svg>
+                </button>
+              )}
             </div>
 
             </>

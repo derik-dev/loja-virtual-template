@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { DM_Sans } from 'next/font/google'
 import './globals.css'
+import ClientProviders from '@/components/ClientProviders'
 
 const dmSans = DM_Sans({ subsets: ['latin'], weight: ['300', '400', '500', '600', '700', '800', '900'] })
 
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body className={dmSans.className}>{children}</body>
+      <body className={dmSans.className}>
+        <ClientProviders>{children}</ClientProviders>
+      </body>
     </html>
   )
 }

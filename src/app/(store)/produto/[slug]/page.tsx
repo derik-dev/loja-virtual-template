@@ -7,6 +7,7 @@ import { Product } from '@/lib/types'
 import { formatCurrency, calculateDiscount } from '@/lib/utils'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlist } from '@/hooks/useWishlist'
+import { useAuth } from '@/context/AuthContext'
 import { ProductGallery, ProductGrid } from '@/components/product'
 
 interface ProductPageProps {
@@ -100,6 +101,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   const addItem = useCartStore((s) => s.addItem)
   const { toggleWishlist, isWishlisted } = useWishlist()
+  const { user, openAuthModal } = useAuth()
 
   useEffect(() => {
     supabase.from('products').select('*').eq('slug', slug).single().then(({ data }) => {
@@ -145,6 +147,10 @@ export default function ProductPage({ params }: ProductPageProps) {
   const discount = product.originalPrice ? calculateDiscount(product.originalPrice, product.price) : null
 
   const handleAddToCart = () => {
+    if (!user) {
+      openAuthModal()
+      return
+    }
     addItem(product, quantity)
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)

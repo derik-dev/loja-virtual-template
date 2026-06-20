@@ -5,6 +5,7 @@ import { Product } from '@/lib/types'
 import { formatCurrency, calculateDiscount } from '@/lib/utils'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlist } from '@/hooks/useWishlist'
+import { useAuth } from '@/context/AuthContext'
 
 interface ProductCardProps {
   product: Product
@@ -27,6 +28,7 @@ function getColors(id: string): string[] {
 export default function ProductCard({ product }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem)
   const { toggleWishlist, isWishlisted } = useWishlist()
+  const { user, openAuthModal } = useAuth()
   const wishlisted = isWishlisted(product.id)
   const discount = product.originalPrice
     ? calculateDiscount(product.originalPrice, product.price)
@@ -94,7 +96,9 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={(e) => {
               e.preventDefault()
-              if (product.stock > 0) addItem(product)
+              if (product.stock === 0) return
+              if (!user) { openAuthModal(); return }
+              addItem(product)
             }}
             disabled={product.stock === 0}
             className="w-full bg-zinc-900/90 text-white text-[10px] font-bold uppercase tracking-[0.18em] py-3 hover:bg-zinc-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
