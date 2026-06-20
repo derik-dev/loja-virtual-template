@@ -6,6 +6,11 @@ const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 export const supabase = createClient(url, anon)
 
+// Cliente sem sessão de auth — usado no painel admin para evitar conflito com JWT do usuário
+export const supabaseAdmin = createClient(url, anon, {
+  auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+})
+
 export function createAdminClient() {
   return createClient(url, process.env.SUPABASE_SERVICE_ROLE_KEY!)
 }
