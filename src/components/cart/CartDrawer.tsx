@@ -33,8 +33,7 @@ export default function CartDrawer() {
 
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - total)
   const progress = Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100)
-  const shipping = remaining === 0 ? 0 : 19.9
-  const finalTotal = total + shipping
+  const shippingFree = remaining === 0
 
   return (
     <>
@@ -134,13 +133,13 @@ export default function CartDrawer() {
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-500">Frete</span>
-                <span className={shipping === 0 ? 'text-green-700 font-medium' : 'text-zinc-900'}>
-                  {shipping === 0 ? 'Grátis' : formatCurrency(shipping)}
+                <span className={shippingFree ? 'text-green-700 font-medium' : 'text-zinc-400 text-xs'}>
+                  {shippingFree ? 'Grátis' : 'Calculado no checkout'}
                 </span>
               </div>
               <div className="flex justify-between font-bold text-zinc-900 text-base pt-2 border-t border-zinc-100">
                 <span>Total</span>
-                <span>{formatCurrency(finalTotal)}</span>
+                <span>{formatCurrency(total)}</span>
               </div>
             </div>
 
