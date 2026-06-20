@@ -86,6 +86,9 @@ export default function Dashboard() {
     }).catch(err => console.error('[Admin] fetch error:', err))
   }, [])
 
+  // Pedidos novos
+  const newOrders = orders.filter(o => o.status === 'Novo')
+
   // KPIs
   const totalReceita = orders.reduce((s, o) => s + o.total, 0)
   const totalVendas = orders.length
@@ -152,6 +155,21 @@ export default function Dashboard() {
           {periodoLabel}
         </div>
       </div>
+
+      {/* Notificação de pedidos novos */}
+      {!loading && newOrders.length > 0 && (
+        <div className="mb-6 flex items-start gap-3 bg-violet-50 border border-violet-200 rounded-lg px-5 py-4">
+          <span className="flex-shrink-0 mt-0.5 h-2 w-2 rounded-full bg-violet-500 animate-pulse mt-1.5" />
+          <div>
+            <p className="text-sm font-bold text-violet-800">
+              {newOrders.length} {newOrders.length === 1 ? 'novo pedido aguardando' : 'novos pedidos aguardando'} confirmação
+            </p>
+            <p className="text-xs text-violet-600 mt-0.5">
+              {newOrders.map(o => o.id).join(', ')} — acesse <strong>Pedidos</strong> para confirmar.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-4 gap-4 mb-8">

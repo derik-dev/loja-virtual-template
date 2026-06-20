@@ -12,16 +12,17 @@ type Order = {
   total: number
   status: string
   created_at: string
+  tracking_code?: string
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  Pago: 'bg-emerald-50 text-emerald-700',
+  Novo: 'bg-violet-50 text-violet-700',
   Enviado: 'bg-blue-50 text-blue-700',
   Processando: 'bg-yellow-50 text-yellow-700',
   Cancelado: 'bg-red-50 text-red-700',
 }
 
-const STATUSES = ['Todos', 'Pago', 'Enviado', 'Processando', 'Cancelado']
+const STATUSES = ['Todos', 'Novo', 'Processando', 'Enviado', 'Cancelado']
 
 function fmt(v: number) {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -36,6 +37,25 @@ export default function Pedidos() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('Todos')
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [trackingEdit, setTrackingEdit] = useState<Record<string, string>>({})
+
+  async function handleStatusChange(id: string, newStatus: string) {
+    setUpdatingId(id)
+    await supabase.from('orders').update({ status: newStatus }).eq('id', id)
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o))
+    setUpdatingId(null)
+  }
+
+  async function handleTrackingSave(id: string) {
+    const code = trackingEdit[id]?.trim()
+    if (code === undefined) return
+    setUpdatingId(id)
+    await supabase.from('orders').update({ tracking_code: code }).eq('id', id)
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, tracking_code: code } : o))
+    setTrackingEdit(prev => { const n = { ...prev }; delete n[id]; return n })
+    setUpdatingId(null)
+  }
 
   useEffect(() => {
     supabase
@@ -116,7 +136,9 @@ export default function Pedidos() {
                 <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Itens</th>
                 <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Valor</th>
                 <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Status</th>
+                <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Rastreio</th>
                 <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Data</th>
+                <th className="px-5 py-3"></th>
               </tr>
             </thead>
             <tbody>
@@ -131,11 +153,54 @@ export default function Pedidos() {
                   <td className="px-5 py-3 text-sm text-zinc-500">{o.items}</td>
                   <td className="px-5 py-3 text-sm font-semibold text-zinc-800">{fmt(o.total)}</td>
                   <td className="px-5 py-3">
-                    <span className={`text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded ${STATUS_COLOR[o.status] ?? 'bg-zinc-100 text-zinc-500'}`}>
-                      {o.status}
-                    </span>
+                    {o.status === 'Novo' ? (
+                      <button
+                        onClick={() => handleStatusChange(o.id, 'Processando')}
+                        disabled={updatingId === o.id}
+                        className="text-[10px] font-bold uppercase tracking-[0.1em] px-3 py-1.5 rounded bg-violet-600 text-white hover:bg-violet-700 transition-colors disabled:opacity-50 whitespace-nowrap"
+                      >
+                        {updatingId === o.id ? 'Confirmando...' : 'Confirmar pedido?'}
+                      </button>
+                    ) : (
+                      <select
+                        value={o.status}
+                        disabled={updatingId === o.id}
+                        onChange={(e) => handleStatusChange(o.id, e.target.value)}
+                        className={`text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded border-0 cursor-pointer focus:outline-none focus:ring-1 focus:ring-zinc-400 disabled:opacity-50 ${STATUS_COLOR[o.status] ?? 'bg-zinc-100 text-zinc-500'}`}
+                      >
+                        {['Processando', 'Enviado', 'Cancelado'].map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    )}
+                  </td>
+                  <td className="px-5 py-3">
+                    {trackingEdit[o.id] !== undefined ? (
+                      <div className="flex items-center gap-1">
+                        <input
+                          autoFocus
+                          value={trackingEdit[o.id]}
+                          onChange={e => setTrackingEdit(prev => ({ ...prev, [o.id]: e.target.value }))}
+                          onKeyDown={e => e.key === 'Enter' && handleTrackingSave(o.id)}
+                          placeholder="Código de rastreio"
+                          className="border border-zinc-300 rounded px-2 py-1 text-xs w-36 focus:outline-none focus:border-zinc-600"
+                        />
+                        <button onClick={() => handleTrackingSave(o.id)} className="text-xs text-white bg-zinc-900 px-2 py-1 rounded hover:bg-zinc-700">OK</button>
+                        <button onClick={() => setTrackingEdit(prev => { const n = { ...prev }; delete n[o.id]; return n })} className="text-xs text-zinc-400 hover:text-zinc-700">✕</button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setTrackingEdit(prev => ({ ...prev, [o.id]: o.tracking_code ?? '' }))}
+                        className="text-xs text-zinc-500 hover:text-zinc-900 transition-colors"
+                      >
+                        {o.tracking_code ? <span className="font-mono text-zinc-700">{o.tracking_code}</span> : <span className="text-zinc-300">+ Adicionar</span>}
+                      </button>
+                    )}
                   </td>
                   <td className="px-5 py-3 text-sm text-zinc-400">{fmtDate(o.created_at)}</td>
+                  <td className="px-5 py-3 text-xs text-zinc-300">
+                    {updatingId === o.id && 'Salvando...'}
+                  </td>
                 </tr>
               ))}
               {filtered.length === 0 && (

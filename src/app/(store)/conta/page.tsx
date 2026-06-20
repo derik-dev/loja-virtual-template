@@ -421,14 +421,22 @@ export default function ContaPage() {
                       <div className="text-right flex-shrink-0">
                         <p className="text-sm font-bold text-zinc-900">{formatCurrency(order.total)}</p>
                         <span className={`inline-block mt-1 text-xs font-semibold px-2.5 py-0.5 rounded-full ${
-                          order.status === 'Pago' ? 'bg-green-100 text-green-700' :
                           order.status === 'Enviado' ? 'bg-blue-100 text-blue-700' :
                           order.status === 'Cancelado' ? 'bg-red-100 text-red-700' :
+                          order.status === 'Novo' ? 'bg-violet-100 text-violet-700' :
                           'bg-zinc-100 text-zinc-600'
                         }`}>
                           {order.status}
                         </span>
                       </div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-zinc-100">
+                      <Link
+                        href={`/rastreio/${encodeURIComponent(order.id)}`}
+                        className="text-xs font-bold uppercase tracking-[0.12em] text-zinc-600 hover:text-zinc-900 underline underline-offset-2 transition-colors"
+                      >
+                        Rastrear pedido →
+                      </Link>
                     </div>
                   </div>
                 ))}

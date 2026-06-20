@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
 import { formatCurrency } from '@/lib/utils'
-import { supabase } from '@/lib/supabase'
+import { supabase, supabaseAdmin } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
 type Step = 'informacoes' | 'frete' | 'pagamento'
@@ -97,40 +97,29 @@ function CheckboxField({ label, checked, onChange }: { label: string; checked: b
 
 /* ── Gift card upsell ── */
 function GiftCard({
-  title,
-  subtitle,
-  name,
-  price,
-  imageSrc,
-  imageAlt,
+  title, subtitle, name, price, imageSrc, imageAlt, added, onToggle,
 }: {
-  title: string
-  subtitle?: string
-  name: string
-  price: string
-  imageSrc: string
-  imageAlt: string
+  title: string; subtitle?: string; name: string; price: string
+  imageSrc: string; imageAlt: string; added: boolean; onToggle: () => void
 }) {
   return (
-    <div className="border border-zinc-200 rounded-lg p-4">
+    <div className={`border rounded-lg p-4 transition-colors ${added ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200'}`}>
       {title && <p className="text-sm font-medium text-zinc-900 mb-0.5">{title}</p>}
       {subtitle && <p className="text-xs text-zinc-400 mb-3">{subtitle}</p>}
       <div className="flex items-center gap-3">
         <div className="w-16 h-16 bg-zinc-100 flex-shrink-0 rounded overflow-hidden border border-zinc-200">
-          <Image
-            src={imageSrc}
-            alt={imageAlt}
-            width={64}
-            height={64}
-            className="h-full w-full object-cover"
-          />
+          <Image src={imageSrc} alt={imageAlt} width={64} height={64} className="h-full w-full object-cover" />
         </div>
         <div className="flex-1">
           <p className="text-sm font-medium text-zinc-900">{name}</p>
           <p className="text-xs text-zinc-500">{price}</p>
         </div>
-        <button type="button" className="bg-zinc-900 text-white text-xs font-bold uppercase tracking-wide px-5 py-2.5 rounded hover:bg-zinc-700 transition-colors">
-          Adicionar
+        <button
+          type="button"
+          onClick={onToggle}
+          className={`text-xs font-bold uppercase tracking-wide px-5 py-2.5 rounded transition-colors ${added ? 'bg-white border border-zinc-900 text-zinc-900 hover:bg-zinc-100' : 'bg-zinc-900 text-white hover:bg-zinc-700'}`}
+        >
+          {added ? 'Remover' : 'Adicionar'}
         </button>
       </div>
     </div>
@@ -147,12 +136,24 @@ export default function CheckoutPage() {
   useEffect(() => setMounted(true), [])
 
   const [step, setStep] = useState<Step>('informacoes')
+  const [selectedShipping, setSelectedShipping] = useState<{ id: string; price: number } | null>(null)
   const [coupon, setCoupon] = useState('')
+  const [couponLoading, setCouponLoading] = useState(false)
+  const [couponError, setCouponError] = useState('')
+  const [couponSuccess, setCouponSuccess] = useState('')
+  const [discount, setDiscount] = useState(0)
 
   /* checkboxes */
   const [newsEmail, setNewsEmail] = useState(true)
   const [newsWhats, setNewsWhats] = useState(true)
   const [isGift, setIsGift] = useState(false)
+
+  /* embrulho de presente */
+  const [giftBag, setGiftBag] = useState(false)
+  const [giftWrap, setGiftWrap] = useState(false)
+  const GIFT_BAG_PRICE = 9
+  const GIFT_WRAP_PRICE = 13.9
+  const giftTotal = (giftBag ? GIFT_BAG_PRICE : 0) + (giftWrap ? GIFT_WRAP_PRICE : 0)
 
   /* endereço */
   const [nome, setNome] = useState('')
@@ -234,8 +235,35 @@ export default function CheckoutPage() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const shipping = step === 'pagamento' ? (total >= 399 ? 0 : 19.9) : null
-  const finalTotal = total + (shipping ?? 0)
+  const shipping = selectedShipping !== null ? selectedShipping.price : null
+  const finalTotal = Math.max(0, total - discount) + (shipping ?? 0) + giftTotal
+
+  const handleApplyCoupon = async () => {
+    if (!coupon.trim()) return
+    setCouponLoading(true)
+    setCouponError('')
+    setCouponSuccess('')
+    setDiscount(0)
+
+    const { data, error } = await supabaseAdmin
+      .from('discounts')
+      .select('*')
+      .eq('code', coupon.trim().toUpperCase())
+      .single()
+
+    setCouponLoading(false)
+
+    if (error || !data) { setCouponError('Cupom inválido.'); return }
+    if (!data.active) { setCouponError('Este cupom não está ativo.'); return }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) { setCouponError('Este cupom expirou.'); return }
+    if (data.usage_limit && data.usage_count >= data.usage_limit) { setCouponError('Este cupom atingiu o limite de usos.'); return }
+    if (data.min_order && total < Number(data.min_order)) { setCouponError(`Pedido mínimo de ${formatCurrency(Number(data.min_order))} para este cupom.`); return }
+
+    const value = Number(data.value)
+    const discountAmount = data.type === 'percentual' ? (total * value) / 100 : value
+    setDiscount(discountAmount)
+    setCouponSuccess(`Cupom aplicado! ${data.type === 'percentual' ? `${value}% de desconto` : `${formatCurrency(value)} de desconto`}`)
+  }
   const currentStepIndex = STEPS.indexOf(step)
 
   const handleBack = () => {
@@ -259,7 +287,10 @@ export default function CheckoutPage() {
 
     if (step !== 'pagamento') {
       const next = STEPS[currentStepIndex + 1]
-      if (next) setStep(next)
+      if (next) {
+        setStep(next)
+        if (next === 'frete' && !selectedShipping) setSelectedShipping({ id: 'pac', price: 19.9 })
+      }
       return
     }
 
@@ -280,7 +311,7 @@ export default function CheckoutPage() {
       product_name: productLabel,
       items: totalItems,
       total: finalTotal,
-      status: 'Processando',
+      status: 'Novo',
     })
 
     if (error) {
@@ -356,12 +387,7 @@ export default function CheckoutPage() {
               <>
                 {/* Contato */}
                 <section>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-base font-medium text-zinc-900">Contato</h2>
-                    <Link href="/conta" className="text-xs text-zinc-500 underline hover:text-zinc-900 transition-colors">
-                      Fazer login
-                    </Link>
-                  </div>
+                  <h2 className="text-base font-medium text-zinc-900 mb-4">Contato</h2>
 
                   <Field
                     placeholder="E-mail"
@@ -386,17 +412,15 @@ export default function CheckoutPage() {
                     <GiftCard
                       title="Vai presentear? Dê um upgrade com a Vero Gift Bag"
                       subtitle="Aviso: A sacola é enviada à parte para você montar."
-                      name="Vero Gift Bag"
-                      price="R$ 9,00"
-                      imageSrc="/gift-bag-vero.png"
-                      imageAlt="Sacola de presente Vero Gift Bag"
+                      name="Vero Gift Bag" price="R$ 9,00"
+                      imageSrc="/gift-bag-vero.png" imageAlt="Sacola de presente Vero Gift Bag"
+                      added={giftBag} onToggle={() => setGiftBag(v => !v)}
                     />
                     <GiftCard
                       title="Deixe o presente ainda mais especial"
-                      name="Embalagem de Presente Prateada"
-                      price="R$ 13,90"
-                      imageSrc="/gift-wrap-silver.png"
-                      imageAlt="Embalagem de presente prateada Vero"
+                      name="Embalagem de Presente Prateada" price="R$ 13,90"
+                      imageSrc="/gift-wrap-silver.png" imageAlt="Embalagem de presente prateada Vero"
+                      added={giftWrap} onToggle={() => setGiftWrap(v => !v)}
                     />
                   </div>
                 </section>
@@ -479,9 +503,15 @@ export default function CheckoutPage() {
                     { id: 'sedex', label: 'SEDEX — Correios', desc: '1 a 3 dias úteis', price: 34.9 },
                     { id: 'gratis', label: 'Frete Grátis', desc: '7 a 12 dias úteis', price: 0, disabled: total < 399 },
                   ].map((opt) => (
-                    <label key={opt.id} className={`flex items-center justify-between border border-zinc-300 rounded-lg p-4 cursor-pointer transition-colors ${opt.disabled ? 'opacity-40 cursor-not-allowed' : 'hover:border-zinc-900'}`}>
+                    <label key={opt.id} className={`flex items-center justify-between border rounded-lg p-4 cursor-pointer transition-colors ${opt.disabled ? 'opacity-40 cursor-not-allowed border-zinc-300' : selectedShipping?.id === opt.id ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-300 hover:border-zinc-900'}`}>
                       <div className="flex items-center gap-3">
-                        <input type="radio" name="shipping" value={opt.id} defaultChecked={opt.id === 'pac'} disabled={opt.disabled} className="accent-zinc-900" />
+                        <input
+                          type="radio" name="shipping" value={opt.id}
+                          checked={selectedShipping?.id === opt.id}
+                          disabled={opt.disabled}
+                          onChange={() => !opt.disabled && setSelectedShipping({ id: opt.id, price: opt.price })}
+                          className="accent-zinc-900"
+                        />
                         <div>
                           <p className="text-sm font-medium text-zinc-900">{opt.label}</p>
                           <p className="text-xs text-zinc-400">{opt.desc}</p>
@@ -552,7 +582,7 @@ export default function CheckoutPage() {
       </div>
 
       {/* ── DIREITA: Resumo ── */}
-      <div className="lg:w-[45%] bg-white border-l border-zinc-200 lg:overflow-y-auto">
+      <div className="lg:w-[45%] bg-white border-l border-zinc-200 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
         <div className="max-w-[400px] mr-auto px-6 pt-4 pb-10 lg:pt-14 lg:pb-14 lg:sticky lg:top-0">
 
           {/* Itens */}
@@ -583,17 +613,27 @@ export default function CheckoutPage() {
           </div>
 
           {/* Cupom */}
-          <div className="flex gap-2 mb-5">
-            <input
-              type="text"
-              placeholder="Cupom de desconto ou Gift Card"
-              value={coupon}
-              onChange={(e) => setCoupon(e.target.value)}
-              className="flex-1 border border-zinc-300 px-3 py-2.5 text-sm placeholder-zinc-400 focus:outline-none focus:border-zinc-900 bg-white transition-colors"
-            />
-            <button type="button" className="border border-zinc-300 px-4 py-2.5 text-sm text-zinc-700 hover:border-zinc-900 hover:text-zinc-900 transition-colors whitespace-nowrap">
-              Aplicar
-            </button>
+          <div className="mb-5">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Cupom de desconto"
+                value={coupon}
+                onChange={(e) => { setCoupon(e.target.value); setCouponError(''); setCouponSuccess('') }}
+                onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                className={`flex-1 border px-3 py-2.5 text-sm placeholder-zinc-400 focus:outline-none bg-white transition-colors uppercase ${couponError ? 'border-red-400' : couponSuccess ? 'border-green-500' : 'border-zinc-300 focus:border-zinc-900'}`}
+              />
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                disabled={couponLoading || !coupon.trim()}
+                className="border border-zinc-300 px-4 py-2.5 text-sm text-zinc-700 hover:border-zinc-900 hover:text-zinc-900 transition-colors whitespace-nowrap disabled:opacity-50"
+              >
+                {couponLoading ? '...' : 'Aplicar'}
+              </button>
+            </div>
+            {couponError && <p className="text-xs text-red-500 mt-1">{couponError}</p>}
+            {couponSuccess && <p className="text-xs text-green-600 mt-1">{couponSuccess}</p>}
           </div>
 
           {/* Aviso */}
@@ -613,6 +653,24 @@ export default function CheckoutPage() {
               <span>Subtotal</span>
               <span suppressHydrationWarning>{mounted ? formatCurrency(total) : '—'}</span>
             </div>
+            {discount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Desconto</span>
+                <span>- {formatCurrency(discount)}</span>
+              </div>
+            )}
+            {giftBag && (
+              <div className="flex justify-between text-zinc-600">
+                <span className="flex items-center gap-1">🎁 Vero Gift Bag</span>
+                <span>{formatCurrency(GIFT_BAG_PRICE)}</span>
+              </div>
+            )}
+            {giftWrap && (
+              <div className="flex justify-between text-zinc-600">
+                <span className="flex items-center gap-1">🎁 Embalagem Prateada</span>
+                <span>{formatCurrency(GIFT_WRAP_PRICE)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-zinc-600">
               <span className="flex items-center gap-1">
                 Frete
@@ -622,11 +680,11 @@ export default function CheckoutPage() {
                   </svg>
                 )}
               </span>
-              {step !== 'pagamento' ? (
+              {shipping === null ? (
                 <span className="text-zinc-400 text-xs">Calculado na próxima etapa</span>
               ) : (
                 <span suppressHydrationWarning className={shipping === 0 ? 'text-green-700 font-medium' : ''}>
-                  {mounted ? (shipping === 0 ? 'Grátis' : formatCurrency(shipping ?? 0)) : '—'}
+                  {shipping === 0 ? 'Grátis' : formatCurrency(shipping)}
                 </span>
               )}
             </div>
