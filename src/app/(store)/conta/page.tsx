@@ -1,11 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 type Tab = 'pedidos' | 'favoritos' | 'trocas' | 'suporte' | 'perfil'
+
+interface Address {
+  id: string
+  name: string
+  street: string
+  number: string
+  complement?: string
+  neighborhood?: string
+  city: string
+  state: string
+  zip: string
+  phone?: string
+  is_default: boolean
+}
+
+const EMPTY_FORM: Omit<Address, 'id' | 'is_default'> = {
+  name: '', street: '', number: '', complement: '',
+  neighborhood: '', city: '', state: '', zip: '', phone: '',
+}
 
 const NAV_TABS: { key: Tab; label: string }[] = [
   { key: 'pedidos', label: 'Pedidos' },
@@ -24,13 +44,103 @@ export default function ContaPage() {
     user?.user_metadata?.name ?? user?.email?.split('@')[0] ?? ''
   )
 
-  const displayName = user?.user_metadata?.name ?? user?.email?.split('@')[0] ?? 'Usuário'
+  // Endereços
+  const [addresses, setAddresses] = useState<Address[]>([])
+  const [loadingAddresses, setLoadingAddresses] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [form, setForm] = useState(EMPTY_FORM)
+  const [saving, setSaving] = useState(false)
+  const [formError, setFormError] = useState<string | null>(null)
+
+  const displayName = nameValue || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Usuário'
   const email = user?.email ?? ''
   const initial = displayName[0]?.toUpperCase() ?? '?'
+
+  useEffect(() => {
+    if (!user) return
+    fetchAddresses()
+  }, [user])
+
+  async function fetchAddresses() {
+    setLoadingAddresses(true)
+    const { data } = await supabase
+      .from('addresses')
+      .select('*')
+      .eq('user_id', user!.id)
+      .order('is_default', { ascending: false })
+      .order('created_at', { ascending: true })
+    setAddresses(data ?? [])
+    setLoadingAddresses(false)
+  }
+
+  function openNew() {
+    setEditingId(null)
+    setForm(EMPTY_FORM)
+    setFormError(null)
+    setShowForm(true)
+  }
+
+  function openEdit(addr: Address) {
+    setEditingId(addr.id)
+    setForm({
+      name: addr.name, street: addr.street, number: addr.number,
+      complement: addr.complement ?? '', neighborhood: addr.neighborhood ?? '',
+      city: addr.city, state: addr.state, zip: addr.zip, phone: addr.phone ?? '',
+    })
+    setFormError(null)
+    setShowForm(true)
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault()
+    setSaving(true)
+    setFormError(null)
+
+    const payload = { ...form, user_id: user!.id }
+
+    if (editingId) {
+      const { error } = await supabase.from('addresses').update(payload).eq('id', editingId)
+      if (error) { setFormError('Erro ao salvar. Tente novamente.'); setSaving(false); return }
+    } else {
+      const isFirst = addresses.length === 0
+      const { error } = await supabase.from('addresses').insert({ ...payload, is_default: isFirst })
+      if (error) { setFormError('Erro ao salvar. Tente novamente.'); setSaving(false); return }
+    }
+
+    await fetchAddresses()
+    setShowForm(false)
+    setSaving(false)
+  }
+
+  async function handleDelete(id: string) {
+    await supabase.from('addresses').delete().eq('id', id)
+    await fetchAddresses()
+  }
+
+  async function handleSetDefault(id: string) {
+    await supabase.from('addresses').update({ is_default: false }).eq('user_id', user!.id)
+    await supabase.from('addresses').update({ is_default: true }).eq('id', id)
+    await fetchAddresses()
+  }
 
   async function handleSignOut() {
     await signOut()
     router.push('/')
+  }
+
+  function field(key: keyof typeof form, label: string, opts?: { placeholder?: string; half?: boolean }) {
+    return (
+      <div className={opts?.half ? '' : 'sm:col-span-2'}>
+        <label className="block text-xs text-zinc-500 mb-1">{label}</label>
+        <input
+          value={form[key] ?? ''}
+          onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+          placeholder={opts?.placeholder}
+          className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm text-zinc-800 placeholder-zinc-400 focus:outline-none focus:border-zinc-900 transition-colors"
+        />
+      </div>
+    )
   }
 
   return (
@@ -39,14 +149,11 @@ export default function ContaPage() {
       {/* Header da conta */}
       <div className="border-b border-zinc-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-          {/* Logo → home */}
           <Link href="/">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo-preta.png" alt="VERO" className="h-7 w-auto object-contain" />
           </Link>
-
-          {/* Nav tabs */}
-          <nav className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
+          <nav className="flex items-center gap-6 overflow-x-auto">
             {NAV_TABS.map((tab) => (
               <button
                 key={tab.key}
@@ -61,8 +168,6 @@ export default function ContaPage() {
               </button>
             ))}
           </nav>
-
-          {/* Avatar */}
           <div className="flex-shrink-0 h-8 w-8 rounded-full border border-zinc-300 flex items-center justify-center text-xs font-bold text-zinc-700">
             {initial}
           </div>
@@ -90,12 +195,11 @@ export default function ContaPage() {
                     className="text-base font-semibold text-zinc-900 border-b border-zinc-400 focus:outline-none bg-transparent"
                   />
                 ) : (
-                  <span className="text-base font-semibold text-zinc-900">{nameValue || displayName}</span>
+                  <span className="text-base font-semibold text-zinc-900">{displayName}</span>
                 )}
                 <button
                   onClick={() => setEditingName(true)}
                   className="text-zinc-400 hover:text-zinc-700 transition-colors ml-2"
-                  aria-label="Editar nome"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
@@ -110,15 +214,104 @@ export default function ContaPage() {
             <div className="border border-zinc-200 rounded-xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-base font-semibold text-zinc-900">Endereços</span>
-                <button className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors">
-                  + Adicionar
-                </button>
+                {!showForm && (
+                  <button
+                    onClick={openNew}
+                    className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors"
+                  >
+                    + Adicionar
+                  </button>
+                )}
               </div>
 
-              {/* Endereço vazio */}
-              <div className="text-sm text-zinc-400 italic">
-                Nenhum endereço cadastrado.
-              </div>
+              {/* Form novo/editar */}
+              {showForm && (
+                <form onSubmit={handleSave} className="mb-5 border border-zinc-100 rounded-lg p-4 bg-zinc-50">
+                  <p className="text-sm font-semibold text-zinc-800 mb-4">
+                    {editingId ? 'Editar endereço' : 'Novo endereço'}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {field('name', 'Nome do destinatário')}
+                    {field('zip', 'CEP', { half: true, placeholder: '00000-000' })}
+                    {field('state', 'Estado (UF)', { half: true, placeholder: 'RJ' })}
+                    {field('street', 'Rua / Avenida')}
+                    {field('number', 'Número', { half: true })}
+                    {field('complement', 'Complemento', { half: true, placeholder: 'Apto, Bloco...' })}
+                    {field('neighborhood', 'Bairro', { half: true })}
+                    {field('city', 'Cidade', { half: true })}
+                    {field('phone', 'Telefone', { placeholder: '(99) 99999-9999' })}
+                  </div>
+                  {formError && <p className="text-xs text-red-600 mt-2">{formError}</p>}
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="px-5 py-2 bg-zinc-900 text-white text-xs font-bold uppercase tracking-[0.14em] rounded-lg hover:bg-zinc-700 transition-colors disabled:opacity-50"
+                    >
+                      {saving ? 'Salvando...' : 'Salvar'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowForm(false)}
+                      className="px-5 py-2 border border-zinc-300 text-xs font-bold uppercase tracking-[0.14em] rounded-lg text-zinc-600 hover:border-zinc-900 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Lista */}
+              {loadingAddresses ? (
+                <p className="text-sm text-zinc-400">Carregando...</p>
+              ) : addresses.length === 0 ? (
+                <p className="text-sm text-zinc-400 italic">Nenhum endereço cadastrado.</p>
+              ) : (
+                <div className="space-y-3">
+                  {addresses.map((addr) => (
+                    <div key={addr.id} className="border border-zinc-100 rounded-lg p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="text-sm text-zinc-700 leading-relaxed">
+                          {addr.is_default && (
+                            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400 mb-1">
+                              Endereço padrão
+                            </p>
+                          )}
+                          <p className="font-semibold text-zinc-900">{addr.name}</p>
+                          <p>{addr.street}, {addr.number}{addr.complement ? `, ${addr.complement}` : ''}</p>
+                          {addr.neighborhood && <p>{addr.neighborhood}</p>}
+                          <p>{addr.zip} {addr.city} {addr.state}</p>
+                          {addr.phone && <p>{addr.phone}</p>}
+                        </div>
+                        <button
+                          onClick={() => openEdit(addr)}
+                          className="text-zinc-400 hover:text-zinc-700 flex-shrink-0"
+                        >
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="flex gap-3 mt-3">
+                        {!addr.is_default && (
+                          <button
+                            onClick={() => handleSetDefault(addr.id)}
+                            className="text-xs text-zinc-500 hover:text-zinc-900 underline underline-offset-2 transition-colors"
+                          >
+                            Definir como padrão
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDelete(addr.id)}
+                          className="text-xs text-red-400 hover:text-red-600 underline underline-offset-2 transition-colors"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Sair */}
@@ -139,10 +332,7 @@ export default function ContaPage() {
             <h1 className="text-xl font-semibold text-zinc-900 mb-6">Pedidos</h1>
             <div className="border border-zinc-200 rounded-xl p-8 text-center">
               <p className="text-sm text-zinc-400">Você ainda não fez nenhum pedido.</p>
-              <Link
-                href="/produtos"
-                className="inline-block mt-4 text-xs font-bold uppercase tracking-[0.16em] underline underline-offset-4 text-zinc-600 hover:text-zinc-900 transition-colors"
-              >
+              <Link href="/produtos" className="inline-block mt-4 text-xs font-bold uppercase tracking-[0.16em] underline underline-offset-4 text-zinc-600 hover:text-zinc-900 transition-colors">
                 Ver produtos
               </Link>
             </div>
@@ -155,10 +345,7 @@ export default function ContaPage() {
             <h1 className="text-xl font-semibold text-zinc-900 mb-6">Favoritos</h1>
             <div className="border border-zinc-200 rounded-xl p-8 text-center">
               <p className="text-sm text-zinc-400">Você não tem produtos favoritos ainda.</p>
-              <Link
-                href="/produtos"
-                className="inline-block mt-4 text-xs font-bold uppercase tracking-[0.16em] underline underline-offset-4 text-zinc-600 hover:text-zinc-900 transition-colors"
-              >
+              <Link href="/produtos" className="inline-block mt-4 text-xs font-bold uppercase tracking-[0.16em] underline underline-offset-4 text-zinc-600 hover:text-zinc-900 transition-colors">
                 Explorar produtos
               </Link>
             </div>
@@ -180,9 +367,7 @@ export default function ContaPage() {
           <div>
             <h1 className="text-xl font-semibold text-zinc-900 mb-6">Suporte</h1>
             <div className="border border-zinc-200 rounded-xl p-6 space-y-4">
-              <p className="text-sm text-zinc-600">
-                Precisa de ajuda? Entre em contato pelo WhatsApp ou e-mail.
-              </p>
+              <p className="text-sm text-zinc-600">Precisa de ajuda? Entre em contato pelo WhatsApp ou e-mail.</p>
               <a
                 href="https://wa.me/5500000000000"
                 target="_blank"
@@ -197,7 +382,7 @@ export default function ContaPage() {
 
       </div>
 
-      {/* Footer da conta */}
+      {/* Footer */}
       <div className="border-t border-zinc-100 mt-auto">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-wrap gap-4 justify-center">
           {['Política de reembolso', 'Frete', 'Política de privacidade', 'Termos de serviço', 'Cancelamentos', 'Informações de contato'].map((item) => (
