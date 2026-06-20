@@ -1,213 +1,206 @@
 'use client'
 
 import { useState } from 'react'
-import { Input } from '@/components/ui/Input'
-import { Button } from '@/components/ui/Button'
-import { formatCurrency } from '@/lib/utils'
+import Link from 'next/link'
+import { useAuth } from '@/context/AuthContext'
+import { useRouter } from 'next/navigation'
 
-type Tab = 'pedidos' | 'dados' | 'enderecos'
+type Tab = 'pedidos' | 'favoritos' | 'trocas' | 'suporte' | 'perfil'
 
-const mockOrders = [
-  {
-    id: '#10231',
-    date: '12/05/2024',
-    status: 'Entregue',
-    statusColor: 'text-green-700 bg-green-100',
-    items: 3,
-    total: 489.97,
-  },
-  {
-    id: '#10198',
-    date: '02/04/2024',
-    status: 'Em trânsito',
-    statusColor: 'text-blue-700 bg-blue-100',
-    items: 1,
-    total: 899.99,
-  },
-  {
-    id: '#10145',
-    date: '15/02/2024',
-    status: 'Entregue',
-    statusColor: 'text-green-700 bg-green-100',
-    items: 2,
-    total: 279.98,
-  },
-]
-
-const mockAddresses = [
-  {
-    id: '1',
-    label: 'Casa',
-    address: 'Rua das Flores, 123, Apto 42',
-    city: 'São Paulo',
-    state: 'SP',
-    zip: '01310-100',
-    default: true,
-  },
-  {
-    id: '2',
-    label: 'Trabalho',
-    address: 'Av. Paulista, 1578, Sala 304',
-    city: 'São Paulo',
-    state: 'SP',
-    zip: '01310-200',
-    default: false,
-  },
+const NAV_TABS: { key: Tab; label: string }[] = [
+  { key: 'pedidos', label: 'Pedidos' },
+  { key: 'favoritos', label: 'Favoritos' },
+  { key: 'trocas', label: 'Trocas' },
+  { key: 'suporte', label: 'Suporte' },
+  { key: 'perfil', label: 'Perfil' },
 ]
 
 export default function ContaPage() {
-  const [activeTab, setActiveTab] = useState<Tab>('pedidos')
+  const { user, signOut } = useAuth()
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState<Tab>('perfil')
+  const [editingName, setEditingName] = useState(false)
+  const [nameValue, setNameValue] = useState(
+    user?.user_metadata?.name ?? user?.email?.split('@')[0] ?? ''
+  )
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: 'pedidos', label: 'Meus Pedidos' },
-    { key: 'dados', label: 'Dados Pessoais' },
-    { key: 'enderecos', label: 'Endereços' },
-  ]
+  const displayName = user?.user_metadata?.name ?? user?.email?.split('@')[0] ?? 'Usuário'
+  const email = user?.email ?? ''
+  const initial = displayName[0]?.toUpperCase() ?? '?'
+
+  async function handleSignOut() {
+    await signOut()
+    router.push('/')
+  }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold text-slate-900 mb-8">Minha Conta</h1>
+    <div className="min-h-screen bg-white">
 
-      {/* Tabs */}
-      <div className="border-b border-slate-200 mb-8">
-        <div className="flex gap-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={[
-                'px-4 py-2.5 text-sm font-medium rounded-t-lg border-b-2 transition-colors',
-                activeTab === tab.key
-                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50',
-              ].join(' ')}
-            >
-              {tab.label}
-            </button>
+      {/* Sub-nav da conta */}
+      <div className="border-b border-zinc-200">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-12">
+          <nav className="flex items-center gap-6 overflow-x-auto scrollbar-hide">
+            {NAV_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`text-sm whitespace-nowrap py-3 border-b-2 transition-colors ${
+                  activeTab === tab.key
+                    ? 'border-zinc-900 text-zinc-900 font-semibold'
+                    : 'border-transparent text-zinc-500 hover:text-zinc-800'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Avatar */}
+          <div className="flex-shrink-0 ml-4 h-8 w-8 rounded-full border border-zinc-300 flex items-center justify-center text-xs font-bold text-zinc-700">
+            {initial}
+          </div>
+        </div>
+      </div>
+
+      {/* Conteúdo */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+
+        {/* ── PERFIL ── */}
+        {activeTab === 'perfil' && (
+          <div className="space-y-4">
+            <h1 className="text-xl font-semibold text-zinc-900 mb-6">Perfil</h1>
+
+            {/* Card dados */}
+            <div className="border border-zinc-200 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                {editingName ? (
+                  <input
+                    autoFocus
+                    value={nameValue}
+                    onChange={e => setNameValue(e.target.value)}
+                    onBlur={() => setEditingName(false)}
+                    onKeyDown={e => e.key === 'Enter' && setEditingName(false)}
+                    className="text-base font-semibold text-zinc-900 border-b border-zinc-400 focus:outline-none bg-transparent"
+                  />
+                ) : (
+                  <span className="text-base font-semibold text-zinc-900">{nameValue || displayName}</span>
+                )}
+                <button
+                  onClick={() => setEditingName(true)}
+                  className="text-zinc-400 hover:text-zinc-700 transition-colors ml-2"
+                  aria-label="Editar nome"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-xs text-zinc-400 mb-0.5">E-mail</p>
+              <p className="text-sm text-zinc-700">{email}</p>
+            </div>
+
+            {/* Card endereços */}
+            <div className="border border-zinc-200 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-base font-semibold text-zinc-900">Endereços</span>
+                <button className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors">
+                  + Adicionar
+                </button>
+              </div>
+
+              {/* Endereço vazio */}
+              <div className="text-sm text-zinc-400 italic">
+                Nenhum endereço cadastrado.
+              </div>
+            </div>
+
+            {/* Sair */}
+            <div className="pt-2">
+              <button
+                onClick={handleSignOut}
+                className="border border-zinc-300 rounded-lg px-5 py-2 text-sm text-zinc-700 hover:border-zinc-900 hover:text-zinc-900 transition-colors"
+              >
+                Sair
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── PEDIDOS ── */}
+        {activeTab === 'pedidos' && (
+          <div>
+            <h1 className="text-xl font-semibold text-zinc-900 mb-6">Pedidos</h1>
+            <div className="border border-zinc-200 rounded-xl p-8 text-center">
+              <p className="text-sm text-zinc-400">Você ainda não fez nenhum pedido.</p>
+              <Link
+                href="/produtos"
+                className="inline-block mt-4 text-xs font-bold uppercase tracking-[0.16em] underline underline-offset-4 text-zinc-600 hover:text-zinc-900 transition-colors"
+              >
+                Ver produtos
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* ── FAVORITOS ── */}
+        {activeTab === 'favoritos' && (
+          <div>
+            <h1 className="text-xl font-semibold text-zinc-900 mb-6">Favoritos</h1>
+            <div className="border border-zinc-200 rounded-xl p-8 text-center">
+              <p className="text-sm text-zinc-400">Você não tem produtos favoritos ainda.</p>
+              <Link
+                href="/produtos"
+                className="inline-block mt-4 text-xs font-bold uppercase tracking-[0.16em] underline underline-offset-4 text-zinc-600 hover:text-zinc-900 transition-colors"
+              >
+                Explorar produtos
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* ── TROCAS ── */}
+        {activeTab === 'trocas' && (
+          <div>
+            <h1 className="text-xl font-semibold text-zinc-900 mb-6">Trocas</h1>
+            <div className="border border-zinc-200 rounded-xl p-8 text-center">
+              <p className="text-sm text-zinc-400">Nenhuma solicitação de troca encontrada.</p>
+            </div>
+          </div>
+        )}
+
+        {/* ── SUPORTE ── */}
+        {activeTab === 'suporte' && (
+          <div>
+            <h1 className="text-xl font-semibold text-zinc-900 mb-6">Suporte</h1>
+            <div className="border border-zinc-200 rounded-xl p-6 space-y-4">
+              <p className="text-sm text-zinc-600">
+                Precisa de ajuda? Entre em contato pelo WhatsApp ou e-mail.
+              </p>
+              <a
+                href="https://wa.me/5500000000000"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 border border-zinc-300 rounded-lg px-5 py-2.5 text-sm text-zinc-700 hover:border-zinc-900 hover:text-zinc-900 transition-colors"
+              >
+                WhatsApp
+              </a>
+            </div>
+          </div>
+        )}
+
+      </div>
+
+      {/* Footer da conta */}
+      <div className="border-t border-zinc-100 mt-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-wrap gap-4 justify-center">
+          {['Política de reembolso', 'Frete', 'Política de privacidade', 'Termos de serviço', 'Cancelamentos', 'Informações de contato'].map((item) => (
+            <Link key={item} href="#" className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors underline underline-offset-2">
+              {item}
+            </Link>
           ))}
         </div>
       </div>
 
-      {/* Pedidos */}
-      {activeTab === 'pedidos' && (
-        <div className="space-y-4">
-          {mockOrders.length === 0 ? (
-            <div className="text-center py-16 text-slate-400">
-              <p>Você ainda não fez nenhum pedido.</p>
-            </div>
-          ) : (
-            mockOrders.map((order) => (
-              <div
-                key={order.id}
-                className="bg-white rounded-2xl border border-slate-200 p-5 hover:border-indigo-200 hover:shadow-sm transition-all"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-4">
-                    <div>
-                      <p className="font-semibold text-slate-900">{order.id}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{order.date}</p>
-                    </div>
-                    <span className={`text-xs font-semibold rounded-full px-3 py-1 ${order.statusColor}`}>
-                      {order.status}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="text-sm">
-                      <span className="text-slate-500">{order.items} {order.items === 1 ? 'item' : 'itens'}</span>
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900">{formatCurrency(order.total)}</p>
-                    </div>
-                    <button className="text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
-                      Ver detalhes
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {/* Dados Pessoais */}
-      {activeTab === 'dados' && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h2 className="font-semibold text-slate-900 mb-5">Editar Perfil</h2>
-          <form onSubmit={(e) => e.preventDefault()}>
-            <div className="grid sm:grid-cols-2 gap-4 mb-6">
-              <Input label="Nome" defaultValue="João Silva" />
-              <Input label="Sobrenome" defaultValue="Pereira" />
-              <Input label="E-mail" type="email" defaultValue="joao@email.com" />
-              <Input label="Telefone" defaultValue="(11) 99999-9999" />
-              <Input label="CPF" defaultValue="000.000.000-00" disabled className="opacity-60" />
-              <Input label="Data de nascimento" type="date" defaultValue="1990-05-15" />
-            </div>
-            <div className="border-t border-slate-100 pt-5">
-              <h3 className="font-medium text-slate-800 mb-4">Alterar senha</h3>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Input label="Senha atual" type="password" placeholder="••••••••" />
-                <div className="hidden sm:block" />
-                <Input label="Nova senha" type="password" placeholder="••••••••" />
-                <Input label="Confirmar nova senha" type="password" placeholder="••••••••" />
-              </div>
-            </div>
-            <div className="mt-5 flex justify-end">
-              <Button type="submit" variant="primary">
-                Salvar Alterações
-              </Button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* Endereços */}
-      {activeTab === 'enderecos' && (
-        <div className="space-y-4">
-          {mockAddresses.map((addr) => (
-            <div
-              key={addr.id}
-              className={[
-                'bg-white rounded-2xl border p-5',
-                addr.default ? 'border-indigo-300 ring-1 ring-indigo-200' : 'border-slate-200',
-              ].join(' ')}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="font-semibold text-slate-900">{addr.label}</p>
-                    {addr.default && (
-                      <span className="text-xs bg-indigo-100 text-indigo-700 rounded-full px-2 py-0.5 font-medium">
-                        Padrão
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-slate-600">{addr.address}</p>
-                  <p className="text-sm text-slate-600">
-                    {addr.city}, {addr.state} — {addr.zip}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button className="text-xs text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
-                    Editar
-                  </button>
-                  {!addr.default && (
-                    <button className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors">
-                      Remover
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-
-          <button className="w-full py-4 rounded-2xl border-2 border-dashed border-slate-300 text-sm font-medium text-slate-500 hover:border-indigo-400 hover:text-indigo-600 transition-colors flex items-center justify-center gap-2">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Adicionar novo endereço
-          </button>
-        </div>
-      )}
     </div>
   )
 }
