@@ -34,7 +34,7 @@ export default function ContaPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
 
       {/* Header da conta */}
       <div className="border-b border-zinc-200">
@@ -70,7 +70,7 @@ export default function ContaPage() {
       </div>
 
       {/* Conteúdo */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <div className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-8">
 
         {/* ── PERFIL ── */}
         {activeTab === 'perfil' && (
@@ -198,7 +198,7 @@ export default function ContaPage() {
       </div>
 
       {/* Footer da conta */}
-      <div className="border-t border-zinc-100 mt-16">
+      <div className="border-t border-zinc-100 mt-auto">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-wrap gap-4 justify-center">
           {['Política de reembolso', 'Frete', 'Política de privacidade', 'Termos de serviço', 'Cancelamentos', 'Informações de contato'].map((item) => (
             <Link key={item} href="#" className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors underline underline-offset-2">
