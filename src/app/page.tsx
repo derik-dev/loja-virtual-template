@@ -6,7 +6,7 @@ import { Header, Footer } from '@/components/layout'
 import { BannerSlider, PromoSlider, RealLifeGallery, FaqSection } from '@/components/ui'
 import { ProductShowcase } from '@/components/product'
 import { CartDrawer } from '@/components/cart'
-import { supabase, mapProduct } from '@/lib/supabase'
+import { supabaseAdmin as supabase, mapProduct } from '@/lib/supabase'
 import type { Product } from '@/lib/types'
 
 const BENEFITS = [

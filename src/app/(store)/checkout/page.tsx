@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
 import { formatCurrency } from '@/lib/utils'
@@ -8,7 +9,6 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/context/AuthContext'
 
 type Step = 'informacoes' | 'frete' | 'pagamento'
-type PaymentMethod = 'cartao' | 'pix' | 'boleto'
 
 const STEPS: Step[] = ['informacoes', 'frete', 'pagamento']
 const STEP_LABELS: Record<Step, string> = {
@@ -96,16 +96,34 @@ function CheckboxField({ label, checked, onChange }: { label: string; checked: b
 }
 
 /* ── Gift card upsell ── */
-function GiftCard({ title, subtitle, name, price }: { title: string; subtitle?: string; name: string; price: string }) {
+function GiftCard({
+  title,
+  subtitle,
+  name,
+  price,
+  imageSrc,
+  imageAlt,
+}: {
+  title: string
+  subtitle?: string
+  name: string
+  price: string
+  imageSrc: string
+  imageAlt: string
+}) {
   return (
     <div className="border border-zinc-200 rounded-lg p-4">
       {title && <p className="text-sm font-medium text-zinc-900 mb-0.5">{title}</p>}
       {subtitle && <p className="text-xs text-zinc-400 mb-3">{subtitle}</p>}
       <div className="flex items-center gap-3">
-        <div className="w-14 h-14 bg-zinc-100 flex-shrink-0 rounded overflow-hidden flex items-center justify-center">
-          <svg className="h-6 w-6 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-          </svg>
+        <div className="w-16 h-16 bg-zinc-100 flex-shrink-0 rounded overflow-hidden border border-zinc-200">
+          <Image
+            src={imageSrc}
+            alt={imageAlt}
+            width={64}
+            height={64}
+            className="h-full w-full object-cover"
+          />
         </div>
         <div className="flex-1">
           <p className="text-sm font-medium text-zinc-900">{name}</p>
@@ -129,7 +147,6 @@ export default function CheckoutPage() {
   useEffect(() => setMounted(true), [])
 
   const [step, setStep] = useState<Step>('informacoes')
-  const [payment, setPayment] = useState<PaymentMethod>('cartao')
   const [coupon, setCoupon] = useState('')
 
   /* checkboxes */
@@ -138,17 +155,56 @@ export default function CheckoutPage() {
   const [isGift, setIsGift] = useState(false)
 
   /* endereço */
+  const [nome, setNome] = useState('')
+  const [sobrenome, setSobrenome] = useState('')
   const [cep, setCep] = useState('')
   const [rua, setRua] = useState('')
+  const [numero, setNumero] = useState('')
+  const [complemento, setComplemento] = useState('')
   const [bairro, setBairro] = useState('')
   const [cidade, setCidade] = useState('')
   const [estado, setEstado] = useState('')
+  const [telefone, setTelefone] = useState('')
   const [cepLoading, setCepLoading] = useState(false)
   const [cepError, setCepError] = useState('')
+  const [email, setEmail] = useState('')
 
   /* validação */
   const [emailError, setEmailError] = useState('')
   const emailRef = useRef<HTMLInputElement>(null)
+
+  // Pré-preenche com dados do usuário logado
+  useEffect(() => {
+    if (!user) return
+    setEmail(user.email ?? '')
+    const meta = user.user_metadata ?? {}
+    const fullName: string = meta.full_name ?? meta.name ?? ''
+    const parts = fullName.trim().split(' ')
+    setNome(parts[0] ?? '')
+    setSobrenome(parts.slice(1).join(' ') ?? '')
+
+    async function loadAddress() {
+      await supabase.auth.refreshSession()
+      const { data, error } = await supabase
+        .from('addresses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('is_default', { ascending: false })
+        .limit(1)
+        .single()
+      if (error) { console.error('[Checkout] address:', error); return }
+      if (!data) return
+      setCep(data.zip ?? '')
+      setRua(data.street ?? '')
+      setNumero(data.number ?? '')
+      setComplemento(data.complement ?? '')
+      setBairro(data.neighborhood ?? '')
+      setCidade(data.city ?? '')
+      setEstado(data.state ?? '')
+      setTelefone(data.phone ?? '')
+    }
+    loadAddress()
+  }, [user])
 
   const handleCepChange = async (value: string) => {
     const digits = value.replace(/\D/g, '')
@@ -192,7 +248,7 @@ export default function CheckoutPage() {
 
     /* validação simples do e-mail no step 1 */
     if (step === 'informacoes') {
-      const val = emailRef.current?.value ?? ''
+      const val = email
       if (!val || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
         setEmailError('Insira um e-mail')
         emailRef.current?.focus()
@@ -261,7 +317,7 @@ export default function CheckoutPage() {
 
       {/* ── ESQUERDA ── */}
       <div className="flex-1 bg-[#F5F5F5] lg:overflow-y-auto">
-        <div className="max-w-[540px] mx-auto px-6 py-10 lg:py-14">
+        <div className="max-w-[540px] ml-auto px-6 py-10 lg:py-14">
 
           {/* Logo */}
           <Link href="/" className="block mb-8">
@@ -311,8 +367,9 @@ export default function CheckoutPage() {
                     placeholder="E-mail"
                     type="email"
                     inputRef={emailRef}
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); emailError && setEmailError('') }}
                     error={emailError}
-                    onChange={() => emailError && setEmailError('')}
                   />
 
                   <div className="mt-3 space-y-2.5">
@@ -331,11 +388,15 @@ export default function CheckoutPage() {
                       subtitle="Aviso: A sacola é enviada à parte para você montar."
                       name="Vero Gift Bag"
                       price="R$ 9,00"
+                      imageSrc="/gift-bag-vero.png"
+                      imageAlt="Sacola de presente Vero Gift Bag"
                     />
                     <GiftCard
                       title="Deixe o presente ainda mais especial"
                       name="Embalagem de Presente Prateada"
                       price="R$ 13,90"
+                      imageSrc="/gift-wrap-silver.png"
+                      imageAlt="Embalagem de presente prateada Vero"
                     />
                   </div>
                 </section>
@@ -348,8 +409,8 @@ export default function CheckoutPage() {
                       <option value="brasil">Brasil</option>
                     </FloatingSelect>
                     <div className="grid grid-cols-2 gap-2.5">
-                      <Field placeholder="Nome" required />
-                      <Field placeholder="Sobrenome" required />
+                      <Field placeholder="Nome" required value={nome} onChange={(e) => setNome(e.target.value)} />
+                      <Field placeholder="Sobrenome" required value={sobrenome} onChange={(e) => setSobrenome(e.target.value)} />
                     </div>
                     <Field
                       placeholder="CEP"
@@ -366,10 +427,10 @@ export default function CheckoutPage() {
                     />
                     <div className="grid grid-cols-[1fr_120px] gap-2.5">
                       <Field placeholder="Endereço" required value={rua} onChange={(e) => setRua(e.target.value)} />
-                      <Field placeholder="Número" required />
+                      <Field placeholder="Número" required value={numero} onChange={(e) => setNumero(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-2 gap-2.5">
-                      <Field placeholder="Apartamento, bloco etc. (opcional)" />
+                      <Field placeholder="Apartamento, bloco etc. (opcional)" value={complemento} onChange={(e) => setComplemento(e.target.value)} />
                       <Field placeholder="Bairro" required value={bairro} onChange={(e) => setBairro(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-2 gap-2.5">
@@ -395,13 +456,14 @@ export default function CheckoutPage() {
                     <Field
                       placeholder="Telefone"
                       type="tel"
+                      value={telefone}
+                      onChange={(e) => setTelefone(e.target.value)}
                       icon={
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
                         </svg>
                       }
                     />
-                    <CheckboxField label="Salvar minhas informações para a próxima vez" checked={false} onChange={() => {}} />
                   </div>
                 </section>
               </>
@@ -439,61 +501,13 @@ export default function CheckoutPage() {
             {step === 'pagamento' && (
               <section>
                 <h2 className="text-base font-medium text-zinc-900 mb-4">Forma de pagamento</h2>
-                <div className="grid grid-cols-3 gap-2.5 mb-6">
-                  {([
-                    { value: 'cartao', label: 'Cartão de Crédito' },
-                    { value: 'pix', label: 'PIX' },
-                    { value: 'boleto', label: 'Boleto' },
-                  ] as const).map((opt) => (
-                    <label key={opt.value} className={[
-                      'flex items-center justify-center py-3.5 border cursor-pointer transition-all text-xs font-medium text-center rounded',
-                      payment === opt.value ? 'border-zinc-900 bg-zinc-900 text-white' : 'border-zinc-300 text-zinc-600 hover:border-zinc-600',
-                    ].join(' ')}>
-                      <input type="radio" name="payment" value={opt.value} checked={payment === opt.value} onChange={() => setPayment(opt.value)} className="sr-only" />
-                      {opt.label}
-                    </label>
-                  ))}
+                <div className="border border-zinc-200 rounded-lg p-8 text-center">
+                  <div className="h-28 w-28 mx-auto border border-zinc-200 flex items-center justify-center mb-4">
+                    <span className="text-[10px] text-zinc-400 uppercase tracking-wider">QR Code PIX</span>
+                  </div>
+                  <p className="text-xs text-zinc-500">O QR Code será gerado após confirmar o pedido.</p>
+                  <p className="text-xs font-bold text-zinc-900 mt-1">5% de desconto no PIX</p>
                 </div>
-
-                {payment === 'cartao' && (
-                  <div className="space-y-2.5">
-                    <Field placeholder="Número do cartão" required />
-                    <Field placeholder="Nome no cartão" required />
-                    <div className="grid grid-cols-2 gap-2.5">
-                      <Field placeholder="Validade (MM/AA)" required />
-                      <Field placeholder="CVV" required />
-                    </div>
-                    <div className="relative border border-zinc-300 bg-white focus-within:border-zinc-900 transition-colors">
-                      <select className="w-full px-3 py-3.5 text-sm text-zinc-900 bg-transparent focus:outline-none appearance-none pr-8">
-                        <option>1x de {formatCurrency(finalTotal)} sem juros</option>
-                        <option>2x de {formatCurrency(finalTotal / 2)} sem juros</option>
-                        <option>3x de {formatCurrency(finalTotal / 3)} sem juros</option>
-                        <option>6x de {formatCurrency(finalTotal / 6)} sem juros</option>
-                        <option>12x de {formatCurrency(finalTotal / 12)} com juros</option>
-                      </select>
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-400">
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                        </svg>
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {payment === 'pix' && (
-                  <div className="border border-zinc-200 rounded-lg p-8 text-center">
-                    <div className="h-28 w-28 mx-auto border border-zinc-200 flex items-center justify-center mb-4">
-                      <span className="text-[10px] text-zinc-400 uppercase tracking-wider">QR Code PIX</span>
-                    </div>
-                    <p className="text-xs text-zinc-500">O QR Code será gerado após confirmar o pedido.</p>
-                    <p className="text-xs font-bold text-zinc-900 mt-1">5% de desconto no PIX</p>
-                  </div>
-                )}
-                {payment === 'boleto' && (
-                  <div className="border border-zinc-200 rounded-lg p-5 space-y-1">
-                    <p className="text-sm text-zinc-600">O boleto será gerado após a confirmação e enviado para seu e-mail.</p>
-                    <p className="text-xs text-zinc-400">Prazo: 3 dias úteis. Após o vencimento, o pedido é cancelado automaticamente.</p>
-                  </div>
-                )}
               </section>
             )}
 
@@ -538,8 +552,8 @@ export default function CheckoutPage() {
       </div>
 
       {/* ── DIREITA: Resumo ── */}
-      <div className="lg:w-[460px] bg-white border-l border-zinc-200 lg:overflow-y-auto">
-        <div className="max-w-[400px] mx-auto px-6 py-10 lg:py-14 lg:sticky lg:top-0">
+      <div className="lg:w-[45%] bg-white border-l border-zinc-200 lg:overflow-y-auto">
+        <div className="max-w-[400px] mr-auto px-6 pt-4 pb-10 lg:pt-14 lg:pb-14 lg:sticky lg:top-0">
 
           {/* Itens */}
           <div className="space-y-4 mb-6" suppressHydrationWarning>

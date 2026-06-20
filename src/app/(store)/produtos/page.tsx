@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useRef, useEffect } from 'react'
-import { supabase, mapProduct } from '@/lib/supabase'
+import { supabaseAdmin as supabase, mapProduct } from '@/lib/supabase'
 import { Product, FilterState } from '@/lib/types'
 import { ProductGrid, ProductFilters } from '@/components/product'
 

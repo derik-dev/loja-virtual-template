@@ -7,13 +7,15 @@ import { CartDrawer } from '@/components/cart'
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAccountPage = pathname === '/conta'
+  const isCheckoutPage = pathname === '/checkout'
+  const hideChrome = isAccountPage || isCheckoutPage
 
   return (
     <>
-      {!isAccountPage && <Header />}
+      {!hideChrome && <Header />}
       <main className="min-h-screen">{children}</main>
-      {!isAccountPage && <Footer />}
-      {!isAccountPage && <CartDrawer />}
+      {!hideChrome && <Footer />}
+      {!hideChrome && <CartDrawer />}
     </>
   )
 }

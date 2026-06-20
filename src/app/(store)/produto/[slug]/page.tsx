@@ -2,7 +2,7 @@
 
 import { useState, use, useEffect, type ReactNode } from 'react'
 import Link from 'next/link'
-import { supabase, mapProduct } from '@/lib/supabase'
+import { supabaseAdmin as supabase, mapProduct } from '@/lib/supabase'
 import { Product } from '@/lib/types'
 import { formatCurrency, calculateDiscount } from '@/lib/utils'
 import { useCartStore } from '@/store/cartStore'
