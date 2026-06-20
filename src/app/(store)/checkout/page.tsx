@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
 import { formatCurrency } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/context/AuthContext'
 
 type Step = 'informacoes' | 'frete' | 'pagamento'
 type PaymentMethod = 'cartao' | 'pix' | 'boleto'
@@ -121,6 +123,7 @@ export default function CheckoutPage() {
   const items = useCartStore((s) => s.items)
   const total = useCartStore((s) => s.total())
   const clearCart = useCartStore((s) => s.clearCart)
+  const { user } = useAuth()
 
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
@@ -171,7 +174,29 @@ export default function CheckoutPage() {
     }
 
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 1500))
+
+    const firstName = items[0]?.product.name ?? 'Produto'
+    const productLabel = items.length > 1
+      ? `${firstName} + ${items.length - 1} outro${items.length > 2 ? 's' : ''}`
+      : firstName
+    const totalItems = items.reduce((s, i) => s + i.quantity, 0)
+    const orderId = `#${Math.floor(10000 + Math.random() * 90000)}`
+
+    const { error } = await supabase.from('orders').insert({
+      id: orderId,
+      user_id: user?.id ?? null,
+      customer_name: user?.user_metadata?.name ?? user?.email?.split('@')[0] ?? 'Cliente',
+      customer_email: user?.email ?? emailRef.current?.value ?? '',
+      product_name: productLabel,
+      items: totalItems,
+      total: finalTotal,
+      status: 'Processando',
+    })
+
+    if (error) {
+      console.error('[Checkout] erro ao salvar pedido:', error)
+    }
+
     clearCart()
     setSubmitted(true)
     setLoading(false)

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { formatCurrency } from '@/lib/utils'
 
 type Tab = 'pedidos' | 'favoritos' | 'trocas' | 'suporte' | 'perfil'
 
@@ -43,6 +44,21 @@ export default function ContaPage() {
   const [nameValue, setNameValue] = useState(
     user?.user_metadata?.name ?? user?.email?.split('@')[0] ?? ''
   )
+
+  // Pedidos
+  type Order = { id: string; product_name: string; items: number; total: number; status: string; created_at: string }
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loadingOrders, setLoadingOrders] = useState(true)
+
+  useEffect(() => {
+    if (!user) return
+    supabase
+      .from('orders')
+      .select('id, product_name, items, total, status, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => { setOrders((data ?? []).map(o => ({ ...o, total: Number(o.total) }))); setLoadingOrders(false) })
+  }, [user])
 
   // Endereços
   const [addresses, setAddresses] = useState<Address[]>([])
@@ -330,12 +346,43 @@ export default function ContaPage() {
         {activeTab === 'pedidos' && (
           <div>
             <h1 className="text-xl font-semibold text-zinc-900 mb-6">Pedidos</h1>
-            <div className="border border-zinc-200 rounded-xl p-8 text-center">
-              <p className="text-sm text-zinc-400">Você ainda não fez nenhum pedido.</p>
-              <Link href="/produtos" className="inline-block mt-4 text-xs font-bold uppercase tracking-[0.16em] underline underline-offset-4 text-zinc-600 hover:text-zinc-900 transition-colors">
-                Ver produtos
-              </Link>
-            </div>
+            {loadingOrders ? (
+              <p className="text-sm text-zinc-400">Carregando...</p>
+            ) : orders.length === 0 ? (
+              <div className="border border-zinc-200 rounded-xl p-8 text-center">
+                <p className="text-sm text-zinc-400">Você ainda não fez nenhum pedido.</p>
+                <Link href="/produtos" className="inline-block mt-4 text-xs font-bold uppercase tracking-[0.16em] underline underline-offset-4 text-zinc-600 hover:text-zinc-900 transition-colors">
+                  Ver produtos
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {orders.map((order) => (
+                  <div key={order.id} className="border border-zinc-200 rounded-xl p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-sm font-semibold text-zinc-900">{order.id}</p>
+                        <p className="text-sm text-zinc-600 mt-0.5">{order.product_name}</p>
+                        <p className="text-xs text-zinc-400 mt-1">
+                          {order.items} {order.items === 1 ? 'item' : 'itens'} · {new Date(order.created_at).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-sm font-bold text-zinc-900">{formatCurrency(order.total)}</p>
+                        <span className={`inline-block mt-1 text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                          order.status === 'Pago' ? 'bg-green-100 text-green-700' :
+                          order.status === 'Enviado' ? 'bg-blue-100 text-blue-700' :
+                          order.status === 'Cancelado' ? 'bg-red-100 text-red-700' :
+                          'bg-zinc-100 text-zinc-600'
+                        }`}>
+                          {order.status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
