@@ -76,10 +76,14 @@ export default function Dashboard() {
       supabase.from('orders').select('id, customer_name, product_name, total, status, created_at').order('created_at', { ascending: false }),
       supabase.from('products').select('id, category, price, stock'),
     ]).then(([ordersRes, productsRes]) => {
-      setOrders(ordersRes.data ?? [])
+      if (ordersRes.error) console.error('[Admin] orders error:', ordersRes.error)
+      if (productsRes.error) console.error('[Admin] products error:', productsRes.error)
+      // total vem como string do Postgres (numeric) — convertendo para number
+      const parsedOrders = (ordersRes.data ?? []).map(o => ({ ...o, total: Number(o.total) }))
+      setOrders(parsedOrders)
       setProducts(productsRes.data ?? [])
       setLoading(false)
-    })
+    }).catch(err => console.error('[Admin] fetch error:', err))
   }, [])
 
   // KPIs
