@@ -56,10 +56,13 @@ const BENEFITS = [
   },
 ]
 
+const HERO_IMAGES = ['/hero-fashion.png', '/hero-fashion-2.png']
+
 export default function HomePage() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
+  const [heroIndex, setHeroIndex] = useState(0)
   const escolhasRef = useRef<HTMLDivElement>(null)
   const [escolhasLeft, setEscolhasLeft] = useState(false)
   const [escolhasRight, setEscolhasRight] = useState(true)
@@ -78,6 +81,13 @@ export default function HomePage() {
     updateEscolhasArrows()
     return () => el.removeEventListener('scroll', updateEscolhasArrows)
   }, [products])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroIndex(i => (i + 1) % HERO_IMAGES.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     supabase.from('products').select('*').then(({ data, error }) => {
@@ -100,18 +110,24 @@ export default function HomePage() {
         {/* ── HERO ─────────────────────────────────────────── */}
         <section className="relative overflow-hidden h-[85vh] sm:h-[96vh]">
           {/* Imagem de fundo — mobile usa hero-fashion-cel, desktop usa hero-fashion */}
+          {/* Mobile — imagem fixa */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/hero-fashion-cel.png"
             alt="Nova coleção"
             className="absolute inset-0 h-full w-full object-cover object-center sm:hidden"
           />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/hero-fashion.png"
-            alt="Nova coleção"
-            className="absolute inset-0 h-full w-full object-cover object-center hidden sm:block"
-          />
+          {/* Desktop — crossfade entre hero-fashion e hero-fashion-2 */}
+          {HERO_IMAGES.map((src, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={src}
+              src={src}
+              alt="Nova coleção"
+              className="absolute inset-0 h-full w-full object-cover object-center hidden sm:block transition-opacity duration-1000"
+              style={{ opacity: heroIndex === i ? 1 : 0 }}
+            />
+          ))}
 
 
           {/* Texto editorial */}
