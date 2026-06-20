@@ -17,12 +17,12 @@ type Order = {
 
 const STATUS_COLOR: Record<string, string> = {
   Novo: 'bg-violet-50 text-violet-700',
-  Enviado: 'bg-blue-50 text-blue-700',
+  'A caminho': 'bg-blue-50 text-blue-700',
   Processando: 'bg-yellow-50 text-yellow-700',
   Cancelado: 'bg-red-50 text-red-700',
 }
 
-const STATUSES = ['Todos', 'Novo', 'Processando', 'Enviado', 'Cancelado']
+const STATUSES = ['Todos', 'Novo', 'Processando', 'A caminho', 'Cancelado']
 
 function fmt(v: number) {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -168,7 +168,7 @@ export default function Pedidos() {
                         onChange={(e) => handleStatusChange(o.id, e.target.value)}
                         className={`text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded border-0 cursor-pointer focus:outline-none focus:ring-1 focus:ring-zinc-400 disabled:opacity-50 ${STATUS_COLOR[o.status] ?? 'bg-zinc-100 text-zinc-500'}`}
                       >
-                        {['Processando', 'Enviado', 'Cancelado'].map(s => (
+                        {['Processando', 'A caminho', 'Cancelado'].map(s => (
                           <option key={s} value={s}>{s}</option>
                         ))}
                       </select>

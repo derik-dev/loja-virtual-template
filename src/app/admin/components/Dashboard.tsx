@@ -25,7 +25,7 @@ type Product = {
 
 const STATUS_COLOR: Record<string, string> = {
   Pago: 'bg-emerald-50 text-emerald-700',
-  Enviado: 'bg-blue-50 text-blue-700',
+  'A caminho': 'bg-blue-50 text-blue-700',
   Processando: 'bg-yellow-50 text-yellow-700',
   Cancelado: 'bg-red-50 text-red-700',
 }
