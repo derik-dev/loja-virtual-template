@@ -3,10 +3,13 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useCartStore } from '@/store/cartStore'
+import { useAuth } from '@/context/AuthContext'
+import { supabase } from '@/lib/supabase'
 import { formatCurrency } from '@/lib/utils'
 import CartItem from './CartItem'
 
 const FREE_SHIPPING_THRESHOLD = 399
+const SHIPPING_PRICE = 19.9
 
 const CATEGORIES = [
   { label: 'MASCULINO', href: '/produtos?categoria=masculino' },
@@ -16,9 +19,20 @@ const CATEGORIES = [
 
 export default function CartDrawer() {
   const [isOpen, setIsOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [hasAddress, setHasAddress] = useState(false)
   const items = useCartStore((s) => s.items)
   const total = useCartStore((s) => s.total())
   const itemCount = useCartStore((s) => s.itemCount())
+  const { user } = useAuth()
+
+  useEffect(() => { setMounted(true) }, [])
+
+  useEffect(() => {
+    if (!user) { setHasAddress(false); return }
+    supabase.from('addresses').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
+      .then(({ count }) => setHasAddress((count ?? 0) > 0))
+  }, [user])
 
   useEffect(() => {
     const handleToggle = () => setIsOpen((prev) => !prev)
@@ -33,7 +47,8 @@ export default function CartDrawer() {
 
   const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - total)
   const progress = Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100)
-  const shippingFree = remaining === 0
+  const shippingFree = total >= FREE_SHIPPING_THRESHOLD
+  const shipping = hasAddress ? (shippingFree ? 0 : SHIPPING_PRICE) : null
 
   return (
     <>
@@ -78,16 +93,16 @@ export default function CartDrawer() {
           <div className="relative h-1.5 bg-blue-200 rounded-full overflow-visible mb-2">
             <div
               className="absolute inset-y-0 left-0 bg-blue-800 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
+              style={{ width: mounted ? `${progress}%` : '0%' }}
             />
             <div
               className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-blue-800 border-2 border-white shadow transition-all duration-500"
-              style={{ left: `calc(${progress}% - 6px)` }}
+              style={{ left: mounted ? `calc(${progress}% - 6px)` : '-6px' }}
             />
           </div>
           <p className="text-xs text-center text-zinc-600">
-            {remaining > 0
-              ? <>Faltam <strong>{formatCurrency(remaining)}</strong> pra ganhar Frete Grátis</>
+            {!mounted || remaining > 0
+              ? <>Faltam <strong>{mounted ? formatCurrency(remaining) : formatCurrency(FREE_SHIPPING_THRESHOLD)}</strong> pra ganhar Frete Grátis</>
               : <strong className="text-green-700">Você ganhou Frete Grátis! 🎉</strong>
             }
           </p>
@@ -133,13 +148,16 @@ export default function CartDrawer() {
               </div>
               <div className="flex justify-between">
                 <span className="text-zinc-500">Frete</span>
-                <span className={shippingFree ? 'text-green-700 font-medium' : 'text-zinc-400 text-xs'}>
-                  {shippingFree ? 'Grátis' : 'Calculado no checkout'}
-                </span>
+                {shipping === null
+                  ? <span className="text-zinc-400 text-xs">Calculado no checkout</span>
+                  : shipping === 0
+                    ? <span className="text-green-700 font-medium">Grátis</span>
+                    : <span className="text-zinc-700">{formatCurrency(shipping)}</span>
+                }
               </div>
               <div className="flex justify-between font-bold text-zinc-900 text-base pt-2 border-t border-zinc-100">
                 <span>Total</span>
-                <span>{formatCurrency(total)}</span>
+                <span>{formatCurrency(total + (shipping ?? 0))}</span>
               </div>
             </div>
 

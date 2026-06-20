@@ -68,6 +68,29 @@ export default function ContaPage() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [cepLoading, setCepLoading] = useState(false)
+
+  async function handleZipChange(value: string) {
+    const digits = value.replace(/\D/g, '')
+    setForm(f => ({ ...f, zip: digits }))
+    if (digits.length === 8) {
+      setCepLoading(true)
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`)
+        const data = await res.json()
+        if (!data.erro) {
+          setForm(f => ({
+            ...f,
+            street: data.logradouro ?? f.street,
+            neighborhood: data.bairro ?? f.neighborhood,
+            city: data.localidade ?? f.city,
+            state: data.uf ?? f.state,
+          }))
+        }
+      } catch { /* silently fail */ }
+      finally { setCepLoading(false) }
+    }
+  }
 
   const displayName = nameValue || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Usuário'
   const email = user?.email ?? ''
@@ -113,15 +136,26 @@ export default function ContaPage() {
     setSaving(true)
     setFormError(null)
 
+    // Garante sessão válida antes de salvar
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      const { data } = await supabase.auth.refreshSession()
+      if (!data.session) {
+        setFormError('Sessão expirada. Faça login novamente.')
+        setSaving(false)
+        return
+      }
+    }
+
     const payload = { ...form, user_id: user!.id }
 
     if (editingId) {
       const { error } = await supabase.from('addresses').update(payload).eq('id', editingId)
-      if (error) { setFormError('Erro ao salvar. Tente novamente.'); setSaving(false); return }
+      if (error) { console.error('[Addresses] update error:', error); setFormError(`Erro: ${error.message}`); setSaving(false); return }
     } else {
       const isFirst = addresses.length === 0
       const { error } = await supabase.from('addresses').insert({ ...payload, is_default: isFirst })
-      if (error) { setFormError('Erro ao salvar. Tente novamente.'); setSaving(false); return }
+      if (error) { console.error('[Addresses] insert error:', error); setFormError(`Erro: ${error.message}`); setSaving(false); return }
     }
 
     await fetchAddresses()
@@ -248,7 +282,24 @@ export default function ContaPage() {
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {field('name', 'Nome do destinatário')}
-                    {field('zip', 'CEP', { half: true, placeholder: '00000-000' })}
+                    <div>
+                      <label className="block text-xs text-zinc-500 mb-1">CEP</label>
+                      <div className="relative">
+                        <input
+                          value={form.zip}
+                          onChange={e => handleZipChange(e.target.value)}
+                          placeholder="00000-000"
+                          maxLength={8}
+                          className="w-full border border-zinc-300 rounded-lg px-3 py-2 text-sm text-zinc-800 placeholder-zinc-400 focus:outline-none focus:border-zinc-900 transition-colors pr-8"
+                        />
+                        {cepLoading && (
+                          <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-zinc-400" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                          </svg>
+                        )}
+                      </div>
+                    </div>
                     {field('state', 'Estado (UF)', { half: true, placeholder: 'RJ' })}
                     {field('street', 'Rua / Avenida')}
                     {field('number', 'Número', { half: true })}

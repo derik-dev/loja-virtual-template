@@ -137,9 +137,43 @@ export default function CheckoutPage() {
   const [newsWhats, setNewsWhats] = useState(true)
   const [isGift, setIsGift] = useState(false)
 
+  /* endereço */
+  const [cep, setCep] = useState('')
+  const [rua, setRua] = useState('')
+  const [bairro, setBairro] = useState('')
+  const [cidade, setCidade] = useState('')
+  const [estado, setEstado] = useState('')
+  const [cepLoading, setCepLoading] = useState(false)
+  const [cepError, setCepError] = useState('')
+
   /* validação */
   const [emailError, setEmailError] = useState('')
   const emailRef = useRef<HTMLInputElement>(null)
+
+  const handleCepChange = async (value: string) => {
+    const digits = value.replace(/\D/g, '')
+    setCep(digits)
+    setCepError('')
+    if (digits.length === 8) {
+      setCepLoading(true)
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`)
+        const data = await res.json()
+        if (data.erro) {
+          setCepError('CEP não encontrado')
+        } else {
+          setRua(data.logradouro ?? '')
+          setBairro(data.bairro ?? '')
+          setCidade(data.localidade ?? '')
+          setEstado(data.uf ?? '')
+        }
+      } catch {
+        setCepError('Erro ao buscar CEP')
+      } finally {
+        setCepLoading(false)
+      }
+    }
+  }
 
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -290,22 +324,20 @@ export default function CheckoutPage() {
                     <CheckboxField label="Esse pedido é um presente?" checked={isGift} onChange={() => setIsGift(!isGift)} />
                   </div>
 
-                  {/* Gift upsell — sempre visível quando isGift */}
-                  {isGift && (
-                    <div className="mt-4 space-y-3">
-                      <GiftCard
-                        title="Vai presentear? Dê um upgrade com a Vero Gift Bag"
-                        subtitle="Aviso: A sacola é enviada à parte para você montar."
-                        name="Vero Gift Bag"
-                        price="R$ 9,00"
-                      />
-                      <GiftCard
-                        title="Deixe o presente ainda mais especial"
-                        name="Embalagem de Presente Prateada"
-                        price="R$ 13,90"
-                      />
-                    </div>
-                  )}
+                  {/* Gift upsell — sempre visível */}
+                  <div className="mt-4 space-y-3">
+                    <GiftCard
+                      title="Vai presentear? Dê um upgrade com a Vero Gift Bag"
+                      subtitle="Aviso: A sacola é enviada à parte para você montar."
+                      name="Vero Gift Bag"
+                      price="R$ 9,00"
+                    />
+                    <GiftCard
+                      title="Deixe o presente ainda mais especial"
+                      name="Embalagem de Presente Prateada"
+                      price="R$ 13,90"
+                    />
+                  </div>
                 </section>
 
                 {/* Endereço */}
@@ -322,24 +354,32 @@ export default function CheckoutPage() {
                     <Field
                       placeholder="CEP"
                       required
+                      value={cep}
+                      onChange={(e) => handleCepChange(e.target.value)}
+                      maxLength={8}
+                      error={cepError}
                       icon={
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                        </svg>
+                        cepLoading
+                          ? <svg className="h-4 w-4 animate-spin text-zinc-400" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+                          : <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
                       }
                     />
                     <div className="grid grid-cols-[1fr_120px] gap-2.5">
-                      <Field placeholder="Endereço" required />
+                      <Field placeholder="Endereço" required value={rua} onChange={(e) => setRua(e.target.value)} />
                       <Field placeholder="Número" required />
                     </div>
                     <div className="grid grid-cols-2 gap-2.5">
                       <Field placeholder="Apartamento, bloco etc. (opcional)" />
-                      <Field placeholder="Bairro" required />
+                      <Field placeholder="Bairro" required value={bairro} onChange={(e) => setBairro(e.target.value)} />
                     </div>
                     <div className="grid grid-cols-2 gap-2.5">
-                      <Field placeholder="Cidade" required />
+                      <Field placeholder="Cidade" required value={cidade} onChange={(e) => setCidade(e.target.value)} />
                       <div className="relative border border-zinc-300 bg-white focus-within:border-zinc-900 transition-colors">
-                        <select className="w-full px-3 py-3.5 text-sm text-zinc-900 bg-transparent focus:outline-none appearance-none pr-8">
+                        <select
+                          className="w-full px-3 py-3.5 text-sm text-zinc-900 bg-transparent focus:outline-none appearance-none pr-8"
+                          value={estado}
+                          onChange={(e) => setEstado(e.target.value)}
+                        >
                           <option value="">Estado</option>
                           {['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'].map(uf => (
                             <option key={uf}>{uf}</option>
