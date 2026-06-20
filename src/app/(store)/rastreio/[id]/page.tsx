@@ -30,14 +30,20 @@ const TIMELINE = [
     icon: '🏷️',
   },
   {
-    status: 'Enviado',
+    status: 'A caminho',
     label: 'A caminho',
     desc: 'Seu pedido foi enviado e está a caminho do seu endereço.',
     icon: '🚚',
   },
+  {
+    status: 'Entregue',
+    label: 'Encomenda entregue',
+    desc: 'Seu pedido foi entregue. Aproveite!',
+    icon: '✅',
+  },
 ]
 
-const STATUS_ORDER = ['Novo', 'Processando', 'A caminho']
+const STATUS_ORDER = ['Novo', 'Processando', 'A caminho', 'Entregue']
 
 function getStepIndex(status: string) {
   const i = STATUS_ORDER.indexOf(status)
@@ -125,13 +131,15 @@ export default function RastreioPage({ params }: { params: Promise<{ id: string 
               {/* Status badge */}
               {!cancelled && (
                 <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-8 ${
+                  order.status === 'Entregue' ? 'bg-emerald-50 text-emerald-700' :
                   order.status === 'A caminho' ? 'bg-blue-50 text-blue-700' :
                   order.status === 'Processando' ? 'bg-amber-50 text-amber-700' :
                   'bg-violet-50 text-violet-700'
                 }`}>
                   <span className="w-1.5 h-1.5 rounded-full bg-current" />
                   {order.status === 'Novo' ? 'Aguardando confirmação' :
-                   order.status === 'Processando' ? 'Em preparação' : 'A caminho'}
+                   order.status === 'Processando' ? 'Em preparação' :
+                   order.status === 'A caminho' ? 'A caminho' : 'Entregue'}
                 </div>
               )}
 

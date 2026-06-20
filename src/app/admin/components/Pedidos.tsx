@@ -18,10 +18,11 @@ const STATUS_COLOR: Record<string, string> = {
   Novo: 'bg-violet-50 text-violet-700',
   'A caminho': 'bg-blue-50 text-blue-700',
   Processando: 'bg-yellow-50 text-yellow-700',
+  Entregue: 'bg-emerald-50 text-emerald-700',
   Cancelado: 'bg-red-50 text-red-700',
 }
 
-const STATUSES = ['Todos', 'Novo', 'Processando', 'A caminho', 'Cancelado']
+const STATUSES = ['Todos', 'Novo', 'Processando', 'A caminho', 'Entregue', 'Cancelado']
 
 function fmt(v: number) {
   return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -166,6 +167,19 @@ export default function Pedidos() {
                       >
                         {updatingId === o.id ? 'Confirmando...' : 'Confirmar pedido?'}
                       </button>
+                    ) : o.status === 'A caminho' ? (
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded ${STATUS_COLOR['A caminho']}`}>A caminho</span>
+                        <button
+                          onClick={() => handleStatusChange(o.id, 'Entregue')}
+                          disabled={updatingId === o.id}
+                          className="text-[10px] font-bold uppercase tracking-[0.1em] px-3 py-1.5 rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-50 whitespace-nowrap"
+                        >
+                          {updatingId === o.id ? 'Salvando...' : 'Confirmar entrega'}
+                        </button>
+                      </div>
+                    ) : o.status === 'Entregue' ? (
+                      <span className={`text-[10px] font-bold uppercase tracking-[0.1em] px-2 py-1 rounded ${STATUS_COLOR['Entregue']}`}>Entregue</span>
                     ) : (
                       <select
                         value={o.status}
