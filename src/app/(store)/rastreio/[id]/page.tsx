@@ -62,7 +62,7 @@ export default function RastreioPage({ params }: { params: Promise<{ id: string 
       .single()
       .then(({ data, error }) => {
         if (error || !data) setNotFound(true)
-        else setOrder({ ...data, total: Number(data.total) })
+        else setOrder({ ...data, total: Number(data.total) || 0, items: data.items ?? 0 })
         setLoading(false)
       })
   }, [id])
