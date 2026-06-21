@@ -58,16 +58,6 @@ const navLinks = [
     ],
   },
   {
-    href: '/produtos?categoria=eletronicos',
-    label: 'Eletrônicos',
-    submenu: [
-      { href: '/produtos?categoria=eletronicos', label: 'Ver tudo de Eletrônicos' },
-      { href: '/produtos?categoria=eletronicos', label: 'Smartphones' },
-      { href: '/produtos?categoria=eletronicos', label: 'Headphones' },
-      { href: '/produtos?categoria=eletronicos', label: 'Relógios' },
-    ],
-  },
-  {
     href: '/produtos?categoria=ofertas',
     label: 'Ofertas',
     submenu: [
