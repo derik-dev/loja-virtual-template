@@ -58,13 +58,13 @@ const navLinks = [
     ],
   },
   {
-    href: '/produtos?categoria=ofertas',
-    label: 'Ofertas',
+    href: '/produtos',
+    label: 'Tecnologia',
     submenu: [
-      { href: '/produtos?categoria=ofertas', label: 'Ver tudo de Ofertas' },
-      { href: '/produtos?categoria=ofertas', label: 'Liquidação' },
-      { href: '/produtos?categoria=ofertas', label: 'Cupons' },
-      { href: '/produtos?categoria=ofertas', label: 'Outlet' },
+      { href: '/produtos', label: 'Ver tudo de Tecnologia' },
+      { href: '/produtos', label: 'Tecidos inteligentes' },
+      { href: '/produtos', label: 'Térmicos' },
+      { href: '/produtos', label: 'Impermeáveis' },
     ],
   },
   {
