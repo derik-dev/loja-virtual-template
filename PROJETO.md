@@ -486,3 +486,163 @@ Baseado na referência visual da Insider Store Brasil:
 - Visual: preto/branco/zinc, sem indigo
 
 *Última atualização: 19/06/2026*
+
+---
+
+## Suite de IA com Groq (adicionada em 21/06/2026)
+
+Todas as features de IA usam o modelo `llama-3.3-70b-versatile` via API do Groq. Chave em `.env.local` como `GROQ_API_KEY`. Client centralizado em `src/lib/groq.ts` com a função `groqChat(prompt)`.
+
+---
+
+### Chat Flutuante — VERA (`src/components/ui/ChatAssistant.tsx`)
+
+Assistente de compra com IA disponível em todas as páginas da loja.
+
+**Botão flutuante** — fixo `bottom-4 right-4`, 56px, preto, ícone de chat branco. Vira X ao abrir.
+
+**Painel** — 380×500px ancorado no canto inferior direito. Em mobile ocupa largura toda da tela.
+
+**Header** — avatar "V" em círculo branco sobre fundo zinc-900, nome VERA, subtítulo "Assistente VERO".
+
+**Comportamento:**
+- Mensagem inicial automática: "Olá! Sou a VERA, sua assistente de moda. Como posso te ajudar hoje? 😊"
+- Mensagens do usuário: alinhadas à direita, fundo preto, texto branco
+- Mensagens da VERA: alinhadas à esquerda, fundo cinza claro
+- Typing indicator (3 pontos animados) enquanto a IA responde
+- Campo de texto cresce automaticamente (até 3 linhas), Enter envia, Shift+Enter quebra linha
+- Scroll automático para última mensagem
+- Histórico mantido enquanto o usuário está na página (últimas 10 mensagens enviadas ao Groq)
+
+**Cards de produto inline:** quando a VERA menciona `[slug-do-produto]` na resposta, renderiza um card clicável com foto, nome e preço do produto.
+
+**Backend (`/api/ai/chat`):**
+- Recebe `{ message, history, products }`
+- System prompt injeta lista completa de produtos (nome, slug, categoria, preço, descrição, cores, tamanhos)
+- Detecta slugs `[slug]` na resposta e retorna `{ message, productSlugs }`
+- Adicionado em `src/app/(store)/layout.tsx` e `src/app/page.tsx`
+
+---
+
+### Recomendações com IA na Página de Produto
+
+Seção "VOCÊ TAMBÉM PODE GOSTAR" com produtos selecionados pelo Groq.
+
+**Backend (`/api/ai/recommendations`):**
+- Recebe `{ currentProduct, allProducts }`
+- Groq seleciona 4 produtos complementares por estilo, ocasião, preço e combinação
+- Retorna array ordenado de produtos
+
+**Frontend (`/produto/[slug]`):**
+- Carrega de forma assíncrona após o produto principal (não bloqueia)
+- 4 skeleton cards animados enquanto carrega
+- Mobile: carrossel horizontal com scroll
+- Desktop: grid 4 colunas
+- Fallback: produtos relacionados por categoria se IA não retornar nada
+- Falha silenciosa em caso de erro
+
+---
+
+### Geração de Descrição com IA (Admin — ProductForm)
+
+Botão "✦ Gerar com IA" ao lado do label DESCRIÇÃO no formulário de produto.
+
+**Fluxo:**
+1. Lojista escreve uma descrição breve no campo
+2. Botão fica ativo (requer texto no campo de descrição)
+3. Se clicar sem texto: tooltip "Escreva uma descrição breve primeiro"
+4. Ao clicar: "Gerando..." com spinner
+5. IA expande para 80–120 palavras otimizadas, preservando a essência do que foi escrito
+6. Mensagem verde "Descrição gerada com sucesso" por 3s (ou vermelha em caso de erro)
+7. Lojista pode editar livremente depois
+
+**Backend (`/api/ai/description`):**
+- Recebe `{ nome, categoria, descricaoBreve, diferenciais, tags, cores }`
+- Prompt de copywriter especialista em e-commerce brasileiro
+
+---
+
+### Geração de SEO com IA (Admin — ProductForm)
+
+Seção "SEO" adicionada no final do formulário de produto.
+
+**Campos:**
+- **Meta Title** — contador em tempo real `XX/60`, fica vermelho acima de 60
+- **Meta Description** — textarea com contador `XX/160`, fica vermelho acima de 160
+
+**Botão "✦ Gerar SEO com IA":**
+- Ativo apenas se nome e descrição estiverem preenchidos
+- Tooltip "Preencha o nome e a descrição primeiro" se clicar sem dados
+- Preenche ambos os campos automaticamente
+- Mensagem de feedback por 3s
+
+**Backend (`/api/ai/seo`):**
+- Recebe `{ nome, categoria, descricao, tags }`
+- Meta title: 50–60 chars, inclui nome do produto + marca VERO
+- Meta description: 140–160 chars, benefício + CTA + keyword natural
+
+**Banco de dados:**
+- Colunas `meta_title` e `meta_description` adicionadas à tabela `products` via migration
+
+**Metadata da página de produto:**
+- `src/app/(store)/produto/[slug]/page.tsx` virou server component com `generateMetadata`
+- O componente cliente foi movido para `ProductPageClient.tsx`
+- Se produto tem `meta_title`/`meta_description` salvos, usa eles
+- Fallback automático: `[nome] | VERO` e primeiros 155 chars da descrição
+- `og:title`, `og:description` e `og:image` (primeira foto do produto) para compartilhamento no WhatsApp/redes
+
+---
+
+### Insights Preditivos no Dashboard Admin
+
+Card "✦ INSIGHTS DE IA" adicionado logo abaixo dos 4 KPIs do dashboard.
+
+**Comportamento:**
+- Carrega automaticamente quando o dashboard abre (assíncrono, não bloqueia)
+- 3 skeleton cards pulsando enquanto a IA processa (~3–5s)
+- Botão "↺ Atualizar" no canto superior direito recarrega os insights
+- "Atualizado agora · Powered by IA" após carregar
+- Mensagem discreta em caso de erro
+
+**Cada insight tem:**
+- Emoji (ícone visual)
+- Badge colorido por tipo: ESTOQUE=vermelho · OPORTUNIDADE=verde · TENDÊNCIA=azul · outros=cinza
+- Título em bold
+- Descrição acionável em até 2 frases
+
+**Backend (`/api/ai/insights`):**
+- Recebe `{ pedidos, produtos }` (últimos 30 pedidos + até 40 produtos)
+- Retorna exatamente 3 insights no formato `[{ icone, tipo, titulo, descricao }]`
+- Categorias: estoque crítico, alta demanda, melhor dia para promoção, produto parado, upsell, tendência
+
+---
+
+### Outras alterações (21/06/2026)
+
+- **Hero da homepage**: intervalo de troca de imagem aumentado de 5s para 10s
+- **`src/lib/types.ts`**: campos `metaTitle?` e `metaDescription?` adicionados à interface `Product`
+- **`src/lib/supabase.ts`**: `mapProduct` agora mapeia `meta_title` → `metaTitle` e `meta_description` → `metaDescription`
+
+---
+
+### Arquivos criados/modificados em 21/06/2026
+
+| Arquivo | Ação |
+|---|---|
+| `src/lib/groq.ts` | já existia — client Groq centralizado |
+| `src/app/api/ai/chat/route.ts` | CRIADO — backend do chat VERA |
+| `src/app/api/ai/recommendations/route.ts` | CRIADO — backend de recomendações |
+| `src/app/api/ai/description/route.ts` | CRIADO — backend de geração de descrição |
+| `src/app/api/ai/seo/route.ts` | CRIADO — backend de geração de SEO |
+| `src/app/api/ai/insights/route.ts` | CRIADO — backend de insights do dashboard |
+| `src/components/ui/ChatAssistant.tsx` | CRIADO — componente do chat flutuante |
+| `src/app/(store)/produto/[slug]/ProductPageClient.tsx` | CRIADO — componente cliente da página de produto |
+| `src/app/(store)/produto/[slug]/page.tsx` | MODIFICADO — virou server component com generateMetadata |
+| `src/app/(store)/layout.tsx` | MODIFICADO — adicionado ChatAssistant |
+| `src/app/page.tsx` | MODIFICADO — adicionado ChatAssistant + hero 10s |
+| `src/app/admin/components/Dashboard.tsx` | MODIFICADO — card de insights de IA |
+| `src/app/admin/components/ProductForm.tsx` | MODIFICADO — seção SEO + botão de descrição IA |
+| `src/lib/types.ts` | MODIFICADO — metaTitle, metaDescription |
+| `src/lib/supabase.ts` | MODIFICADO — mapProduct atualizado |
+
+*Última atualização: 21/06/2026*
