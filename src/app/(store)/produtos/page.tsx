@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import { supabaseAdmin as supabase, mapProduct } from '@/lib/supabase'
 import { Product, FilterState } from '@/lib/types'
 import { ProductGrid, ProductFilters } from '@/components/product'
@@ -27,6 +27,12 @@ export default function ProdutosPage() {
   const [sortOpen, setSortOpen] = useState(false)
   const sortRef = useRef<HTMLDivElement>(null)
 
+  /* ── AI Search ── */
+  const [query, setQuery] = useState('')
+  const [aiResults, setAiResults] = useState<Product[] | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(() => {
     supabase.from('products').select('*').then(({ data, error }) => {
       if (error) console.error('[Supabase] produtos:', error)
@@ -45,18 +51,57 @@ export default function ProdutosPage() {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
+  const runAiSearch = useCallback(async (q: string) => {
+    if (!q.trim()) {
+      setAiResults(null)
+      setAiLoading(false)
+      return
+    }
+    setAiLoading(true)
+    try {
+      const res = await fetch('/api/ai/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: q, products }),
+      })
+      const data = await res.json()
+      setAiResults(data.products ?? [])
+    } catch {
+      setAiResults([])
+    } finally {
+      setAiLoading(false)
+    }
+  }, [products])
+
+  const handleQueryChange = (value: string) => {
+    setQuery(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    if (!value.trim()) {
+      setAiResults(null)
+      setAiLoading(false)
+      return
+    }
+    setAiLoading(true)
+    debounceRef.current = setTimeout(() => runAiSearch(value), 600)
+  }
+
+  /* Base list: AI results (when searching) or all products */
+  const baseList = query.trim() ? (aiResults ?? []) : products
+
   const filtered = useMemo(() => {
-    let list = [...products]
+    let list = [...baseList]
     if (filters.category) list = list.filter((p) => p.category === filters.category)
     if (filters.minPrice !== null) list = list.filter((p) => p.price >= filters.minPrice!)
     if (filters.maxPrice !== null) list = list.filter((p) => p.price <= filters.maxPrice!)
-    switch (filters.sortBy) {
-      case 'price-asc': list.sort((a, b) => a.price - b.price); break
-      case 'price-desc': list.sort((a, b) => b.price - a.price); break
-      case 'rating': list.sort((a, b) => b.rating - a.rating); break
+    if (!query.trim()) {
+      switch (filters.sortBy) {
+        case 'price-asc': list.sort((a, b) => a.price - b.price); break
+        case 'price-desc': list.sort((a, b) => b.price - a.price); break
+        case 'rating': list.sort((a, b) => b.rating - a.rating); break
+      }
     }
     return list
-  }, [products, filters])
+  }, [baseList, filters, query])
 
   const activeSortLabel = SORT_OPTIONS.find((o) => o.value === filters.sortBy)?.label ?? 'Mais recentes'
 
@@ -90,17 +135,49 @@ export default function ProdutosPage() {
       {/* ── MAIN CONTENT ───────────────────────────────────── */}
       <div className="px-4 sm:px-14 lg:px-20 py-4 sm:py-6">
 
+        {/* ── AI SEARCH BAR ── */}
+        <div className="mb-5">
+          <div className="relative max-w-xl">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => handleQueryChange(e.target.value)}
+              placeholder="Buscar produtos com IA — ex: 'algo confortável para academia'..."
+              className="w-full border border-zinc-300 bg-white px-4 py-3 pr-10 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-zinc-900 transition-colors"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400">
+              {aiLoading ? (
+                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+              ) : (
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+              )}
+            </span>
+          </div>
+          {query.trim() && (
+            <p className="mt-1.5 text-xs text-zinc-400">
+              {aiLoading
+                ? 'Buscando com IA...'
+                : aiResults !== null
+                  ? `${filtered.length} resultado${filtered.length !== 1 ? 's' : ''} para "${query}"`
+                  : ''}
+            </p>
+          )}
+        </div>
+
         {/* Sort bar */}
         <div className="flex items-center justify-between mb-4 sm:mb-6">
-          {/* Resultado + botão FILTRO (mobile) / apenas count (desktop) */}
           <div className="flex items-center gap-2">
             <p className="text-xs text-zinc-500 uppercase tracking-[0.14em]">
-              Resultado ({filtered.length})
+              Resultado ({loading ? '...' : filtered.length})
             </p>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* FILTRO button — mobile */}
             <button
               onClick={() => setFiltersVisible((v) => !v)}
               className="lg:hidden border border-zinc-900 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-zinc-900 hover:bg-zinc-900 hover:text-white transition-colors"
@@ -108,39 +185,41 @@ export default function ProdutosPage() {
               Filtro
             </button>
 
-          {/* ORDENAR POR dropdown */}
-          <div className="relative" ref={sortRef}>
-            <button
-              onClick={() => setSortOpen((v) => !v)}
-              className="flex items-center gap-3 border border-zinc-300 px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-800 hover:border-zinc-900 transition-colors whitespace-nowrap"
-            >
-              ORDENAR POR
-              <svg
-                className={`h-3 w-3 transition-transform duration-200 ${sortOpen ? 'rotate-180' : ''}`}
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {sortOpen && (
-              <div className="absolute right-0 top-full mt-1 z-30 bg-white border border-zinc-200 min-w-[200px] shadow-sm">
-                {SORT_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() => {
-                      setFilters((f) => ({ ...f, sortBy: opt.value }))
-                      setSortOpen(false)
-                    }}
-                    className={`w-full text-left px-5 py-3 text-xs uppercase tracking-[0.14em] hover:bg-zinc-50 transition-colors ${
-                      filters.sortBy === opt.value ? 'font-bold text-zinc-900' : 'text-zinc-500'
-                    }`}
+            {/* Ordenar — oculto durante busca IA */}
+            {!query.trim() && (
+              <div className="relative" ref={sortRef}>
+                <button
+                  onClick={() => setSortOpen((v) => !v)}
+                  className="flex items-center gap-3 border border-zinc-300 px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.18em] text-zinc-800 hover:border-zinc-900 transition-colors whitespace-nowrap"
+                >
+                  ORDENAR POR
+                  <svg
+                    className={`h-3 w-3 transition-transform duration-200 ${sortOpen ? 'rotate-180' : ''}`}
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
                   >
-                    {opt.label}
-                  </button>
-                ))}
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {sortOpen && (
+                  <div className="absolute right-0 top-full mt-1 z-30 bg-white border border-zinc-200 min-w-[200px] shadow-sm">
+                    {SORT_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        onClick={() => {
+                          setFilters((f) => ({ ...f, sortBy: opt.value }))
+                          setSortOpen(false)
+                        }}
+                        className={`w-full text-left px-5 py-3 text-xs uppercase tracking-[0.14em] hover:bg-zinc-50 transition-colors ${
+                          filters.sortBy === opt.value ? 'font-bold text-zinc-900' : 'text-zinc-500'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
-          </div>
           </div>
         </div>
 
@@ -172,10 +251,18 @@ export default function ProdutosPage() {
 
           {/* Product grid */}
           <div className="flex-1 min-w-0">
-            {loading
-              ? <p className="text-sm text-zinc-400 py-20 text-center">Carregando produtos...</p>
-              : <ProductGrid products={filtered} />
-            }
+            {loading ? (
+              <p className="text-sm text-zinc-400 py-20 text-center">Carregando produtos...</p>
+            ) : aiLoading && aiResults === null ? (
+              <p className="text-sm text-zinc-400 py-20 text-center">Buscando com IA...</p>
+            ) : filtered.length === 0 && query.trim() ? (
+              <div className="py-20 text-center">
+                <p className="text-sm font-medium text-zinc-700 mb-1">Nenhum produto encontrado para &quot;{query}&quot;</p>
+                <p className="text-xs text-zinc-400">Tente descrever de outra forma.</p>
+              </div>
+            ) : (
+              <ProductGrid products={filtered} />
+            )}
           </div>
         </div>
       </div>
