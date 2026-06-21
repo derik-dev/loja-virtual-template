@@ -495,34 +495,60 @@ export default function CheckoutPage() {
 
             {/* ── STEP 2: Frete ── */}
             {step === 'frete' && (
-              <section>
-                <h2 className="text-base font-medium text-zinc-900 mb-4">Opções de entrega</h2>
-                <div className="space-y-2.5">
-                  {[
-                    { id: 'pac', label: 'PAC — Correios', desc: '5 a 8 dias úteis', price: 19.9 },
-                    { id: 'sedex', label: 'SEDEX — Correios', desc: '1 a 3 dias úteis', price: 34.9 },
-                    { id: 'gratis', label: 'Frete Grátis', desc: '7 a 12 dias úteis', price: 0, disabled: total < 399 },
-                  ].map((opt) => (
-                    <label key={opt.id} className={`flex items-center justify-between border rounded-lg p-4 cursor-pointer transition-colors ${opt.disabled ? 'opacity-40 cursor-not-allowed border-zinc-300' : selectedShipping?.id === opt.id ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-300 hover:border-zinc-900'}`}>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="radio" name="shipping" value={opt.id}
-                          checked={selectedShipping?.id === opt.id}
-                          disabled={opt.disabled}
-                          onChange={() => !opt.disabled && setSelectedShipping({ id: opt.id, price: opt.price })}
-                          className="accent-zinc-900"
-                        />
-                        <div>
-                          <p className="text-sm font-medium text-zinc-900">{opt.label}</p>
-                          <p className="text-xs text-zinc-400">{opt.desc}</p>
-                          {opt.disabled && <p className="text-xs text-zinc-400">Disponível acima de R$399</p>}
+              <section className="space-y-6">
+                {/* Resumo das etapas anteriores */}
+                <div className="border border-zinc-200 rounded-lg divide-y divide-zinc-100 text-sm">
+                  <div className="flex items-center justify-between px-4 py-3 gap-4">
+                    <span className="text-zinc-400 w-24 flex-shrink-0">Contato</span>
+                    <span className="text-zinc-700 flex-1 truncate">{email}</span>
+                    <button type="button" onClick={() => setStep('informacoes')} className="text-xs text-blue-600 hover:underline flex-shrink-0">Alterar</button>
+                  </div>
+                  <div className="flex items-center justify-between px-4 py-3 gap-4">
+                    <span className="text-zinc-400 w-24 flex-shrink-0">Enviar para</span>
+                    <span className="text-zinc-700 flex-1 text-xs leading-snug">
+                      {[rua, numero, bairro, cep, cidade, estado, 'Brasil'].filter(Boolean).join(', ')}
+                    </span>
+                    <button type="button" onClick={() => setStep('informacoes')} className="text-xs text-blue-600 hover:underline flex-shrink-0">Alterar</button>
+                  </div>
+                </div>
+
+                {/* Opções de frete */}
+                <div>
+                  <h2 className="text-base font-medium text-zinc-900 mb-3">Forma de frete</h2>
+                  <div className="border border-zinc-200 rounded-lg divide-y divide-zinc-100 overflow-hidden">
+                    {[
+                      { id: 'gratis', label: 'Frete Grátis', desc: '7 a 12 dias úteis', price: 0, disabled: total < 399 },
+                      { id: 'pac', label: 'PAC — Correios', desc: '5 a 8 dias úteis', price: 19.9 },
+                      { id: 'sedex', label: 'SEDEX — Correios', desc: '1 a 3 dias úteis', price: 34.9 },
+                    ].map((opt) => (
+                      <label
+                        key={opt.id}
+                        className={`flex items-center justify-between px-4 py-4 cursor-pointer transition-colors ${
+                          opt.disabled ? 'opacity-40 cursor-not-allowed bg-white' :
+                          selectedShipping?.id === opt.id ? 'bg-zinc-50' : 'bg-white hover:bg-zinc-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="radio" name="shipping" value={opt.id}
+                            checked={selectedShipping?.id === opt.id}
+                            disabled={opt.disabled}
+                            onChange={() => !opt.disabled && setSelectedShipping({ id: opt.id, price: opt.price })}
+                            className="accent-zinc-900 w-4 h-4"
+                          />
+                          <div>
+                            <p className="text-sm font-medium text-zinc-900">{opt.label}</p>
+                            <p className="text-xs text-zinc-400 mt-0.5">
+                              {opt.disabled ? 'Disponível acima de R$ 399' : opt.desc}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <span className="text-sm font-medium text-zinc-900">
-                        {opt.price === 0 ? 'Grátis' : formatCurrency(opt.price)}
-                      </span>
-                    </label>
-                  ))}
+                        <span className="text-sm font-medium text-zinc-900 flex-shrink-0">
+                          {opt.price === 0 ? 'GRÁTIS' : formatCurrency(opt.price)}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </section>
             )}
