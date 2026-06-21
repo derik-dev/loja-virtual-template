@@ -147,6 +147,7 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
     tags: product?.tags?.join(', ') ?? '',
     sizes: product?.sizes?.join(', ') ?? 'P, M, G, GG, XGG',
     features: product?.features?.join('\n') ?? '',
+    section: (product as { section?: string })?.section ?? '',
   })
 
   const [categories, setCategories] = useState<CategoryType[]>([])
@@ -248,6 +249,7 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
       price: parseFloat(form.price),
       original_price: form.original_price ? parseFloat(form.original_price) : null,
       category: form.category,
+      section: form.section || null,
       stock: parseInt(form.stock),
       rating: parseFloat(form.rating),
       review_count: parseInt(form.review_count),
@@ -323,14 +325,33 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
             </div>
           </div>
 
-          {/* Tipo de produto */}
-          <div className="bg-white border border-zinc-200 p-8">
-            <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Tipo de produto *</label>
-            <CategoryDropdown
-              categories={categories}
-              value={form.category}
-              onChange={(v) => set('category', v)}
-            />
+          {/* Tipo de produto + Seção */}
+          <div className="bg-white border border-zinc-200 p-8 space-y-6">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Tipo de produto *</label>
+              <CategoryDropdown
+                categories={categories}
+                value={form.category}
+                onChange={(v) => set('category', v)}
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Seção do site</label>
+              <select
+                value={form.section}
+                onChange={(e) => set('section', e.target.value)}
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 bg-white"
+              >
+                <option value="">Sem seção</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+                <option value="inverno">Inverno</option>
+                <option value="tecnologia">Tecnologia</option>
+                <option value="acessorios">Acessórios</option>
+                <option value="novidades">Novidades</option>
+              </select>
+              <p className="text-xs text-zinc-400 mt-1">Define em qual seção do menu este produto aparece.</p>
+            </div>
           </div>
 
           {/* Preços */}
