@@ -10,22 +10,22 @@ import { ProductGrid, ProductFilters } from '@/components/product'
 const SECTIONS: Record<string, { label: string; banner: string; sub: string }> = {
   masculino: {
     label: 'Masculino',
-    banner: '/hero-fashion.png',
+    banner: '/masculino.webp',
     sub: 'Coleção masculina • Vero 2026',
   },
   feminino: {
     label: 'Feminino',
-    banner: '/hero-fashion.png',
+    banner: '/feminino.webp',
     sub: 'Coleção feminina • Vero 2026',
   },
   inverno: {
     label: 'Inverno',
-    banner: '/hero-fashion.png',
+    banner: '/inverno.webp',
     sub: 'Coleção inverno • Vero 2026',
   },
   tecnologia: {
     label: 'Tecnologia',
-    banner: '/hero-fashion.png',
+    banner: '/tecnologias.webp',
     sub: 'Tecidos inteligentes • Vero 2026',
   },
   acessorios: {
@@ -35,7 +35,7 @@ const SECTIONS: Record<string, { label: string; banner: string; sub: string }> =
   },
   novidades: {
     label: 'Novidades',
-    banner: '/hero-fashion.png',
+    banner: '/lancamentos.webp',
     sub: 'Recém chegados • Vero 2026',
   },
 }
