@@ -314,6 +314,7 @@ export default function CheckoutPage() {
       items: totalItems,
       total: finalTotal,
       status: 'Novo',
+      carrier: selectedShipping?.id === 'sedex' ? 'SEDEX — Correios' : selectedShipping?.id === 'pac' ? 'PAC — Correios' : selectedShipping?.id === 'gratis' ? 'Correios' : null,
     })
 
     if (error) {
