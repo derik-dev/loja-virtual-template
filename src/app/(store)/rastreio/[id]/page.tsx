@@ -78,18 +78,6 @@ export default function RastreioPage({ params }: { params: Promise<{ id: string 
 
   return (
     <div className="min-h-screen bg-[#F5F5F5]">
-      {/* Header */}
-      <div className="bg-white border-b border-zinc-200">
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href="/">
-            <img src="/logo-preta.png" alt="VERO" className="h-7 w-auto object-contain" />
-          </Link>
-          <Link href="/conta" className="text-xs text-zinc-500 hover:text-zinc-900 transition-colors">
-            Minha conta
-          </Link>
-        </div>
-      </div>
-
       <div className="max-w-2xl mx-auto px-4 py-12">
 
         {loading && (
