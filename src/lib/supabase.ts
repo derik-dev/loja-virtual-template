@@ -43,5 +43,6 @@ export function mapProduct(row: any): Product {
     features: row.features ?? [],
     metaTitle: row.meta_title ?? undefined,
     metaDescription: row.meta_description ?? undefined,
+    section: row.section ?? [],
   }
 }

@@ -16,6 +16,7 @@ interface ShowcaseProduct {
   rating?: number
   reviewCount?: number
   slug: string
+  section: string[]
 }
 
 function toShowcase(p: Product): ShowcaseProduct {
@@ -34,6 +35,7 @@ function toShowcase(p: Product): ShowcaseProduct {
     rating: p.rating || undefined,
     reviewCount: p.reviewCount || undefined,
     slug: p.slug,
+    section: p.section ?? [],
   }
 }
 
@@ -110,7 +112,7 @@ export default function ProductShowcase({ products: rawProducts }: Props) {
   const [canScrollRight, setCanScrollRight] = useState(true)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const products = rawProducts.map(toShowcase)
+  const products = rawProducts.map(toShowcase).filter((p) => p.section.includes(activeTab))
 
   function updateArrows() {
     const el = scrollRef.current
