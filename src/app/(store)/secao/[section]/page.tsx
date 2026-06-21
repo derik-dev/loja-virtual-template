@@ -30,7 +30,7 @@ const SECTIONS: Record<string, { label: string; banner: string; sub: string }> =
   },
   acessorios: {
     label: 'Acessórios',
-    banner: '/hero-fashion.png',
+    banner: '/acessorios.png',
     sub: 'Acessórios • Vero 2026',
   },
   novidades: {
