@@ -167,7 +167,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       openAuthModal()
       return
     }
-    addItem(product, quantity)
+    addItem(product, quantity, colors[selectedColor]?.name, selectedSize ?? undefined)
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
   }
@@ -264,6 +264,12 @@ export default function ProductPage({ params }: ProductPageProps) {
                 </button>
               ))}
             </div>
+            <a
+              href={`/encontre-seu-tamanho?nome=${encodeURIComponent(product.name)}&categoria=${encodeURIComponent(product.category)}&tamanhos=${encodeURIComponent(productSizes.join(','))}&imagem=${encodeURIComponent(product.images[0] ?? '')}`}
+              className="inline-flex items-center gap-1 mt-2 text-[11px] text-zinc-400 hover:text-zinc-700 transition-colors underline underline-offset-2"
+            >
+              Não sabe seu tamanho? → Consultor de tamanho
+            </a>
           </div>
 
           {/* Quantidade / Kits */}
@@ -469,6 +475,12 @@ export default function ProductPage({ params }: ProductPageProps) {
                   </button>
                 ))}
               </div>
+              <a
+                href={`/encontre-seu-tamanho?nome=${encodeURIComponent(product.name)}&categoria=${encodeURIComponent(product.category)}&tamanhos=${encodeURIComponent(productSizes.join(','))}&imagem=${encodeURIComponent(product.images[0] ?? '')}`}
+                className="inline-flex items-center gap-1 mt-2 text-[11px] text-zinc-400 hover:text-zinc-700 transition-colors underline underline-offset-2"
+              >
+                Não sabe seu tamanho? → Consultor de tamanho
+              </a>
             </div>
 
             {/* Quantity */}

@@ -191,7 +191,7 @@ export default function CheckoutPage() {
       const { data, error } = await supabase
         .from('addresses')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user!.id)
         .order('is_default', { ascending: false })
         .limit(1)
         .single()

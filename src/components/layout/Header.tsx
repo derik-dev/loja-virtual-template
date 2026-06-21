@@ -309,6 +309,19 @@ export default function Header({ overlay = false, sticky = false }: HeaderProps)
                   </div>
                 )
               })}
+
+              {/* Encontre seu Tamanho */}
+              <div className="relative ml-1" onMouseEnter={() => openMenu('')}>
+                <Link
+                  href="/encontre-seu-tamanho"
+                  className={`px-3.5 py-2 text-base font-normal uppercase tracking-[0.12em] transition-colors inline-flex items-center gap-1.5 ${lightText ? 'text-white hover:text-white/75' : 'text-zinc-700 hover:text-zinc-900'}`}
+                >
+                  <svg className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+                  </svg>
+                  Meu Tamanho
+                </Link>
+              </div>
             </nav>
 
             {/* Ações */}

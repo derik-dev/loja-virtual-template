@@ -22,6 +22,7 @@ export interface Product {
   features?: string[]
   metaTitle?: string
   metaDescription?: string
+  section?: string[]
 }
 
 export interface Category {
@@ -35,6 +36,8 @@ export interface Category {
 export interface CartItem {
   product: Product
   quantity: number
+  selectedColor?: string
+  selectedSize?: string
 }
 
 export interface FilterState {
