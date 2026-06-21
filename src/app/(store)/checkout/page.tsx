@@ -321,6 +321,19 @@ export default function CheckoutPage() {
       console.error('[Checkout] erro ao salvar pedido:', error)
     }
 
+    // Decrementa estoque via API server-side (usa service role key)
+    await fetch('/api/checkout/decrement-stock', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: items.map((i) => ({
+          id: i.product.id,
+          quantity: i.quantity,
+          currentStock: i.product.stock,
+        })),
+      }),
+    })
+
     clearCart()
     setSubmitted(true)
     setLoading(false)
