@@ -11,19 +11,6 @@ interface ProductCardProps {
   product: Product
 }
 
-const COLOR_SETS = [
-  ['#111111', '#e8e4db', '#8b7355'],
-  ['#111111', '#f0f0f0', '#3d4a5c'],
-  ['#1e2235', '#111111', '#e8e4db', '#b22222'],
-  ['#111111', '#e8e4db'],
-  ['#111111', '#e8e4db', '#3d4a5c', '#b22222', '#8b7355', '#1e3a5f'],
-  ['#f0ede6', '#111111', '#8b7355', '#3d4a5c'],
-]
-
-function getColors(id: string): string[] {
-  const hash = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
-  return COLOR_SETS[hash % COLOR_SETS.length]
-}
 
 export default function ProductCard({ product }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem)
@@ -33,7 +20,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const discount = product.originalPrice
     ? calculateDiscount(product.originalPrice, product.price)
     : null
-  const colors = getColors(product.id)
+  const colors = product.colors?.map((c) => c.hex) ?? []
 
   const badges: string[] = []
   if (product.featured) badges.push('BEST SELLER')
