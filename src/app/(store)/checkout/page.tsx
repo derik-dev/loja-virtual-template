@@ -136,7 +136,9 @@ export default function CheckoutPage() {
   useEffect(() => setMounted(true), [])
 
   const [step, setStep] = useState<Step>('informacoes')
-  const [selectedShipping, setSelectedShipping] = useState<{ id: string; price: number } | null>(null)
+  const [selectedShipping, setSelectedShipping] = useState<{ id: string; label: string; price: number } | null>(null)
+  const [cpf, setCpf] = useState('')
+  const [useSameAddress, setUseSameAddress] = useState(true)
   const [coupon, setCoupon] = useState('')
   const [couponLoading, setCouponLoading] = useState(false)
   const [couponError, setCouponError] = useState('')
@@ -289,7 +291,7 @@ export default function CheckoutPage() {
       const next = STEPS[currentStepIndex + 1]
       if (next) {
         setStep(next)
-        if (next === 'frete' && !selectedShipping) setSelectedShipping({ id: 'pac', price: 19.9 })
+        if (next === 'frete' && !selectedShipping) setSelectedShipping({ id: 'pac', label: 'PAC — Correios', price: 19.9 })
       }
       return
     }
@@ -533,7 +535,7 @@ export default function CheckoutPage() {
                             type="radio" name="shipping" value={opt.id}
                             checked={selectedShipping?.id === opt.id}
                             disabled={opt.disabled}
-                            onChange={() => !opt.disabled && setSelectedShipping({ id: opt.id, price: opt.price })}
+                            onChange={() => !opt.disabled && setSelectedShipping({ id: opt.id, label: opt.label, price: opt.price })}
                             className="accent-zinc-900 w-4 h-4"
                           />
                           <div>
@@ -555,14 +557,80 @@ export default function CheckoutPage() {
 
             {/* ── STEP 3: Pagamento ── */}
             {step === 'pagamento' && (
-              <section>
-                <h2 className="text-base font-medium text-zinc-900 mb-4">Forma de pagamento</h2>
-                <div className="border border-zinc-200 rounded-lg p-8 text-center">
-                  <div className="h-28 w-28 mx-auto border border-zinc-200 flex items-center justify-center mb-4">
-                    <span className="text-[10px] text-zinc-400 uppercase tracking-wider">QR Code PIX</span>
+              <section className="space-y-6">
+                {/* Resumo das etapas anteriores */}
+                <div className="border border-zinc-200 rounded-lg divide-y divide-zinc-100 text-sm">
+                  <div className="flex items-center justify-between px-4 py-3 gap-4">
+                    <span className="text-zinc-400 w-24 flex-shrink-0">Contato</span>
+                    <span className="text-zinc-700 flex-1 truncate">{email}</span>
+                    <button type="button" onClick={() => setStep('informacoes')} className="text-xs text-blue-600 hover:underline flex-shrink-0">Alterar</button>
                   </div>
-                  <p className="text-xs text-zinc-500">O QR Code será gerado após confirmar o pedido.</p>
-                  <p className="text-xs font-bold text-zinc-900 mt-1">5% de desconto no PIX</p>
+                  <div className="flex items-center justify-between px-4 py-3 gap-4">
+                    <span className="text-zinc-400 w-24 flex-shrink-0">Enviar para</span>
+                    <span className="text-zinc-700 flex-1 text-xs leading-snug">
+                      {[rua, numero, bairro, cep, cidade, estado, 'Brasil'].filter(Boolean).join(', ')}
+                    </span>
+                    <button type="button" onClick={() => setStep('informacoes')} className="text-xs text-blue-600 hover:underline flex-shrink-0">Alterar</button>
+                  </div>
+                  <div className="flex items-center justify-between px-4 py-3 gap-4">
+                    <span className="text-zinc-400 w-24 flex-shrink-0">Frete</span>
+                    <span className="text-zinc-700 flex-1 text-sm">
+                      {selectedShipping ? `${selectedShipping.label} · ${selectedShipping.price === 0 ? 'GRÁTIS' : formatCurrency(selectedShipping.price)}` : '—'}
+                    </span>
+                    <button type="button" onClick={() => setStep('frete')} className="text-xs text-blue-600 hover:underline flex-shrink-0">Alterar</button>
+                  </div>
+                </div>
+
+                {/* CPF/CNPJ */}
+                <div>
+                  <h2 className="text-base font-medium text-zinc-900 mb-1">CPF/CNPJ obrigatório para emitir nota fiscal</h2>
+                  <Field
+                    placeholder="CPF/CNPJ"
+                    value={cpf}
+                    onChange={(e) => setCpf(e.target.value)}
+                  />
+                </div>
+
+                {/* Pagamento */}
+                <div>
+                  <h2 className="text-base font-medium text-zinc-900">Pagamento</h2>
+                  <p className="text-xs text-zinc-400 mt-0.5 mb-4">Todas as transações são seguras e criptografadas.</p>
+
+                  {/* Banner PIX */}
+                  <div className="flex items-start gap-2.5 border border-zinc-200 rounded-lg px-4 py-3 mb-3 bg-zinc-50">
+                    <svg className="h-4 w-4 flex-shrink-0 text-zinc-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-zinc-900">2% OFF no Pix</p>
+                      <p className="text-xs text-zinc-500 mt-0.5">Desbloqueie 2% OFF a mais em pagamento via PIX</p>
+                    </div>
+                  </div>
+
+                  {/* PIX único selecionado */}
+                  <div className="border-2 border-zinc-900 rounded-lg px-4 py-3.5 flex items-center gap-3 bg-white">
+                    <div className="w-4 h-4 rounded-full border-2 border-zinc-900 flex items-center justify-center flex-shrink-0">
+                      <div className="w-2 h-2 rounded-full bg-zinc-900" />
+                    </div>
+                    <span className="text-sm font-medium text-zinc-900">Pix</span>
+                  </div>
+                  <p className="text-xs text-zinc-400 mt-2">O QR Code será exibido após confirmar o pedido.</p>
+                </div>
+
+                {/* Endereço de faturamento */}
+                <div>
+                  <h2 className="text-base font-medium text-zinc-900 mb-1">Endereço de faturamento</h2>
+                  <p className="text-xs text-zinc-400 mb-3">Selecione o endereço que corresponde ao seu método de pagamento.</p>
+                  <div className="border border-zinc-200 rounded-lg divide-y divide-zinc-100 overflow-hidden">
+                    <label className={`flex items-center gap-3 px-4 py-3.5 cursor-pointer ${useSameAddress ? 'bg-zinc-50' : 'bg-white hover:bg-zinc-50'}`}>
+                      <input type="radio" name="billing" checked={useSameAddress} onChange={() => setUseSameAddress(true)} className="accent-zinc-900 w-4 h-4" />
+                      <span className="text-sm text-zinc-800">Usar o endereço de entrega</span>
+                    </label>
+                    <label className={`flex items-center gap-3 px-4 py-3.5 cursor-pointer ${!useSameAddress ? 'bg-zinc-50' : 'bg-white hover:bg-zinc-50'}`}>
+                      <input type="radio" name="billing" checked={!useSameAddress} onChange={() => setUseSameAddress(false)} className="accent-zinc-900 w-4 h-4" />
+                      <span className="text-sm text-zinc-800">Usar um endereço de faturamento diferente</span>
+                    </label>
+                  </div>
                 </div>
               </section>
             )}
@@ -581,7 +649,7 @@ export default function CheckoutPage() {
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                   </svg>
-                  {step === 'frete' ? 'Voltar às informações' : 'Voltar ao frete'}
+                  {step === 'frete' ? 'Voltar para as informações' : 'Voltar para o frete'}
                 </button>
               )}
 
@@ -592,8 +660,8 @@ export default function CheckoutPage() {
               >
                 {loading ? 'Processando...' :
                   step === 'informacoes' ? 'Continuar para frete' :
-                  step === 'frete' ? 'Continuar para pagamento' :
-                  'Confirmar Pedido'}
+                  step === 'frete' ? 'Continuar com o pagamento' :
+                  'Finalizar a compra'}
               </button>
             </div>
 
