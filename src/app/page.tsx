@@ -86,7 +86,7 @@ export default function HomePage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setHeroIndex(i => (i + 1) % HERO_IMAGES.length)
-    }, 5000)
+    }, 10000)
     return () => clearInterval(interval)
   }, [])
 
