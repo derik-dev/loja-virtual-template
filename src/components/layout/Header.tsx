@@ -18,23 +18,32 @@ interface HeaderProps {
 const navLinks = [
   {
     href: '/produtos',
-    label: 'Produtos',
+    label: 'Inverno',
     submenu: [
-      { href: '/produtos', label: 'Ver todos os produtos' },
-      { href: '/produtos', label: 'Mais vendidos' },
-      { href: '/produtos', label: 'Lançamentos' },
-      { href: '/produtos', label: 'Promoções' },
+      { href: '/produtos', label: 'Ver coleção inverno' },
+      { href: '/produtos', label: 'Casacos e jaquetas' },
+      { href: '/produtos', label: 'Moletons' },
+      { href: '/produtos', label: 'Tricôs e cardigãs' },
     ],
   },
   {
-    href: '/produtos?categoria=roupas',
-    label: 'Roupas',
+    href: '/produtos',
+    label: 'Masculino',
     submenu: [
-      { href: '/produtos?categoria=roupas', label: 'Ver tudo de Roupas' },
-      { href: '/produtos?categoria=roupas', label: 'Camisetas' },
-      { href: '/produtos?categoria=roupas', label: 'Calças' },
-      { href: '/produtos?categoria=roupas', label: 'Vestidos' },
-      { href: '/produtos?categoria=roupas', label: 'Jaquetas' },
+      { href: '/produtos', label: 'Ver tudo masculino' },
+      { href: '/produtos', label: 'Camisetas' },
+      { href: '/produtos', label: 'Calças' },
+      { href: '/produtos', label: 'Jaquetas' },
+    ],
+  },
+  {
+    href: '/produtos',
+    label: 'Feminino',
+    submenu: [
+      { href: '/produtos', label: 'Ver tudo feminino' },
+      { href: '/produtos', label: 'Vestidos' },
+      { href: '/produtos', label: 'Blusas' },
+      { href: '/produtos', label: 'Calças' },
     ],
   },
   {
