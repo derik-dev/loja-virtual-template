@@ -73,7 +73,7 @@ export default function SecaoPage({ params }: { params: Promise<{ section: strin
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    supabase.from('products').select('*').eq('section', section).then(({ data, error }) => {
+    supabase.from('products').select('*').contains('section', [section]).then(({ data, error }) => {
       if (error) console.error('[Supabase] section:', error)
       setProducts((data ?? []).map(mapProduct))
       setLoading(false)

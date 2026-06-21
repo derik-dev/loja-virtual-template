@@ -147,8 +147,11 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
     tags: product?.tags?.join(', ') ?? '',
     sizes: product?.sizes?.join(', ') ?? 'P, M, G, GG, XGG',
     features: product?.features?.join('\n') ?? '',
-    section: (product as { section?: string })?.section ?? '',
   })
+
+  const [sections, setSections] = useState<string[]>(
+    (product as { section?: string[] })?.section ?? []
+  )
 
   const [categories, setCategories] = useState<CategoryType[]>([])
 
@@ -249,7 +252,7 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
       price: parseFloat(form.price),
       original_price: form.original_price ? parseFloat(form.original_price) : null,
       category: form.category,
-      section: form.section || null,
+      section: sections.length > 0 ? sections : null,
       stock: parseInt(form.stock),
       rating: parseFloat(form.rating),
       review_count: parseInt(form.review_count),
@@ -336,21 +339,30 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
               />
             </div>
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-2">Seção do site</label>
-              <select
-                value={form.section}
-                onChange={(e) => set('section', e.target.value)}
-                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 bg-white"
-              >
-                <option value="">Sem seção</option>
-                <option value="masculino">Masculino</option>
-                <option value="feminino">Feminino</option>
-                <option value="inverno">Inverno</option>
-                <option value="tecnologia">Tecnologia</option>
-                <option value="acessorios">Acessórios</option>
-                <option value="novidades">Novidades</option>
-              </select>
-              <p className="text-xs text-zinc-400 mt-1">Define em qual seção do menu este produto aparece.</p>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-3">Seções do site</label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { value: 'masculino', label: 'Masculino' },
+                  { value: 'feminino', label: 'Feminino' },
+                  { value: 'inverno', label: 'Inverno' },
+                  { value: 'tecnologia', label: 'Tecnologia' },
+                  { value: 'acessorios', label: 'Acessórios' },
+                  { value: 'novidades', label: 'Novidades' },
+                ].map((s) => (
+                  <label key={s.value} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={sections.includes(s.value)}
+                      onChange={(e) => setSections(prev =>
+                        e.target.checked ? [...prev, s.value] : prev.filter(v => v !== s.value)
+                      )}
+                      className="accent-zinc-900 w-4 h-4"
+                    />
+                    <span className="text-sm text-zinc-700">{s.label}</span>
+                  </label>
+                ))}
+              </div>
+              <p className="text-xs text-zinc-400 mt-2">Um produto pode aparecer em várias seções.</p>
             </div>
           </div>
 
