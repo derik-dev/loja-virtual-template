@@ -12,6 +12,7 @@ type Order = {
   status: string
   created_at: string
   tracking_code?: string
+  carrier?: string
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -39,6 +40,7 @@ export default function Pedidos() {
   const [statusFilter, setStatusFilter] = useState('Todos')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [trackingEdit, setTrackingEdit] = useState<Record<string, string>>({})
+  const [carrierEdit, setCarrierEdit] = useState<Record<string, string>>({})
 
   async function handleStatusChange(id: string, newStatus: string) {
     setUpdatingId(id)
@@ -48,6 +50,20 @@ export default function Pedidos() {
       body: JSON.stringify({ id, status: newStatus }),
     })
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus } : o))
+    setUpdatingId(null)
+  }
+
+  async function handleCarrierSave(id: string) {
+    const carrier = carrierEdit[id]?.trim()
+    if (carrier === undefined) return
+    setUpdatingId(id)
+    await fetch('/api/admin/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, carrier }),
+    })
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, carrier } : o))
+    setCarrierEdit(prev => { const n = { ...prev }; delete n[id]; return n })
     setUpdatingId(null)
   }
 
@@ -142,6 +158,7 @@ export default function Pedidos() {
                 <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Itens</th>
                 <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Valor</th>
                 <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Status</th>
+                <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Transportadora</th>
                 <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Rastreio</th>
                 <th className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-400">Data</th>
                 <th className="px-5 py-3"></th>
@@ -191,6 +208,29 @@ export default function Pedidos() {
                           <option key={s} value={s}>{s}</option>
                         ))}
                       </select>
+                    )}
+                  </td>
+                  <td className="px-5 py-3">
+                    {carrierEdit[o.id] !== undefined ? (
+                      <div className="flex items-center gap-1">
+                        <input
+                          autoFocus
+                          value={carrierEdit[o.id]}
+                          onChange={e => setCarrierEdit(prev => ({ ...prev, [o.id]: e.target.value }))}
+                          onKeyDown={e => e.key === 'Enter' && handleCarrierSave(o.id)}
+                          placeholder="Ex: Correios, Jadlog..."
+                          className="border border-zinc-300 rounded px-2 py-1 text-xs w-36 focus:outline-none focus:border-zinc-600"
+                        />
+                        <button onClick={() => handleCarrierSave(o.id)} className="text-xs text-white bg-zinc-900 px-2 py-1 rounded hover:bg-zinc-700">OK</button>
+                        <button onClick={() => setCarrierEdit(prev => { const n = { ...prev }; delete n[o.id]; return n })} className="text-xs text-zinc-400 hover:text-zinc-700">✕</button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setCarrierEdit(prev => ({ ...prev, [o.id]: o.carrier ?? '' }))}
+                        className="text-xs text-zinc-500 hover:text-zinc-900 transition-colors"
+                      >
+                        {o.carrier ? <span className="text-zinc-700">{o.carrier}</span> : <span className="text-zinc-300">+ Adicionar</span>}
+                      </button>
                     )}
                   </td>
                   <td className="px-5 py-3">
