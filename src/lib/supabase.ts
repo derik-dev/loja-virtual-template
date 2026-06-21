@@ -41,5 +41,7 @@ export function mapProduct(row: any): Product {
     colors: row.colors ?? [],
     sizes: row.sizes ?? [],
     features: row.features ?? [],
+    metaTitle: row.meta_title ?? undefined,
+    metaDescription: row.meta_description ?? undefined,
   }
 }

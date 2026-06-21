@@ -18,9 +18,11 @@ type Order = {
 
 type Product = {
   id: string
+  name: string
   category: string
   price: number
   stock: number
+  featured: boolean
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -66,23 +68,65 @@ function CustomTooltip({ active, payload, label }: { active?: boolean; payload?:
   )
 }
 
+type Insight = {
+  icone: string
+  tipo: string
+  titulo: string
+  descricao: string
+}
+
+const BADGE_COLOR: Record<string, string> = {
+  ESTOQUE: 'bg-red-50 text-red-700',
+  OPORTUNIDADE: 'bg-emerald-50 text-emerald-700',
+  TENDÊNCIA: 'bg-blue-50 text-blue-700',
+  TENDENCIA: 'bg-blue-50 text-blue-700',
+}
+
+function badgeColor(tipo: string) {
+  return BADGE_COLOR[tipo.toUpperCase()] ?? 'bg-zinc-100 text-zinc-600'
+}
+
 export default function Dashboard() {
   const [orders, setOrders] = useState<Order[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [insights, setInsights] = useState<Insight[]>([])
+  const [insightsLoading, setInsightsLoading] = useState(false)
+  const [insightsError, setInsightsError] = useState(false)
+  const [insightsTime, setInsightsTime] = useState<Date | null>(null)
+
+  async function loadInsights(pedidos: Order[], prods: Product[]) {
+    setInsightsLoading(true)
+    setInsightsError(false)
+    try {
+      const res = await fetch('/api/ai/insights', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pedidos, produtos: prods }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.insights?.length) throw new Error()
+      setInsights(data.insights)
+      setInsightsTime(new Date())
+    } catch {
+      setInsightsError(true)
+    } finally {
+      setInsightsLoading(false)
+    }
+  }
 
   useEffect(() => {
     Promise.all([
       supabase.from('orders').select('id, customer_name, product_name, total, status, created_at').order('created_at', { ascending: false }),
-      supabase.from('products').select('id, category, price, stock'),
+      supabase.from('products').select('id, name, category, price, stock, featured'),
     ]).then(([ordersRes, productsRes]) => {
       if (ordersRes.error) console.error('[Admin] orders error:', ordersRes.error)
       if (productsRes.error) console.error('[Admin] products error:', productsRes.error)
-      // total vem como string do Postgres (numeric) — convertendo para number
       const parsedOrders = (ordersRes.data ?? []).map(o => ({ ...o, total: Number(o.total) }))
       setOrders(parsedOrders)
       setProducts(productsRes.data ?? [])
       setLoading(false)
+      loadInsights(parsedOrders, productsRes.data ?? [])
     }).catch(err => console.error('[Admin] fetch error:', err))
   }, [])
 
@@ -177,6 +221,62 @@ export default function Dashboard() {
         <KPICard label="Pedidos" value={String(totalVendas)} sub="no período" loading={loading} />
         <KPICard label="Ticket médio" value={fmt(ticketMedio)} sub="por pedido" loading={loading} />
         <KPICard label="Produtos ativos" value={String(produtosAtivos)} sub={`${semEstoque} sem estoque`} loading={loading} />
+      </div>
+
+      {/* Insights de IA */}
+      <div className="bg-white border border-zinc-200 rounded mb-8">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100">
+          <div className="flex items-center gap-2">
+            <span className="text-base">✦</span>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">Insights de IA</p>
+          </div>
+          <button
+            onClick={() => loadInsights(orders, products)}
+            disabled={insightsLoading}
+            className="text-[11px] text-zinc-400 hover:text-zinc-700 transition-colors disabled:opacity-40 flex items-center gap-1"
+          >
+            <span className={insightsLoading ? 'inline-block animate-spin' : ''}>↺</span> Atualizar
+          </button>
+        </div>
+
+        <div className="p-5">
+          {insightsError ? (
+            <p className="text-sm text-zinc-400 text-center py-6">Não foi possível carregar os insights agora.</p>
+          ) : insightsLoading || !insights.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="border border-zinc-100 rounded p-4 animate-pulse space-y-3">
+                  <div className="h-8 w-8 bg-zinc-100 rounded" />
+                  <div className="h-3 w-20 bg-zinc-100 rounded" />
+                  <div className="h-4 w-3/4 bg-zinc-100 rounded" />
+                  <div className="h-3 w-full bg-zinc-100 rounded" />
+                  <div className="h-3 w-5/6 bg-zinc-100 rounded" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {insights.map((ins, i) => (
+                <div key={i} className="border border-zinc-100 rounded p-4 space-y-2 hover:border-zinc-300 transition-colors">
+                  <span className="text-2xl">{ins.icone}</span>
+                  <div>
+                    <span className={`text-[10px] font-bold uppercase tracking-[0.14em] px-2 py-0.5 rounded ${badgeColor(ins.tipo)}`}>
+                      {ins.tipo}
+                    </span>
+                  </div>
+                  <p className="text-sm font-bold text-zinc-900 leading-tight">{ins.titulo}</p>
+                  <p className="text-xs text-zinc-500 leading-relaxed">{ins.descricao}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {insightsTime && !insightsLoading && (
+            <p className="text-[10px] text-zinc-300 mt-4">
+              Atualizado agora · Powered by IA
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Charts */}

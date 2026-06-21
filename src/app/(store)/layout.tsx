@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import { Header, Footer } from '@/components/layout'
 import { CartDrawer } from '@/components/cart'
+import ChatAssistant from '@/components/ui/ChatAssistant'
 
 export default function StoreLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -16,6 +17,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
       <main className="min-h-screen">{children}</main>
       {!hideChrome && <Footer />}
       {!hideChrome && <CartDrawer />}
+      <ChatAssistant />
     </>
   )
 }

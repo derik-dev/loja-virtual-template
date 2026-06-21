@@ -20,6 +20,8 @@ export interface Product {
   colors?: ProductColor[]
   sizes?: string[]
   features?: string[]
+  metaTitle?: string
+  metaDescription?: string
 }
 
 export interface Category {

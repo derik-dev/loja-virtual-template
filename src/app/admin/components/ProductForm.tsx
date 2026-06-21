@@ -147,11 +147,77 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
     tags: product?.tags?.join(', ') ?? '',
     sizes: product?.sizes?.join(', ') ?? 'P, M, G, GG, XGG',
     features: product?.features?.join('\n') ?? '',
+    meta_title: (product as { meta_title?: string })?.meta_title ?? '',
+    meta_description: (product as { meta_description?: string })?.meta_description ?? '',
   })
 
   const [sections, setSections] = useState<string[]>(
     (product as { section?: string[] })?.section ?? []
   )
+
+  const [aiDescLoading, setAiDescLoading] = useState(false)
+  const [aiDescMsg, setAiDescMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+  const [showTooltip, setShowTooltip] = useState(false)
+
+  const [aiSeoLoading, setAiSeoLoading] = useState(false)
+  const [aiSeoMsg, setAiSeoMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+  const [showSeoTooltip, setShowSeoTooltip] = useState(false)
+
+  async function handleGenerateSeo() {
+    if (!form.name.trim() || !form.description.trim()) {
+      setShowSeoTooltip(true)
+      setTimeout(() => setShowSeoTooltip(false), 2500)
+      return
+    }
+    setAiSeoLoading(true)
+    setAiSeoMsg(null)
+    try {
+      const tags = form.tags.split(',').map((s) => s.trim()).filter(Boolean)
+      const res = await fetch('/api/ai/seo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: form.name, categoria: form.category, descricao: form.description, tags }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.metaTitle) throw new Error()
+      setForm((f) => ({ ...f, meta_title: data.metaTitle, meta_description: data.metaDescription }))
+      setAiSeoMsg({ text: 'SEO gerado com sucesso', type: 'success' })
+    } catch {
+      setAiSeoMsg({ text: 'Erro ao gerar. Tente novamente.', type: 'error' })
+    } finally {
+      setAiSeoLoading(false)
+      setTimeout(() => setAiSeoMsg(null), 3000)
+    }
+  }
+
+  async function handleGenerateDescription() {
+    if (!form.description.trim()) {
+      setShowTooltip(true)
+      setTimeout(() => setShowTooltip(false), 2500)
+      return
+    }
+    setAiDescLoading(true)
+    setAiDescMsg(null)
+    try {
+      const diferenciais = form.features.split('\n').map((s) => s.trim()).filter(Boolean)
+      const tags = form.tags.split(',').map((s) => s.trim()).filter(Boolean)
+      const cores = colors.map((c) => c.name)
+      const res = await fetch('/api/ai/description', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome: form.name, categoria: form.category, descricaoBreve: form.description, diferenciais, tags, cores }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.description) throw new Error()
+      set('description', data.description)
+      setAiDescMsg({ text: 'Descrição gerada com sucesso', type: 'success' })
+    } catch {
+      setAiDescMsg({ text: 'Erro ao gerar. Tente novamente.', type: 'error' })
+    } finally {
+      setAiDescLoading(false)
+      setTimeout(() => setAiDescMsg(null), 3000)
+    }
+  }
 
   const [categories, setCategories] = useState<CategoryType[]>([])
 
@@ -262,6 +328,8 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
       colors,
       sizes,
       features,
+      meta_title: form.meta_title || null,
+      meta_description: form.meta_description || null,
     }
 
     const { error: err } = await supabase.from('products').upsert(payload)
@@ -313,8 +381,43 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500 mb-1.5">Descrição</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Descrição</label>
+                <div className="relative flex items-center gap-2">
+                  {aiDescMsg && (
+                    <span className={`text-[10px] font-medium ${aiDescMsg.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
+                      {aiDescMsg.text}
+                    </span>
+                  )}
+                  <div className="relative">
+                    {showTooltip && (
+                      <div className="absolute bottom-full right-0 mb-1.5 whitespace-nowrap bg-zinc-800 text-white text-[10px] px-2.5 py-1.5 rounded shadow-md">
+                        Escreva uma descrição breve primeiro
+                        <span className="absolute top-full right-3 border-4 border-transparent border-t-zinc-800" />
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleGenerateDescription}
+                      disabled={aiDescLoading}
+                      className="flex items-center gap-1.5 border border-zinc-300 px-2.5 py-1 text-[10px] font-semibold text-zinc-600 hover:border-zinc-600 hover:text-zinc-900 transition-colors disabled:opacity-60 whitespace-nowrap"
+                    >
+                      {aiDescLoading ? (
+                        <>
+                          <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                          </svg>
+                          Gerando...
+                        </>
+                      ) : (
+                        <>✦ Gerar com IA</>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
               <textarea rows={4} value={form.description} onChange={(e) => set('description', e.target.value)}
+                placeholder="Escreva uma descrição breve para a IA expandir..."
                 className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none" />
             </div>
 
@@ -461,6 +564,75 @@ export default function ProductForm({ product, onSaved, onCancel }: Props) {
                   + Adicionar
                 </button>
               </div>
+            </div>
+          </div>
+
+          {/* SEO */}
+          <div className="bg-white border border-zinc-200 p-8 space-y-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">SEO</h2>
+              <div className="relative flex items-center gap-2">
+                {aiSeoMsg && (
+                  <span className={`text-[10px] font-medium ${aiSeoMsg.type === 'success' ? 'text-emerald-600' : 'text-red-500'}`}>
+                    {aiSeoMsg.text}
+                  </span>
+                )}
+                <div className="relative">
+                  {showSeoTooltip && (
+                    <div className="absolute bottom-full right-0 mb-1.5 whitespace-nowrap bg-zinc-800 text-white text-[10px] px-2.5 py-1.5 rounded shadow-md">
+                      Preencha o nome e a descrição primeiro
+                      <span className="absolute top-full right-3 border-4 border-transparent border-t-zinc-800" />
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleGenerateSeo}
+                    disabled={aiSeoLoading}
+                    className="flex items-center gap-1.5 border border-zinc-300 px-2.5 py-1 text-[10px] font-semibold text-zinc-600 hover:border-zinc-600 hover:text-zinc-900 transition-colors disabled:opacity-60 whitespace-nowrap"
+                  >
+                    {aiSeoLoading ? (
+                      <>
+                        <svg className="h-3 w-3 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                        Gerando...
+                      </>
+                    ) : <>✦ Gerar SEO com IA</>}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Meta Title</label>
+                <span className={`text-[10px] font-medium ${form.meta_title.length > 60 ? 'text-red-500' : 'text-zinc-400'}`}>
+                  {form.meta_title.length}/60 caracteres
+                </span>
+              </div>
+              <input
+                type="text"
+                value={form.meta_title}
+                onChange={(e) => setForm((f) => ({ ...f, meta_title: e.target.value }))}
+                placeholder="Ex: Camiseta Dry Fit Masculina | VERO"
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">Meta Description</label>
+                <span className={`text-[10px] font-medium ${form.meta_description.length > 160 ? 'text-red-500' : 'text-zinc-400'}`}>
+                  {form.meta_description.length}/160 caracteres
+                </span>
+              </div>
+              <textarea
+                rows={3}
+                value={form.meta_description}
+                onChange={(e) => setForm((f) => ({ ...f, meta_description: e.target.value }))}
+                placeholder="Ex: Camiseta dry fit com proteção UV, ideal para treinos. Tecnologia anti-odor. Compre agora na VERO com frete grátis."
+                className="w-full border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:border-zinc-900 resize-none"
+              />
             </div>
           </div>
 

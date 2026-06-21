@@ -6,6 +6,7 @@ import { Header, Footer } from '@/components/layout'
 import { BannerSlider, PromoSlider, RealLifeGallery, FaqSection } from '@/components/ui'
 import { ProductShowcase } from '@/components/product'
 import { CartDrawer } from '@/components/cart'
+import ChatAssistant from '@/components/ui/ChatAssistant'
 import { supabaseAdmin as supabase, mapProduct } from '@/lib/supabase'
 import type { Product } from '@/lib/types'
 
@@ -105,6 +106,7 @@ export default function HomePage() {
     <>
       <Header overlay />
       <CartDrawer />
+      <ChatAssistant />
       <main className="min-h-screen bg-white">
 
         {/* ── HERO ─────────────────────────────────────────── */}
