@@ -135,9 +135,19 @@ export default function SecaoPage({ params }: { params: Promise<{ section: strin
     <div className="bg-white min-h-screen">
 
       {/* Banner */}
-      <section className="overflow-hidden w-full" style={{ height: '42vh' }}>
+      <section className="relative overflow-hidden w-full" style={{ height: '42vh' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={meta.banner} alt={meta.label} className="w-full h-full object-cover object-center" />
+        <img src={meta.banner} alt={meta.label} className="absolute inset-0 w-full h-full object-cover object-center" />
+        {section === 'acessorios' && (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-black/40" />
+            <div className="absolute inset-0 flex items-center px-8 sm:px-14 lg:px-20">
+              <p className="text-3xl sm:text-4xl lg:text-[clamp(2rem,4vw,3.5rem)] leading-none text-white uppercase">
+                <span className="font-black">{meta.label.toUpperCase()}</span>
+              </p>
+            </div>
+          </>
+        )}
       </section>
 
       {/* Subtitle */}
