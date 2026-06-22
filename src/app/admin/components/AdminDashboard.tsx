@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabaseAdmin as supabase } from '@/lib/supabase'
 import ProductForm from './ProductForm'
+import ProdutoDetalhe from './ProdutoDetalhe'
 
 interface ProductColor {
   name: string
@@ -33,6 +34,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<Product | null>(null)
+  const [viewing, setViewing] = useState<Product | null>(null)
   const [creating, setCreating] = useState(false)
   const [search, setSearch] = useState('')
 
@@ -54,6 +56,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   function handleSaved() {
     setEditing(null)
     setCreating(false)
+    setViewing(null)
     loadProducts()
   }
 
@@ -68,6 +71,22 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         product={editing ?? undefined}
         onSaved={handleSaved}
         onCancel={() => { setEditing(null); setCreating(false) }}
+      />
+    )
+  }
+
+  if (viewing) {
+    return (
+      <ProdutoDetalhe
+        product={viewing}
+        onBack={() => setViewing(null)}
+        onEdit={() => { setEditing(viewing); setViewing(null) }}
+        onDelete={async () => {
+          if (!confirm('Excluir este produto?')) return
+          await supabase.from('products').delete().eq('id', viewing.id)
+          setViewing(null)
+          loadProducts()
+        }}
       />
     )
   }
@@ -137,7 +156,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                   <td colSpan={6} className="text-center py-12 text-sm text-zinc-400">Nenhum produto encontrado</td>
                 </tr>
               ) : filtered.map((p) => (
-                <tr key={p.id} className="border-b border-zinc-50 hover:bg-zinc-50 transition-colors">
+                <tr key={p.id} className="border-b border-zinc-50 hover:bg-zinc-50 transition-colors cursor-pointer" onClick={() => setViewing(p)}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -169,7 +188,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                       <span className="text-[10px] text-zinc-400">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                     <div className="flex items-center gap-2 justify-end">
                       <button
                         onClick={() => setEditing(p)}
