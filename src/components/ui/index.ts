@@ -1,0 +1,7 @@
+export { Button, default as ButtonDefault } from './Button'
+export { Badge } from './Badge'
+export { Input } from './Input'
+export { default as BannerSlider } from './BannerSlider'
+export { default as PromoSlider } from './PromoSlider'
+export { default as RealLifeGallery } from './RealLifeGallery'
+export { default as FaqSection } from './FaqSection'
