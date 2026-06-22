@@ -88,14 +88,14 @@ export default function ProductGallery({ images, alt }: ProductGalleryProps) {
 
           {/* Imagem */}
           <div
-            className="max-w-3xl max-h-[85vh] w-full h-full flex items-center justify-center px-20"
+            className="max-h-[92vh] w-full h-full flex items-center justify-center px-20"
             onClick={e => e.stopPropagation()}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={images[lightbox]}
               alt={`${alt} ${lightbox + 1}`}
-              className="max-w-full max-h-[85vh] object-contain select-none"
+              className="max-h-[92vh] w-auto max-w-[calc(100vw-10rem)] object-contain select-none"
               draggable={false}
             />
           </div>
